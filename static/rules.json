@@ -1,0 +1,16 @@
+[
+    {
+        "id": 1,
+        "priority": 1,
+        "action": {
+            "type": "redirect",
+            "redirect": {
+                "regexSubstitution": "https://www.crunchyroll.com/playback/v3/\\1/tv/lg/play"
+            }
+        },
+        "condition": {
+            "regexFilter": "https://www\\.crunchyroll\\.com/playback/v3/([^/]+)/web/[^/]+/play",
+            "resourceTypes": ["xmlhttprequest"]
+        }
+    }
+]

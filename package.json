@@ -1,10 +1,12 @@
 {
     "name": "croptix",
-    "module": "src/background.ts",
+    "author": "stratuma",
+    "version": "1.1.1",
     "type": "module",
     "private": true,
+    "module": "src/background.ts",
     "devDependencies": {
-        "@types/node": "^24.0.8",
+        "@types/node": "^24.0.10",
         "@types/webextension-polyfill": "^0.12.3",
         "npm-run-all": "^4.1.5",
         "web-ext": "^8.8.0",
@@ -14,13 +16,18 @@
         "typescript": "^5.8.3"
     },
     "scripts": {
-        "dev": "run-p build:watch webext:run",
+        "dev:v2": "bun run clean && bun build:manifestv2 && bun copy:public && run-p build:watch webext:run",
+        "dev:v3": "bun run clean && bun build:manifestv3 && bun copy:public && bun copy:static && bun webext:run",
         "build:watch": "bun build src/background.ts --outdir dist --watch",
         "webext:run": "web-ext run --source-dir=dist --watch-files=dist/background.js",
-        "build": "bun run clean && bun run build:ts && bun run copy:static && bun run build:ext",
-        "build:ext": "web-ext build --source-dir=dist --artifacts-dir=build",
+        "build:v2": "bun run clean && bun build:manifestv2 && bun copy:public && bun run build:ts && bun run build:ext",
+        "build:v3": "bun run clean && bun build:manifestv3 && bun copy:public && bun copy:static && bun run build:ext",
+        "clean": "rm -rf dist && rm -rf build",
         "build:ts": "bun build ./src/background.ts --outdir ./dist",
-        "copy:static": "cp public/manifest.json dist/manifest.json",
-        "clean": "rm -rf dist && rm -rf build"
+        "build:ext": "web-ext build --source-dir=dist --artifacts-dir=build",
+        "build:manifestv2": "bun run src/utils/manifestgenv2.ts",
+        "build:manifestv3": "bun run src/utils/manifestgenv3.ts",
+        "copy:static": "xcopy static dist /E /I /Y",
+        "copy:public": "xcopy public dist /E /I /Y"
     }
 }
