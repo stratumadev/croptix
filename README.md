@@ -15,15 +15,22 @@ Make sure to install dependencies:
 bun install
 ```
 
-## Development
+## Development (Manifest V2)
 ```bash
-bun run dev
+bun run dev:v2
 ```
 
-## Build Extension
-
-Build the extension for production:
-
+## Development (Manifest V3)
 ```bash
-bun run build
+bun run dev:v3
+```
+
+## Build Extension (Manifest V2)
+```bash
+bun run build:v2
+```
+
+## Build Extension (Manifest V3)
+```bash
+bun run build:v3
 ```
