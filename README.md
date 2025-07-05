@@ -1,5 +1,5 @@
 # CrOptix
-<img align="right" width="90" height="90" src="https://github.com/user-attachments/assets/78f3c959-6e7c-4999-94a3-cf979923cede">
+<img align="right" width="90" height="90" src="https://github.com/user-attachments/assets/c4c938aa-2611-4ed8-8862-2ceb5bfc56a4">
 
 A Browser Extension to force Crunchyroll to play the CBR (old encode) stream.
 
