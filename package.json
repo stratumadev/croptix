@@ -1,0 +1,26 @@
+{
+    "name": "croptix",
+    "module": "src/background.ts",
+    "type": "module",
+    "private": true,
+    "devDependencies": {
+        "@types/node": "^24.0.8",
+        "@types/webextension-polyfill": "^0.12.3",
+        "npm-run-all": "^4.1.5",
+        "web-ext": "^8.8.0",
+        "webextension-polyfill": "^0.12.0"
+    },
+    "peerDependencies": {
+        "typescript": "^5.8.3"
+    },
+    "scripts": {
+        "dev": "run-p build:watch webext:run",
+        "build:watch": "bun build src/background.ts --outdir dist --watch",
+        "webext:run": "web-ext run --source-dir=dist --watch-files=dist/background.js",
+        "build": "bun run clean && bun run build:ts && bun run copy:static && bun run build:ext",
+        "build:ext": "web-ext build --source-dir=dist --artifacts-dir=build",
+        "build:ts": "bun build ./src/background.ts --outdir ./dist",
+        "copy:static": "cp public/manifest.json dist/manifest.json",
+        "clean": "rm -rf dist && rm -rf build"
+    }
+}
