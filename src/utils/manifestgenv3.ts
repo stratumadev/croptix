@@ -14,7 +14,7 @@ async function generateManifest() {
         name: "CrOptix",
         version: version,
         description: "Crunchyroll CBR Stream forcer",
-        permissions: ["declarativeNetRequest", "storage"],
+        permissions: ["declarativeNetRequest"],
         host_permissions: ["*://www.crunchyroll.com/*"],
         icons: {
             "16": "icons/icon_16x16.png",
