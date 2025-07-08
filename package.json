@@ -9,6 +9,7 @@
         "@types/node": "^24.0.10",
         "@types/webextension-polyfill": "^0.12.3",
         "npm-run-all": "^4.1.5",
+        "prettier": "^3.6.2",
         "web-ext": "^8.8.0",
         "webextension-polyfill": "^0.12.0"
     },
@@ -16,12 +17,13 @@
         "typescript": "^5.8.3"
     },
     "scripts": {
+        "pretty": "bun run prettier src --write && bun run prettier static --write",
         "dev:v2": "bun run clean && bun build:manifestv2 && bun copy:public && run-p build:watch webext:run",
         "dev:v3": "bun run clean && bun build:manifestv3 && bun copy:public && bun copy:static && bun webext:run",
         "build:watch": "bun build src/background.ts --outdir dist --watch",
         "webext:run": "web-ext run --source-dir=dist --watch-files=dist/background.js",
-        "build:v2": "bun run clean && bun build:manifestv2 && bun copy:public && bun run build:ts && bun run build:ext",
-        "build:v3": "bun run clean && bun build:manifestv3 && bun copy:public && bun copy:static && bun run build:ext",
+        "build:v2": "bun run clean && bun run pretty && bun build:manifestv2 && bun copy:public && bun run build:ts && bun run build:ext",
+        "build:v3": "bun run clean && bun run pretty && bun build:manifestv3 && bun copy:public && bun copy:static && bun run build:ext",
         "clean": "rm -rf dist && rm -rf build",
         "build:ts": "bun build ./src/background.ts --outdir ./dist",
         "build:ext": "web-ext build --source-dir=dist --artifacts-dir=build",
