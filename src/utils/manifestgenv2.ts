@@ -14,10 +14,13 @@ async function generateManifest() {
         name: "CrOptix",
         version: version,
         description: "Crunchyroll CBR Stream forcer",
-        permissions: ["webRequest", "webRequestBlocking"],
-        host_permissions: ["*://www.crunchyroll.com/*"],
+        permissions: [
+            "webRequest",
+            "webRequestBlocking",
+            "*://www.crunchyroll.com/*",
+        ],
         background: {
-            scripts: ["background.ts"],
+            scripts: ["background.js"],
         },
         icons: {
             "16": "icons/icon_16x16.png",
@@ -25,7 +28,7 @@ async function generateManifest() {
             "48": "icons/icon_48x48.png",
             "128": "icons/icon_128x128.png",
         },
-        action: {
+        browser_action: {
             default_icon: {
                 "16": "icons/icon_16x16.png",
                 "32": "icons/icon_32x32.png",
