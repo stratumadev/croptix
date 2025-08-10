@@ -13,8 +13,8 @@ async function generateManifest() {
         manifest_version: 2,
         name: 'CrOptix',
         version: version,
-        description: 'Crunchyroll CBR Stream forcer',
-        permissions: ['webRequest', 'webRequestBlocking', '*://www.crunchyroll.com/*'],
+        description: 'Crunchyroll CBR Stream forcer and quality control re-enabler',
+        permissions: ['webRequest', 'webRequestBlocking', '*://*.crunchyroll.com/*'],
         background: {
             scripts: ['background.js']
         },
