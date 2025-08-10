@@ -3,9 +3,8 @@
 
 A Browser Extension to force Crunchyroll to play the CBR (old encode) stream.
 
-This Extension is currently only available on the FireFox Add-on store.
-
 [<img lign="right" width="150" height="90" src="https://blog.mozilla.org/addons/files/2020/04/get-the-addon-fx-apr-2020.svg" alt="for Firefox" height="60px">](https://addons.mozilla.org/de/firefox/addon/croptix/)
+[<img lign="left" width="180" height="100" src="https://i.ibb.co/Fb1jPBTX/206x58-chrome-web-bcb82d15b2486.png" alt="for Chrome" height="60px">](https://chromewebstore.google.com/detail/croptix/cagbhcegcmbdkbflpdfileejdfphojcj)
 
 ## Setup
 
