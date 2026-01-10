@@ -1,0 +1,36 @@
+{
+    "name": "croptix",
+    "author": "stratuma",
+    "version": "1.1.6",
+    "type": "module",
+    "private": true,
+    "module": "src/background.ts",
+    "devDependencies": {
+        "@types/node": "^24.10.4",
+        "@types/webextension-polyfill": "^0.12.4",
+        "npm-run-all": "^4.1.5",
+        "prettier": "^3.7.4",
+        "web-ext": "^8.10.0",
+        "webextension-polyfill": "^0.12.0"
+    },
+    "peerDependencies": {
+        "typescript": "^5.8.3"
+    },
+    "scripts": {
+        "pretty": "bun run prettier src --write && bun run prettier static --write",
+        "dev:v2": "bun run clean && bun build:manifestv2 && bun copy:public && run-p build:watch webext:run",
+        "dev:v3": "bun run clean && bun build:manifestv3 && bun copy:public && bun copy:static && bun webext:run",
+        "build:watch": "bun build src/background.ts --outdir dist --watch",
+        "webext:run": "web-ext run --source-dir=dist --watch-files=dist/background.js",
+        "build:v2": "bun run clean && bun run pretty && bun build:manifestv2 && bun copy:public && bun run build:bundle && bun run build:ts && bun run build:ext",
+        "build:v3": "bun run clean && bun run pretty && bun build:manifestv3 && bun copy:public && bun copy:static && bun run build:bundle && bun run build:ext",
+        "clean": "rm -rf dist && rm -rf build",
+        "build:ts": "bun build ./src/background.ts --outdir ./dist",
+        "build:ext": "web-ext build --source-dir=dist --artifacts-dir=build",
+        "build:manifestv2": "bun run src/utils/manifestgenv2.ts",
+        "build:manifestv3": "bun run src/utils/manifestgenv3.ts",
+        "build:bundle": "bun build src/utils/bundle.js --outdir dist --minify",
+        "copy:static": "xcopy static dist /E /I /Y",
+        "copy:public": "xcopy public dist /E /I /Y"
+    }
+}
