@@ -1,7 +1,7 @@
 {
     "name": "croptix",
     "author": "stratuma",
-    "version": "1.1.6",
+    "version": "1.1.7",
     "type": "module",
     "private": true,
     "module": "src/background.ts",
