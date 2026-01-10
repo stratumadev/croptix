@@ -1,5 +1,5 @@
 # CrOptix
-<img align="right" width="90" height="90" src="https://github.com/user-attachments/assets/c4c938aa-2611-4ed8-8862-2ceb5bfc56a4">
+<img align="right" width="90" height="90" src="https://lh3.googleusercontent.com/u-7uSBlENExASVjTwS6-5GF5sQOifzfyzlU_EPZjQjI7mgLhoR4eHXqqXPJitFwhwl8QUFLNRMTRqXN976seKcLPWkU=s60">
 ***CBR Forcing disabled at the moment because Crunchyroll changed their auth system***
 
 A Browser Extension to force Crunchyroll to play the CBR (old encode) stream and to re-enable the quality selector.
