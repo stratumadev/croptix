@@ -6,7 +6,7 @@
     "private": true,
     "module": "src/background.ts",
     "devDependencies": {
-        "@types/node": "^24.10.6",
+        "@types/node": "^24.10.7",
         "@types/webextension-polyfill": "^0.12.4",
         "npm-run-all": "^4.1.5",
         "prettier": "^3.7.4",
@@ -25,11 +25,11 @@
         "build:v2": "bun run clean && bun run pretty && bun build:manifestv2 && bun copy:public && bun run build:bundle && bun run build:ts && bun run build:ext",
         "build:v3": "bun run clean && bun run pretty && bun build:manifestv3 && bun copy:public && bun copy:static && bun run build:bundle && bun run build:ext",
         "clean": "rm -rf dist && rm -rf build",
-        "build:ts": "bun build ./src/background.ts --outdir ./dist",
+        "build:ts": "bun build ./src/background.ts --outdir ./dist --minify",
         "build:ext": "web-ext build --source-dir=dist --artifacts-dir=build",
         "build:manifestv2": "bun run src/utils/manifestgenv2.ts",
         "build:manifestv3": "bun run src/utils/manifestgenv3.ts",
-        "build:bundle": "bun build src/utils/bundle.js --outdir dist --minify",
+        "build:bundle": "bun build src/utils/bundle.js --outdir dist --minify && bun build src/utils/content.ts --outdir dist --minify",
         "copy:static": "xcopy static dist /E /I /Y",
         "copy:public": "xcopy public dist /E /I /Y"
     }

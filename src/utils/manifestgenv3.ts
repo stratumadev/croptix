@@ -45,7 +45,14 @@ async function generateManifest() {
                     path: 'rules.json'
                 }
             ]
-        }
+        },
+        content_scripts: [
+            {
+                matches: ['*://*.crunchyroll.com/*'],
+                js: ['content.js'],
+                all_frames: true
+            }
+        ]
     }
 
     await mkdir(dirname(manifestPath), { recursive: true })
