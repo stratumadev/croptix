@@ -13,7 +13,7 @@ async function generateManifest() {
         manifest_version: 2,
         name: 'CrOptix',
         version: version,
-        description: 'Crunchyroll Quality control re-enabler',
+        description: 'Crunchyroll improvements and fixes',
         permissions: ['webRequest', 'webRequestBlocking', '*://*.crunchyroll.com/*'],
         background: {
             scripts: ['background.js']
