@@ -1,42 +1,5 @@
 import browser from 'webextension-polyfill'
 
-// Re-enable Quality selector
-browser.webRequest.onBeforeRequest.addListener(
-    (details) => {
-        const filter = browser.webRequest.filterResponseData(details.requestId)
-        const encoder = new TextEncoder()
-        const chunks: Uint8Array[] = []
-
-        filter.ondata = (e) => {
-            chunks.push(new Uint8Array(e.data))
-        }
-
-        filter.onstop = () => {
-            try {
-                filter.write(
-                    encoder.encode(
-                        JSON.stringify({
-                            config_delta: {
-                                playbackSpeed: { enabled: true },
-                                qualitySettings: { enabled: false }
-                            }
-                        })
-                    )
-                )
-            } finally {
-                filter.close()
-            }
-        }
-
-        return {}
-    },
-    {
-        urls: ['*://beta-api.crunchyroll.com/config-delta/v1/apps/vilos-v2/config_delta*'],
-        types: ['xmlhttprequest', 'main_frame', 'sub_frame']
-    },
-    ['blocking']
-)
-
 // Replace bundle.js request body with modified bundle.js content
 browser.webRequest.onBeforeRequest.addListener(
     (details) => {

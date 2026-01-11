@@ -5,20 +5,6 @@
         "action": {
             "type": "redirect",
             "redirect": {
-                "url": "data:application/json;base64,eyJjb25maWdfZGVsdGEiOnsicGxheWJhY2tTcGVlZCI6eyJlbmFibGVkIjp0cnVlfSwicXVhbGl0eVNldHRpbmdzIjp7ImVuYWJsZWQiOmZhbHNlfX19"
-            }
-        },
-        "condition": {
-            "urlFilter": "||beta-api.crunchyroll.com/config-delta/v1/apps/vilos-v2/config_delta",
-            "resourceTypes": ["xmlhttprequest"]
-        }
-    },
-    {
-        "id": 2,
-        "priority": 1,
-        "action": {
-            "type": "redirect",
-            "redirect": {
                 "extensionPath": "/bundle.js"
             }
         },
