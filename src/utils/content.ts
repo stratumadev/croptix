@@ -2,7 +2,7 @@ let isMonitoring = false
 const isTop = window.top === window
 
 // Listener to communicate between iframe and site
-function setupCinemaListenerTop() {
+function setupListenerTop() {
     if (!isTop) return
 
     window.addEventListener('message', (e) => {
@@ -151,5 +151,5 @@ function theaterControl(controlsContainer: HTMLElement | null, video: HTMLVideoE
 }
 
 injectCss()
-setupCinemaListenerTop()
+setupListenerTop()
 startVideoControlsMonitor()
