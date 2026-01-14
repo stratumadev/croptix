@@ -1,4 +1,5 @@
-let isMonitoring = false
+let isMonitoringMain = false
+let isMonitoringIframe = false
 const isTop = window.top === window
 
 // Listener to communicate between iframe and site
@@ -6,35 +7,15 @@ function setupListenerTop() {
     if (!isTop) return
 
     window.addEventListener('message', (e) => {
-        if (e.data?.type !== 'CROPIX_TOGGLE_THEATER') return
-        document.documentElement.classList.toggle('cropix-theater')
+        if (!e.data?.type) return
+
+        switch (e.data.type) {
+            case 'CROPIX_TOGGLE_THEATER': {
+                document.documentElement.classList.toggle('cropix-theater')
+                break
+            }
+        }
     })
-}
-
-// Inject custom CSS
-function injectCss() {
-    if (!isTop) return
-    if (document.getElementById('cropix-theater')) return
-
-    const style = document.createElement('style')
-    style.id = 'cropix-theater'
-    style.textContent = `
-        html.cropix-theater .video-player-spacer {
-            max-height: 100vh !important;
-        }
-
-        html.cropix-theater header,
-        html.cropix-theater .app-layout__header--ywueY {
-            display: none !important;
-        }
-
-        html.cropix-theater,
-        html.cropix-theater body {
-            overflow: hidden !important;
-            height: 100vh !important;
-        }
-    `
-    document.head.appendChild(style)
 }
 
 // Create a new player control (will appear on the left of the fullscreen button)
@@ -90,9 +71,30 @@ function addNewControl(controlsContainer: HTMLElement | null, video: HTMLVideoEl
     return newControl
 }
 
-// Observer to find the player
-function startVideoControlsMonitor() {
-    if (isMonitoring || isTop) return
+// Observer Main
+function startObserverMain() {
+    if (isMonitoringMain || !isTop) return
+
+    const monitor = new MutationObserver(() => {
+        // Player Class Toggle
+        const player = document.querySelector('.video-player')
+        if (player) {
+            document.documentElement.classList.add('cropix-player')
+        } else {
+            document.documentElement.classList.remove('cropix-player')
+        }
+    })
+
+    monitor.observe(document.body, {
+        childList: true,
+        subtree: true
+    })
+    isMonitoringMain = true
+}
+
+// Observer Iframe
+function startObserverIframe() {
+    if (isMonitoringIframe || isTop) return
 
     const monitor = new MutationObserver(() => {
         const video = document.getElementById('player0') as HTMLVideoElement | null
@@ -109,7 +111,7 @@ function startVideoControlsMonitor() {
         childList: true,
         subtree: true
     })
-    isMonitoring = true
+    isMonitoringIframe = true
 }
 
 function pipControl(controlsContainer: HTMLElement | null, video: HTMLVideoElement | null) {
@@ -150,6 +152,8 @@ function theaterControl(controlsContainer: HTMLElement | null, video: HTMLVideoE
     })
 }
 
-injectCss()
+document.documentElement.classList.add('cropix')
+
 setupListenerTop()
-startVideoControlsMonitor()
+startObserverMain()
+startObserverIframe()

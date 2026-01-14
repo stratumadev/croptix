@@ -1,0 +1,14 @@
+html.cropix-theater .video-player-spacer {
+    max-height: 100vh !important;
+}
+
+html.cropix-theater header,
+html.cropix-theater .app-layout__header--ywueY {
+    display: none !important;
+}
+
+html.cropix-theater,
+html.cropix-theater body {
+    overflow: hidden !important;
+    height: 100vh !important;
+}

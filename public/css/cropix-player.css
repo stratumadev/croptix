@@ -1,0 +1,13 @@
+html.cropix-player .container--cq5XE.container--has-no-gutters--WqnNJ.header-content {
+    transform: translateY(calc(-100% - 1.25rem)) !important;
+    transition: transform 150ms ease;
+}
+
+html.cropix-player .erc-large-header {
+    height: 100px;
+    z-index: 100;
+}
+
+html.cropix-player .erc-large-header:hover .header-content {
+    transform: translateY(0) !important;
+}

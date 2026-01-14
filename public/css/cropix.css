@@ -1,0 +1,332 @@
+html.cropix .app-layout__header--ywueY {
+    height: 0px !important;
+}
+
+html.cropix .container--cq5XE.container--has-no-gutters--WqnNJ.header-content {
+    border-radius: 8px;
+    width: calc(100% - var(--container-inline-padding) - var(--container-inline-padding)) !important;
+    margin: 1.25rem var(--container-inline-padding) var(--container-inline-padding) var(--container-inline-padding);
+    background-color: #272727d1 !important;
+    backdrop-filter: blur(10px);
+    box-shadow:
+        inset 0 1px 2px #ffffff50,
+        0 2px 4px #00000030,
+        0 4px 8px #00000015 !important;
+}
+
+html.cropix .erc-sticky-header.state-sticky {
+    --container-inline-padding: 1.25rem;
+    --transform-duration: 0.3s;
+    position: fixed;
+    inset-block-start: var(--initial-sticky-pos);
+    padding-block-start: 0;
+    border-radius: 8px;
+    width: calc(100% - var(--container-inline-padding) - var(--container-inline-padding)) !important;
+    margin: 1.25rem var(--container-inline-padding) 0rem var(--container-inline-padding);
+    background-color: #272727d1 !important;
+    backdrop-filter: blur(10px);
+    box-shadow:
+        inset 0 1px 2px #ffffff50,
+        0 2px 4px #00000030,
+        0 4px 8px #00000015 !important;
+}
+
+html.cropix .container--cq5XE.container--has-no-gutters--WqnNJ.header-content {
+    transition: all 150ms;
+}
+
+html.cropix .video-player-spacer {
+    max-height: calc(100vh - 120px) !important;
+}
+
+html.cropix .button--xqVd0 {
+    border-radius: 8px;
+    box-shadow:
+        inset 0 1px 2px #ffffff50,
+        0 2px 4px #00000030,
+        0 4px 8px #00000015 !important;
+}
+
+html.cropix .button--xqVd0.button--is-type-one-weak--KLvCX,
+html.cropix .button--xqVd0.button--is-type-two-weak--VH7er {
+    background-color: #ffffff20;
+}
+
+html.cropix .erc-header-tile {
+    color: #fff !important;
+}
+
+html.cropix .text--is-regular--M4487 {
+    font-weight: 500;
+}
+
+html.cropix .erc-sticky-header {
+    transition: all var(--transform-duration) ease 1ms !important;
+    opacity: 0%;
+}
+
+html.cropix .erc-sticky-header.scrolling-up {
+    transform: translate3d(0, calc(var(--initial-sticky-pos) * -1 + var(--cx-header-height) + 5px), 0) !important;
+    opacity: 100% !important;
+}
+
+html.cropix .erc-sticky-header.state-sticky,
+html.cropix .search-field-wrapper {
+    --container-inline-padding: 1.25rem;
+}
+
+html.cropix .erc-search-page .search-page-content {
+    padding-block-start: 6rem;
+}
+
+html.cropix .erc-profile-form {
+    padding-block: 7rem 2.5rem;
+}
+
+html.cropix .erc-account .page-wrapper {
+    padding-block-start: 7rem;
+}
+
+@media (min-width: 35.5em) {
+    html.cropix .erc-sticky-header.state-sticky,
+    html.cropix .search-field-wrapper {
+        --container-inline-padding: 2.5rem !important;
+    }
+
+    html.cropix .page-wrapper--has-padding-top--h1N8H {
+        padding-block-start: 6rem !important;
+    }
+
+    html.cropix .erc-search-page .search-page-content {
+        padding-block-start: 7.5rem !important;
+    }
+
+    html.cropix .erc-profile-form {
+        padding-block: 8rem 3.75rem !important;
+    }
+}
+
+@media (min-width: 50em) {
+    html.cropix .series-container__grid--IlHFH {
+        padding-block-start: 5.5rem !important;
+    }
+
+    html.cropix .hero-container__grid--pZ6Z- {
+        padding-block-start: 5.5rem !important;
+    }
+
+    html.cropix .hero-container__sizer--DxOfT {
+        aspect-ratio: 19/7 !important;
+        max-height: calc(100vh - var(--under-hero-whitespace));
+        min-height: 22.75rem !important;
+    }
+
+    html.cropix .page-wrapper--has-padding-top--h1N8H {
+        padding-block-start: 7.75rem !important;
+    }
+}
+
+@media (min-width: 61.25em) {
+    html.cropix .erc-account .page-wrapper {
+        padding-block-start: 8rem !important;
+    }
+
+    html.cropix .erc-browse-cards-collection {
+        grid-template-columns: repeat(5, 1fr) !important;
+    }
+}
+
+@media (min-width: 64em) {
+    html.cropix .erc-sticky-header.state-sticky,
+    html.cropix .search-field-wrapper {
+        --container-inline-padding: 4rem !important;
+    }
+
+    html.cropix .series-container__sizer--42xPb {
+        max-height: calc(100vh - var(--under-hero-whitespace) + 4rem) !important;
+    }
+
+    html.cropix .hero-container__sizer--DxOfT {
+        min-height: 25.5rem !important;
+    }
+}
+
+@media (min-width: 107.5em) {
+    html.cropix .erc-sticky-header.state-sticky,
+    html.cropix .search-field-wrapper {
+        --container-inline-padding: 5rem !important;
+    }
+}
+
+@media (hover: hover) {
+    html.cropix .erc-header-tile:focus,
+    .erc-header-tile:hover {
+        color: #fff;
+        background-color: #ffffff25 !important;
+    }
+
+    html.cropix .browse-menu-item__link--JmxT8:focus,
+    .browse-menu-item__link--JmxT8:hover {
+        color: #fff;
+        background-color: #ffffff25 !important;
+    }
+
+    html.cropix .browse-submenu-item__link--SSQp9:focus,
+    .browse-submenu-item__link--SSQp9:hover {
+        color: #fff;
+        background-color: #ffffff25 !important;
+    }
+
+    html.cropix .user-menu-nav-item---CLa2:focus,
+    .user-menu-nav-item---CLa2:hover {
+        color: #fff;
+        background-color: #ffffff25 !important;
+    }
+
+    html.cropix .erc-menu-item-title:focus,
+    .erc-menu-item-title:hover {
+        color: #fff;
+        background-color: #ffffff25 !important;
+    }
+
+    html.cropix .user-menu-account-item--is-interactive--XiPoy:focus,
+    .user-menu-account-item--is-interactive--XiPoy:hover {
+        color: #fff;
+        background-color: #ffffff25 !important;
+    }
+}
+
+html.cropix .erc-header-tile.state-active {
+    color: #fff;
+    background-color: #ffffff40 !important;
+}
+
+html.cropix .browse-menu--71A2V {
+    background-color: #272727f1 !important;
+    border-radius: 8px;
+    box-shadow:
+        inset 0 1px 2px #ffffff50,
+        0 2px 4px #00000030,
+        0 4px 8px #00000015 !important;
+    margin-top: 10px;
+}
+
+html.cropix .user-menu--ZzPZG {
+    background-color: #272727f1 !important;
+    border-radius: 8px;
+    box-shadow:
+        inset 0 1px 2px #ffffff50,
+        0 2px 4px #00000030,
+        0 4px 8px #00000015 !important;
+    margin-top: 10px;
+}
+
+html.cropix .erc-news-menu-dropdown {
+    background-color: #272727f1 !important;
+    border-radius: 8px;
+    box-shadow:
+        inset 0 1px 2px #ffffff50,
+        0 2px 4px #00000030,
+        0 4px 8px #00000015 !important;
+    margin-top: 10px;
+}
+
+html.cropix .user-menu-section--is-sticky--h7FI8 {
+    background-color: transparent !important;
+}
+
+html.cropix .user-menu-section--is-sticky--h7FI8::before {
+    background-image: none !important;
+}
+
+html.cropix .page-wrapper--has-padding-top--h1N8H {
+    padding-block-start: 6rem;
+}
+
+html.cropix .hero-carousel__content-wrapper--njtFs {
+    margin-top: 80px;
+}
+
+html.cropix hero-carousel__page-pill--NDpl- {
+    box-shadow:
+        inset 0 1px 2px #ffffff50,
+        0 2px 4px #00000030,
+        0 4px 8px #00000015 !important;
+}
+
+html.cropix .hero-carousel__page-loader--iHKEw {
+    box-shadow:
+        inset 0 1px 2px #ffffff50,
+        0 2px 4px #00000030,
+        0 4px 8px #00000015 !important;
+}
+
+html.cropix .erc-search-page .search-field-wrapper {
+    inset-block-start: calc(var(--cx-header-height) + 2rem) !important;
+    border-radius: 8px;
+    width: calc(100% - var(--container-inline-padding) - var(--container-inline-padding)) !important;
+    margin: 1.25rem var(--container-inline-padding) 0rem var(--container-inline-padding);
+    background-color: #272727d1 !important;
+    backdrop-filter: blur(10px);
+    box-shadow:
+        inset 0 1px 2px #ffffff50,
+        0 2px 4px #00000030,
+        0 4px 8px #00000015 !important;
+}
+
+html.cropix .content-image--is-sized--SOai1 {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+html.cropix .browse-card-hover__content--aD-bn {
+    border-radius: 8px;
+    background-color: #272727d1 !important;
+    backdrop-filter: blur(10px);
+    box-shadow:
+        inset 0 1px 2px #ffffff50,
+        0 2px 4px #00000030,
+        0 4px 8px #00000015 !important;
+    padding: 0.5rem;
+}
+
+html.cropix .playable-card-hover--preaw {
+    border-radius: 8px;
+    background-color: #272727d1 !important;
+    backdrop-filter: blur(10px);
+    box-shadow:
+        inset 0 1px 2px #ffffff50,
+        0 2px 4px #00000030,
+        0 4px 8px #00000015 !important;
+    padding: 0.75rem;
+}
+
+html.cropix .browse-card-hover__poster-wrapper--Yf-IK {
+    inset: 0 !important;
+}
+
+html.cropix .playable-card-more-options--uBSQV {
+    z-index: 0 !important;
+}
+
+html.cropix .playable-card-hover__description--4Lpe4 {
+    --description-max-lines: 4 !important;
+}
+
+html.cropix .playable-card-hover__secondary-title-link--Exdsq {
+    padding-block-end: 0 !important;
+    margin-block-end: 0 !important;
+}
+
+html.cropix .browse-card--esJdT {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+html.cropix .browse-card__body--yGjzX {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
