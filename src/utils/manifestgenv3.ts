@@ -50,7 +50,7 @@ async function generateManifest() {
             {
                 matches: ['*://*.crunchyroll.com/*'],
                 js: ['content.js'],
-                css: ['cropix.css', 'cropix-player.css', 'cropix-theater.css'],
+                css: ['css/cropix.css', 'css/cropix-player.css', 'css/cropix-theater.css'],
                 all_frames: true
             }
         ]
