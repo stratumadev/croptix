@@ -104,6 +104,10 @@ html.cropix .erc-account .page-wrapper {
     html.cropix .erc-profile-form {
         padding-block: 8rem 3.75rem !important;
     }
+
+    html.cropix .playable-card--GnRbX {
+        flex-direction: column;
+    }
 }
 
 @media (min-width: 50em) {
@@ -194,6 +198,26 @@ html.cropix .erc-account .page-wrapper {
         color: #fff;
         background-color: #ffffff25 !important;
     }
+
+    html.cropix .dropdown-text-option---72eL:not(.dropdown-text-option--is-disabled--xhPA1):focus,
+    .dropdown-text-option---72eL:not(.dropdown-text-option--is-disabled--xhPA1):hover,
+    .select-content__option--gq8Uo:focus,
+    .select-content__option--gq8Uo:hover {
+        color: #fff;
+        background-color: #ffffff25 !important;
+    }
+
+    html.cropix .card:hover .playable-card-more-options--uBSQV,
+    html.cropix .playable-card-more-options--uBSQV:has(.dropdown-trigger--is-open--DP-0Q) {
+        right: 13px;
+        bottom: 13px;
+    }
+}
+
+html.cropix .playable-card-more-options--uBSQV {
+    position: absolute;
+    right: 0;
+    bottom: 0;
 }
 
 html.cropix .erc-header-tile.state-active {
@@ -277,6 +301,7 @@ html.cropix .erc-search-page .search-field-wrapper {
 html.cropix .content-image--is-sized--SOai1 {
     border-radius: 10px;
     overflow: hidden;
+    height: 100%;
 }
 
 html.cropix .browse-card-hover__content--aD-bn {
@@ -305,10 +330,6 @@ html.cropix .browse-card-hover__poster-wrapper--Yf-IK {
     inset: 0 !important;
 }
 
-html.cropix .playable-card-more-options--uBSQV {
-    z-index: 0 !important;
-}
-
 html.cropix .playable-card-hover__description--4Lpe4 {
     --description-max-lines: 4 !important;
 }
@@ -329,4 +350,91 @@ html.cropix .browse-card__body--yGjzX {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+}
+
+html.cropix .playable-thumbnail--HKMt2 .playable-thumbnail__duration--p-Ldq {
+    border-radius: 8px;
+    background-color: #00000090 !important;
+    backdrop-filter: blur(10px);
+    padding: 3px 6px !important;
+    box-shadow:
+        inset 0 1px 2px #ffffff50,
+        0 2px 4px #00000030,
+        0 4px 8px #00000015 !important;
+    inset-block-end: 0.5rem !important;
+    inset-inline-end: 0.5rem !important;
+}
+
+html.cropix .playable-thumbnail-icon__play-overlay--vzI7I {
+    align-items: end !important;
+    justify-content: start !important;
+    padding: 0.5rem;
+}
+
+html.cropix .play-media-icon--is-scalable--ZPGW9 .play-media-icon__symbol--feBy- {
+    margin-inline-start: 0.25rem !important;
+}
+
+html.cropix .play-media-icon--is-scalable--ZPGW9 {
+    height: 2rem !important;
+    width: 2rem !important;
+}
+
+html.cropix .play-media-icon--CpSht {
+    background-color: #00000090 !important;
+    backdrop-filter: blur(10px);
+    box-shadow:
+        inset 0 1px 2px #ffffff50,
+        0 2px 4px #00000030,
+        0 4px 8px #00000015 !important;
+    padding: 0.25rem;
+    border-radius: 8px !important;
+}
+
+html.cropix .playable-thumbnail--is-sized--ttnK8 {
+    border-radius: 10px;
+    overflow: hidden;
+    height: 100%;
+}
+
+html.cropix .progress-bar--4cDQR {
+    background-color: #00000090 !important;
+    backdrop-filter: blur(10px);
+    box-shadow:
+        inset 0 1px 2px #ffffff50,
+        0 2px 4px #00000030,
+        0 4px 8px #00000015 !important;
+}
+
+html.cropix .card {
+    height: 100%;
+}
+
+html.cropix .playable-card--GnRbX {
+    display: flex !important;
+    height: 100% !important;
+}
+
+html.cropix .content-image__figure-wrapper--TRCnl {
+    height: 100% !important;
+}
+
+html.cropix .dropdown-content--5b5F7 {
+    background-color: #272727f1 !important;
+    border-radius: 8px;
+    box-shadow:
+        inset 0 1px 2px #ffffff50,
+        0 2px 4px #00000030,
+        0 4px 8px #00000015 !important;
+    margin-top: 10px;
+    color: #fff;
+}
+
+html.cropix .dropdown-content__children--HW28H {
+    padding-block-start: 0 !important;
+    padding-block: 0 !important;
+}
+
+html.cropix div[data-id]:has(.container--cq5XE.container--is-contained--MuvQK) {
+    display: none !important;
 }
