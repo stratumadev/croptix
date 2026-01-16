@@ -11,7 +11,7 @@ async function generateManifest() {
 
     const manifest = {
         manifest_version: 3,
-        name: 'CrOptix – Enhancements for Crunchyroll',
+        name: 'Crunchyroll Enhancer – CrOptix',
         version: version,
         description: 'Crunchyroll improvements and fixes',
         permissions: ['declarativeNetRequest'],
