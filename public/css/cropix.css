@@ -208,6 +208,7 @@ html.cropix .erc-account .page-wrapper {
     }
 
     html.cropix .card:hover .playable-card-more-options--uBSQV,
+    html.cropix .collection-item:hover .playable-card-more-options--uBSQV,
     html.cropix .playable-card-more-options--uBSQV:has(.dropdown-trigger--is-open--DP-0Q) {
         right: 13px;
         bottom: 13px;
