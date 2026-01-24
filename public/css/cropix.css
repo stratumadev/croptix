@@ -70,6 +70,11 @@ html.cropix .erc-header-tile.state-active {
     background-color: var(--cropix-hover-active) !important;
 }
 
+/* Dropdown Profile Button (Header) */
+html.cropix .erc-authenticated-user-menu-old .erc-header-tile {
+    border-radius: 0 var(--cropix-radius-lg) var(--cropix-radius-lg) 0;
+}
+
 /* Buttons & Controls */
 html.cropix .button--xqVd0 {
     border-radius: var(--cropix-radius);
