@@ -112,7 +112,6 @@ html.cropix .hero-carousel__content-wrapper--njtFs {
 
 /* Responsive Breakpoints */
 @media (min-width: 35.5em) {
-
     html.cropix .erc-sticky-header.state-sticky,
     html.cropix .search-field-wrapper {
         --container-inline-padding: 2.5rem !important;
@@ -166,7 +165,6 @@ html.cropix .hero-carousel__content-wrapper--njtFs {
 }
 
 @media (min-width: 64em) {
-
     html.cropix .erc-sticky-header.state-sticky,
     html.cropix .search-field-wrapper {
         --container-inline-padding: 4rem !important;
@@ -182,7 +180,6 @@ html.cropix .hero-carousel__content-wrapper--njtFs {
 }
 
 @media (min-width: 107.5em) {
-
     html.cropix .erc-sticky-header.state-sticky,
     html.cropix .search-field-wrapper {
         --container-inline-padding: 5rem !important;
@@ -191,7 +188,6 @@ html.cropix .hero-carousel__content-wrapper--njtFs {
 
 /* Hover States */
 @media (hover: hover) {
-
     html.cropix .erc-header-tile:focus,
     html.cropix .erc-header-tile:hover,
     html.cropix .browse-menu-item__link--JmxT8:focus,
@@ -207,7 +203,9 @@ html.cropix .hero-carousel__content-wrapper--njtFs {
     html.cropix .dropdown-text-option---72eL:not(.dropdown-text-option--is-disabled--xhPA1):focus,
     html.cropix .dropdown-text-option---72eL:not(.dropdown-text-option--is-disabled--xhPA1):hover,
     html.cropix .select-content__option--gq8Uo:focus,
-    html.cropix .select-content__option--gq8Uo:hover {
+    html.cropix .select-content__option--gq8Uo:hover,
+    html.cropix .extended-option--Wk-jL:focus,
+    html.cropix .extended-option--Wk-jL:hover {
         color: #fff;
         background-color: var(--cropix-hover) !important;
     }
