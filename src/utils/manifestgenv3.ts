@@ -14,7 +14,7 @@ async function generateManifest() {
         name: 'Crunchyroll Enhancer – CrOptix',
         version: version,
         description: 'Crunchyroll improvements and fixes',
-        permissions: ['declarativeNetRequest'],
+        permissions: ['storage', 'declarativeNetRequest'],
         host_permissions: ['*://*.crunchyroll.com/*'],
         web_accessible_resources: [
             {
@@ -29,6 +29,7 @@ async function generateManifest() {
             '128': 'icons/icon_128x128.png'
         },
         action: {
+            default_popup: 'popup/popup.html',
             default_icon: {
                 '16': 'icons/icon_16x16.png',
                 '32': 'icons/icon_32x32.png',

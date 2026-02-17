@@ -1,3 +1,4 @@
+import browser from 'webextension-polyfill'
 let isMonitoringMain = false
 let isMonitoringIframe = false
 const isTop = window.top === window
@@ -167,8 +168,23 @@ function theaterControl(controlsContainer: HTMLElement | null, video: HTMLVideoE
     })
 }
 
-document.documentElement.classList.add('cropix')
+async function loadSettings() {
+    const settings = await browser.storage.local.get(['designEnabled'])
 
-setupListenerTop()
-startObserverMain()
+    const design = settings.designEnabled !== false
+    if (design) {
+        // Inject custom design
+        document.documentElement.classList.add('cropix')
+        // Start header listener
+        setupListenerTop()
+        // Start custom player design listener
+        startObserverMain()
+    } else {
+        document.documentElement.classList.remove('cropix')
+    }
+}
+
+loadSettings()
+browser.storage.onChanged.addListener(loadSettings)
+
 startObserverIframe()

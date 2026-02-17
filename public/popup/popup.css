@@ -1,0 +1,62 @@
+/* Main variables */
+:root {
+    /* Colors */
+    --cropix-bg: #272727d1;
+    --cropix-bg-solid: #272727f1;
+    --cropix-bg-dark: #00000090;
+    --cropix-hover: #ffffff25;
+    --cropix-hover-active: #ffffff40;
+    --cropix-btn-weak: #ffffff20;
+
+    /* Effects */
+    --cropix-blur: blur(10px);
+    --cropix-shadow: inset 0 1px 2px #ffffff50, 0 2px 4px #00000030, 0 4px 8px #00000015;
+
+    /* Layout */
+    --cropix-radius: 8px;
+    --cropix-radius-lg: 10px;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    width: 280px;
+    background: #1a1a1a;
+    font-family: system-ui, sans-serif;
+}
+
+.popup {
+    padding: 16px;
+    color: white;
+}
+
+.popup h2 {
+    margin: 0 0 14px 0;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.switch {
+    display: flex;
+    align-items: center;
+    padding: 8px 10px;
+    border-radius: var(--cropix-radius);
+    cursor: pointer;
+    transition: 150ms ease;
+}
+
+.switch:hover {
+    background: var(--cropix-hover);
+}
+
+.switch span {
+    width: 100%;
+    text-align: center;
+}
+
+.switch input {
+    accent-color: #ff6400;
+    width: 16px;
+    height: 16px;
+}
