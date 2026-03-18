@@ -18,8 +18,8 @@ async function generateManifest() {
         host_permissions: ['*://*.crunchyroll.com/*'],
         web_accessible_resources: [
             {
-                resources: ['bundle.js'],
-                matches: ['*://static.crunchyroll.com/*']
+                resources: ['bundle.js', 'katamari-fix.js'],
+                matches: ['*://*.crunchyroll.com/*', '*://static.crunchyroll.com/*']
             }
         ],
         icons: {

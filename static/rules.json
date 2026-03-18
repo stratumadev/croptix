@@ -12,5 +12,19 @@
             "urlFilter": "||static.crunchyroll.com/vilos-v2/web/vilos/js/bundle.js",
             "resourceTypes": ["script"]
         }
+    },
+    {
+        "id": 2,
+        "priority": 1,
+        "action": {
+            "type": "redirect",
+            "redirect": {
+                "extensionPath": "/katamari-fix.js"
+            }
+        },
+        "condition": {
+            "urlFilter": "||www.crunchyroll.com/build/_next/static/chunks/8134-d35297e852da455a.js",
+            "resourceTypes": ["script"]
+        }
     }
 ]
