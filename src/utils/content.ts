@@ -169,7 +169,7 @@ function theaterControl(controlsContainer: HTMLElement | null, video: HTMLVideoE
 }
 
 async function loadSettings() {
-    const settings = await browser.storage.local.get(['designEnabled'])
+    const settings = await browser.storage.local.get(['designEnabled', 'playerButtonsEnabled'])
 
     const design = settings.designEnabled !== false
     if (design) {
@@ -182,9 +182,12 @@ async function loadSettings() {
     } else {
         document.documentElement.classList.remove('cropix')
     }
+
+    const player = settings.playerButtonsEnabled !== false
+    if (player) {
+        startObserverIframe()
+    }
 }
 
 loadSettings()
 browser.storage.onChanged.addListener(loadSettings)
-
-startObserverIframe()
