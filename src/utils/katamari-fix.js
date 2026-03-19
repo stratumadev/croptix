@@ -95,13 +95,14 @@
                 e = r(52515),
                 o = r(54727),
                 f = r(16948)
+            // Feature-Flag, Rollout % calculated via User-ID (0 === no one, 100 === everyone)
             let i = {
                 [e.THEATRICAL_EXPERIMENT]: { default: 100 },
                 [e.TEEN_PROFILE]: { default: 100 },
                 [e.PROFILE_PINS]: { default: 100 },
                 [e.OPT_IN_CONSENT]: { default: 100 },
                 [e.OPT_IN_PRICE_MODAL]: { default: 100 },
-                [e.ENABLE_KATAMARI]: { default: 20 }
+                [e.ENABLE_KATAMARI]: { default: 0 }
             }
             var c = r(10353),
                 E = r(70054),
