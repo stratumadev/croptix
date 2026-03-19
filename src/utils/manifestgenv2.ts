@@ -58,6 +58,9 @@ async function generateManifest() {
 
     await cp('public', 'dist', { recursive: true })
     console.log('Copied public folder into dist')
+
+    await cp('./src/utils/player.html', 'dist/player.html')
+    console.log('Copied player.html into dist')
 }
 
 generateManifest()
