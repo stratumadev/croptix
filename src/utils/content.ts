@@ -111,6 +111,8 @@ function startObserverMain() {
 function startObserverIframe() {
     if (isMonitoringIframe || isTop) return
 
+    document.documentElement.classList.add('cropix-iframe')
+
     const monitor = new MutationObserver(() => {
         if (document.getElementById('vilos-pip_button')) return
 
