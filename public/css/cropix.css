@@ -57,7 +57,8 @@ html.cropix .erc-sticky-header.scrolling-up {
 }
 
 html.cropix .erc-sticky-header.state-sticky,
-html.cropix .search-field-wrapper {
+html.cropix .search-field-wrapper,
+html.cropix .broadcast-message--sbAcy {
     --container-inline-padding: 1.25rem;
 }
 
@@ -118,7 +119,8 @@ html.cropix .hero-carousel__content-wrapper--njtFs {
 /* Responsive Breakpoints */
 @media (min-width: 35.5em) {
     html.cropix .erc-sticky-header.state-sticky,
-    html.cropix .search-field-wrapper {
+    html.cropix .search-field-wrapper,
+    html.cropix .broadcast-message--sbAcy {
         --container-inline-padding: 2.5rem !important;
     }
 
@@ -171,7 +173,8 @@ html.cropix .hero-carousel__content-wrapper--njtFs {
 
 @media (min-width: 64em) {
     html.cropix .erc-sticky-header.state-sticky,
-    html.cropix .search-field-wrapper {
+    html.cropix .search-field-wrapper,
+    html.cropix .broadcast-message--sbAcy {
         --container-inline-padding: 4rem !important;
     }
 
@@ -186,7 +189,8 @@ html.cropix .hero-carousel__content-wrapper--njtFs {
 
 @media (min-width: 107.5em) {
     html.cropix .erc-sticky-header.state-sticky,
-    html.cropix .search-field-wrapper {
+    html.cropix .search-field-wrapper,
+    html.cropix .broadcast-message--sbAcy {
         --container-inline-padding: 5rem !important;
     }
 }
@@ -378,4 +382,14 @@ html.cropix .hero-carousel__page-loader--iHKEw {
 /* Utilities */
 html.cropix div[data-id]:has(.container--cq5XE.container--is-contained--MuvQK) {
     display: none !important;
+}
+
+/* Email Verify field */
+html.cropix .broadcast-message--sbAcy {
+    border-radius: var(--cropix-radius);
+    background-color: var(--cropix-bg) !important;
+    backdrop-filter: var(--cropix-blur);
+    box-shadow: var(--cropix-shadow) !important;
+    width: calc(100% - var(--container-inline-padding) - var(--container-inline-padding)) !important;
+    margin: 1.50rem var(--container-inline-padding) var(--container-inline-padding) var(--container-inline-padding);
 }
