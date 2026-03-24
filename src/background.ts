@@ -1,5 +1,110 @@
 import browser from 'webextension-polyfill'
 
+let auth: string | undefined = undefined
+let tv_auth: string | undefined = undefined
+
+async function load_tv_auth() {
+    const settings = await browser.storage.local.get(['tvAuthEnabled'])
+    if (settings.tvAuthEnabled === false) {
+        tv_auth = undefined
+        return
+    }
+
+    const data = (await browser.storage.local.get(['cr_tv_auth'])) as any
+    tv_auth = data.cr_tv_auth?.access_token ?? undefined
+}
+
+load_tv_auth()
+
+browser.storage.onChanged.addListener(async (data: any) => {
+    if (data.tvAuthEnabled) {
+        if (data.tvAuthEnabled.newValue === false) {
+            tv_auth = undefined
+            return
+        }
+
+        void load_tv_auth()
+        return
+    }
+
+    if (data.cr_tv_auth) {
+        tv_auth = data.cr_tv_auth.newValue?.access_token ?? undefined
+    }
+})
+
+browser.webRequest.onBeforeSendHeaders.addListener(
+    (details) => {
+        const auth_header = details.requestHeaders?.find((h) => h.name.toLowerCase() === 'authorization')
+
+        if (auth_header?.value?.startsWith('Bearer')) {
+            auth = auth_header.value
+            browser.tabs.query({}).then((tabs) => {
+                for (const tab of tabs) {
+                    if (tab.id) {
+                        browser.tabs
+                            .sendMessage(tab.id, {
+                                type: 'BEARER_UPDATED',
+                                token: auth
+                            })
+                            .catch(() => {})
+                    }
+                }
+            })
+        }
+
+        return {}
+    },
+    { urls: ['*://*.crunchyroll.com/*'] },
+    ['requestHeaders']
+)
+
+browser.webRequest.onBeforeRequest.addListener(
+    (details) => {
+        if (!tv_auth) return
+
+        const url = new URL(details.url)
+
+        if (url.pathname.includes('/playback/v3/') && url.pathname.includes('/web/')) {
+            const newPath = url.pathname.replace(/\/web\/[^/]+\/play/, '/tv/android_tv/play')
+
+            return {
+                redirectUrl: `https://www.crunchyroll.com${newPath}`
+            }
+        }
+    },
+    {
+        urls: ['*://www.crunchyroll.com/playback/*/*/web/*/play']
+    },
+    ['blocking']
+)
+
+browser.webRequest.onBeforeSendHeaders.addListener(
+    (details) => {
+        if (!tv_auth) return
+
+        let headers = details.requestHeaders || []
+        headers = headers.filter((h) => h.name.toLowerCase() !== 'authorization' && h.name.toLowerCase() !== 'user-agent')
+
+        headers.push({
+            name: 'Authorization',
+            value: `Bearer ${tv_auth}`
+        })
+
+        headers.push({
+            name: 'User-Agent',
+            value: 'Crunchyroll/ANDROIDTV/3.58.0_22336 (Android 12; en-US; SHIELD Android TV Build/SR1A.211012.001)'
+        })
+
+        return {
+            requestHeaders: headers
+        }
+    },
+    {
+        urls: ['*://*.crunchyroll.com/playback/*', '*://*.crunchyroll.com/license/*']
+    },
+    ['blocking', 'requestHeaders']
+)
+
 // browser.webRequest.onBeforeRequest.addListener(
 //     (details) => {
 //         return { cancel: true }
