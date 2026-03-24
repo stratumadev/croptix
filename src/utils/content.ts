@@ -9,11 +9,6 @@ let tv_auth: boolean = false
 let tv_auth_running: boolean = false
 let tv_auth_refresh_running: boolean = false
 
-// Function to check if a browser supports Manifest v2
-function isMV2Browser() {
-    return typeof browser !== 'undefined' && typeof browser.webRequest !== 'undefined' && typeof browser.webRequest.filterResponseData === 'function'
-}
-
 // Throttle utility - limits function execution to once per interval
 function throttle<T extends (...args: unknown[]) => void>(fn: T, ms: number): T {
     let lastCall = 0
@@ -298,6 +293,7 @@ async function refresh_tv_auth() {
 
         if (!refresh.access_token) {
             console.error('Failed to refresh TV Auth', refresh)
+            tv_auth_running = false
             return
         }
 
@@ -430,7 +426,7 @@ async function load_settings() {
 
         tv_auth = settings.tvAuthEnabled !== false
         // Only enable tv auth (CBR bypass) on firefox (manifest v2)
-        if (tv_auth && isMV2Browser()) {
+        if (tv_auth) {
             await init_tv_auth()
         }
     } else {
