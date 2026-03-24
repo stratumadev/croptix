@@ -215,7 +215,7 @@ function add_theater_control(controls_container: HTMLElement | null, video: HTML
 
 browser.runtime.onMessage.addListener(async (msg: any) => {
     if (msg.type === 'BEARER_UPDATED') {
-        await run_tv_auth(msg.token)
+        await run_tv_auth(msg.access_token, msg.account_id)
     }
 })
 
@@ -317,16 +317,27 @@ async function refresh_tv_auth() {
     }
 }
 
-async function run_tv_auth(web_auth: string) {
+async function run_tv_auth(web_auth: string, account_id: string | undefined) {
+    if (web_auth && !account_id) {
+        console.warn('TV Auth standby, not logged in.')
+        await browser.storage.local.remove('cr_tv_auth')
+        return
+    }
+
     if (!tv_auth || tv_auth_running) return
     tv_auth_running = true
 
     const { cr_tv_auth } = (await browser.storage.local.get(['cr_tv_auth'])) as {
         cr_tv_auth?: CrunchyAuth
     }
-    if (cr_tv_auth) {
+    if (cr_tv_auth && account_id && cr_tv_auth.account_id === account_id) {
         tv_auth_running = false
         return
+    }
+
+    if (cr_tv_auth && account_id && cr_tv_auth.account_id !== account_id) {
+        console.warn('Detected new user, creating new tv auth...')
+        await browser.storage.local.remove('cr_tv_auth')
     }
 
     console.log('Started TV Auth process...')
@@ -347,7 +358,7 @@ async function run_tv_auth(web_auth: string) {
         const account_auth = await fetch('https://www.crunchyroll.com/auth/v1/device', {
             method: 'POST',
             headers: {
-                Authorization: web_auth,
+                Authorization: `Bearer ${web_auth}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({

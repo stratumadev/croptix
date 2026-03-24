@@ -32,30 +32,58 @@ browser.storage.onChanged.addListener(async (data: any) => {
     }
 })
 
-browser.webRequest.onBeforeSendHeaders.addListener(
+browser.webRequest.onBeforeRequest.addListener(
     (details) => {
-        const auth_header = details.requestHeaders?.find((h) => h.name.toLowerCase() === 'authorization')
+        if (!details.url.includes('/auth/v1/token')) return
 
-        if (auth_header?.value?.startsWith('Bearer')) {
-            auth = auth_header.value
-            browser.tabs.query({}).then((tabs) => {
-                for (const tab of tabs) {
-                    if (tab.id) {
-                        browser.tabs
-                            .sendMessage(tab.id, {
-                                type: 'BEARER_UPDATED',
-                                token: auth
-                            })
-                            .catch(() => {})
-                    }
+        const filter = browser.webRequest.filterResponseData(details.requestId)
+        const decoder = new TextDecoder()
+        const encoder = new TextEncoder()
+
+        let response_body = ''
+
+        filter.ondata = (event) => {
+            response_body += decoder.decode(event.data, { stream: true })
+        }
+
+        filter.onstop = async () => {
+            try {
+                const data = JSON.parse(response_body)
+                if (!data) {
+                    filter.write(encoder.encode(response_body))
+                    filter.close()
+                    return {}
                 }
-            })
+
+                if (data.access_token) {
+                    browser.tabs.query({}).then((tabs) => {
+                        for (const tab of tabs) {
+                            if (tab.id) {
+                                browser.tabs
+                                    .sendMessage(tab.id, {
+                                        type: 'BEARER_UPDATED',
+                                        access_token: data.access_token,
+                                        account_id: data.account_id
+                                    })
+                                    .catch(() => {})
+                            }
+                        }
+                    })
+                }
+            } catch (e) {
+                console.error('Token parse failed', e)
+            }
+
+            filter.write(encoder.encode(response_body))
+            filter.close()
         }
 
         return {}
     },
-    { urls: ['*://*.crunchyroll.com/*'] },
-    ['requestHeaders']
+    {
+        urls: ['https://www.crunchyroll.com/auth/v1/token']
+    },
+    ['blocking']
 )
 
 browser.webRequest.onBeforeRequest.addListener(
