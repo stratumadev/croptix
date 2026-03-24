@@ -318,13 +318,12 @@ async function refresh_tv_auth() {
 }
 
 async function run_tv_auth(web_auth: string, account_id: string | undefined) {
+    if (!tv_auth || tv_auth_running) return
     if (web_auth && !account_id) {
         console.warn('TV Auth standby, not logged in.')
         await browser.storage.local.remove('cr_tv_auth')
         return
     }
-
-    if (!tv_auth || tv_auth_running) return
     tv_auth_running = true
 
     const { cr_tv_auth } = (await browser.storage.local.get(['cr_tv_auth'])) as {
