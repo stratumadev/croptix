@@ -18,7 +18,7 @@ async function generateManifest() {
         host_permissions: ['*://*.crunchyroll.com/*'],
         web_accessible_resources: [
             {
-                resources: ['bundle.js', 'katamari-fix.js'],
+                resources: ['bundle.js', 'katamari_fix.js'],
                 matches: ['*://*.crunchyroll.com/*', '*://static.crunchyroll.com/*']
             }
         ],
@@ -48,6 +48,12 @@ async function generateManifest() {
             ]
         },
         content_scripts: [
+            {
+                matches: ['*://*.crunchyroll.com/*'],
+                js: ['katamari_fix.js'],
+                run_at: 'document_start',
+                world: 'MAIN'
+            },
             {
                 matches: ['*://*.crunchyroll.com/*'],
                 js: ['content.js'],

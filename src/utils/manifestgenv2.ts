@@ -45,6 +45,12 @@ async function generateManifest() {
         content_scripts: [
             {
                 matches: ['*://*.crunchyroll.com/*'],
+                js: ['katamari_fix_loader.js'],
+                run_at: 'document_start',
+                all_frames: true
+            },
+            {
+                matches: ['*://*.crunchyroll.com/*'],
                 js: ['content.js'],
                 css: ['css/cropix.css', 'css/cropix-player.css', 'css/cropix-theater.css', 'css/cropix-vilos.css'],
                 all_frames: true

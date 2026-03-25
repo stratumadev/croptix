@@ -1,4 +1,4 @@
-import browser from 'webextension-polyfill'
+import browser from './browser'
 import { CrunchyAuth } from '../types/crunchy'
 const is_vilos: boolean = window.top !== window
 let crunchyroll_observer: MutationObserver | null = null
