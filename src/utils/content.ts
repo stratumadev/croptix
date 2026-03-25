@@ -1,13 +1,13 @@
 import browser from './browser'
-import { CrunchyAuth } from '../types/crunchy'
+// import { CrunchyAuth } from '../types/crunchy'
 const is_vilos: boolean = window.top !== window
 let crunchyroll_observer: MutationObserver | null = null
 let crunchyroll_listener: ((e: MessageEvent) => void) | null = null
 let vilos_observer: MutationObserver | null = null
 
-let tv_auth: boolean = false
-let tv_auth_running: boolean = false
-let tv_auth_refresh_running: boolean = false
+// let tv_auth: boolean = false
+// let tv_auth_running: boolean = false
+// let tv_auth_refresh_running: boolean = false
 
 // Throttle utility - limits function execution to once per interval
 function throttle<T extends (...args: unknown[]) => void>(fn: T, ms: number): T {
@@ -208,200 +208,200 @@ function add_theater_control(controls_container: HTMLElement | null, video: HTML
     })
 }
 
-browser.runtime.onMessage.addListener(async (msg: any) => {
-    if (msg.type === 'BEARER_UPDATED') {
-        await run_tv_auth(msg.access_token, msg.account_id)
-    }
-})
+// browser.runtime.onMessage.addListener(async (msg: any) => {
+//     if (msg.type === 'BEARER_UPDATED') {
+//         await run_tv_auth(msg.access_token, msg.account_id)
+//     }
+// })
 
-async function init_tv_auth() {
-    const { cr_tv_auth } = (await browser.storage.local.get(['cr_tv_auth'])) as {
-        cr_tv_auth?: CrunchyAuth
-    }
-    if (!tv_auth || !cr_tv_auth) return
+// async function init_tv_auth() {
+//     const { cr_tv_auth } = (await browser.storage.local.get(['cr_tv_auth'])) as {
+//         cr_tv_auth?: CrunchyAuth
+//     }
+//     if (!tv_auth || !cr_tv_auth) return
 
-    if (is_tv_auth_expired(cr_tv_auth)) {
-        await refresh_tv_auth()
-    }
+//     if (is_tv_auth_expired(cr_tv_auth)) {
+//         await refresh_tv_auth()
+//     }
 
-    schedule_refresh()
-}
+//     schedule_refresh()
+// }
 
-async function schedule_refresh() {
-    const { cr_tv_auth } = (await browser.storage.local.get(['cr_tv_auth'])) as {
-        cr_tv_auth?: CrunchyAuth
-    }
-    if (!tv_auth || !cr_tv_auth) return
+// async function schedule_refresh() {
+//     const { cr_tv_auth } = (await browser.storage.local.get(['cr_tv_auth'])) as {
+//         cr_tv_auth?: CrunchyAuth
+//     }
+//     if (!tv_auth || !cr_tv_auth) return
 
-    const expiresAt = cr_tv_auth.createdAt + cr_tv_auth.expires_in * 1000
-    const refreshAt = expiresAt - 60000
-    const delay = refreshAt - Date.now()
+//     const expiresAt = cr_tv_auth.createdAt + cr_tv_auth.expires_in * 1000
+//     const refreshAt = expiresAt - 60000
+//     const delay = refreshAt - Date.now()
 
-    setTimeout(
-        async () => {
-            await refresh_tv_auth()
-            schedule_refresh()
-        },
-        Math.max(delay, 10000)
-    )
-}
+//     setTimeout(
+//         async () => {
+//             await refresh_tv_auth()
+//             schedule_refresh()
+//         },
+//         Math.max(delay, 10000)
+//     )
+// }
 
-function is_tv_auth_expired(tv_auth: CrunchyAuth) {
-    if (!tv_auth) return true
+// function is_tv_auth_expired(tv_auth: CrunchyAuth) {
+//     if (!tv_auth) return true
 
-    const created = tv_auth.createdAt
-    const expires = tv_auth.expires_in * 1000
+//     const created = tv_auth.createdAt
+//     const expires = tv_auth.expires_in * 1000
 
-    const now = Date.now()
-    return now > created + expires - 30000
-}
+//     const now = Date.now()
+//     return now > created + expires - 30000
+// }
 
-async function refresh_tv_auth() {
-    tv_auth_refresh_running = true
+// async function refresh_tv_auth() {
+//     tv_auth_refresh_running = true
 
-    const { cr_tv_auth } = (await browser.storage.local.get(['cr_tv_auth'])) as any
-    if (!cr_tv_auth) {
-        tv_auth_refresh_running = false
-        return
-    }
+//     const { cr_tv_auth } = (await browser.storage.local.get(['cr_tv_auth'])) as any
+//     if (!cr_tv_auth) {
+//         tv_auth_refresh_running = false
+//         return
+//     }
 
-    try {
-        const data = new URLSearchParams({
-            refresh_token: cr_tv_auth.refresh_token,
-            grant_type: 'refresh_token',
-            device_id: cr_tv_auth.device_token,
-            device_name: 'emu64xa',
-            device_type: 'ANDROIDTV'
-        })
-        const refresh = await fetch('https://www.crunchyroll.com/auth/v1/token', {
-            method: 'POST',
-            headers: {
-                'User-Agent': 'Crunchyroll/ANDROIDTV/3.58.0_22336 (Android 12; en-US; SHIELD Android TV Build/SR1A.211012.001)',
-                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-                Authorization: 'Basic bzd1b3d5N3E0bGdsdGJhdnloanE6bHFyakVUTng2Vzd1Um5wY0RtOHdSVmo4QkNoakMxZXI='
-            },
-            body: data
-        }).then((r) => r.json())
+//     try {
+//         const data = new URLSearchParams({
+//             refresh_token: cr_tv_auth.refresh_token,
+//             grant_type: 'refresh_token',
+//             device_id: cr_tv_auth.device_token,
+//             device_name: 'emu64xa',
+//             device_type: 'ANDROIDTV'
+//         })
+//         const refresh = await fetch('https://www.crunchyroll.com/auth/v1/token', {
+//             method: 'POST',
+//             headers: {
+//                 'User-Agent': 'Crunchyroll/ANDROIDTV/3.58.0_22336 (Android 12; en-US; SHIELD Android TV Build/SR1A.211012.001)',
+//                 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+//                 Authorization: 'Basic bzd1b3d5N3E0bGdsdGJhdnloanE6bHFyakVUTng2Vzd1Um5wY0RtOHdSVmo4QkNoakMxZXI='
+//             },
+//             body: data
+//         }).then((r) => r.json())
 
-        if (!refresh.access_token && refresh.error) {
-            console.warn('TV Auth refresh failed. Deleting stored auth...')
+//         if (!refresh.access_token && refresh.error) {
+//             console.warn('TV Auth refresh failed. Deleting stored auth...')
 
-            await browser.storage.local.remove('cr_tv_auth')
-            tv_auth_running = false
-            return
-        }
+//             await browser.storage.local.remove('cr_tv_auth')
+//             tv_auth_running = false
+//             return
+//         }
 
-        if (!refresh.access_token) {
-            console.error('Failed to refresh TV Auth', refresh)
-            tv_auth_running = false
-            return
-        }
+//         if (!refresh.access_token) {
+//             console.error('Failed to refresh TV Auth', refresh)
+//             tv_auth_running = false
+//             return
+//         }
 
-        await browser.storage.local.set({
-            cr_tv_auth: {
-                createdAt: Date.now(),
-                device_token: cr_tv_auth.device_code,
-                ...refresh
-            }
-        })
+//         await browser.storage.local.set({
+//             cr_tv_auth: {
+//                 createdAt: Date.now(),
+//                 device_token: cr_tv_auth.device_code,
+//                 ...refresh
+//             }
+//         })
 
-        console.log('TV Auth refresh successful')
-    } catch (e) {
-        console.error('TV Auth Refresh Error', e)
-    } finally {
-        tv_auth_refresh_running = false
-    }
-}
+//         console.log('TV Auth refresh successful')
+//     } catch (e) {
+//         console.error('TV Auth Refresh Error', e)
+//     } finally {
+//         tv_auth_refresh_running = false
+//     }
+// }
 
-async function run_tv_auth(web_auth: string, account_id: string | undefined) {
-    if (!tv_auth || tv_auth_running) return
-    if (web_auth && !account_id) {
-        console.warn('TV Auth standby, not logged in.')
-        await browser.storage.local.remove('cr_tv_auth')
-        return
-    }
-    tv_auth_running = true
+// async function run_tv_auth(web_auth: string, account_id: string | undefined) {
+//     if (!tv_auth || tv_auth_running) return
+//     if (web_auth && !account_id) {
+//         console.warn('TV Auth standby, not logged in.')
+//         await browser.storage.local.remove('cr_tv_auth')
+//         return
+//     }
+//     tv_auth_running = true
 
-    const { cr_tv_auth } = (await browser.storage.local.get(['cr_tv_auth'])) as {
-        cr_tv_auth?: CrunchyAuth
-    }
-    if (cr_tv_auth && account_id && cr_tv_auth.account_id === account_id) {
-        tv_auth_running = false
-        return
-    }
+//     const { cr_tv_auth } = (await browser.storage.local.get(['cr_tv_auth'])) as {
+//         cr_tv_auth?: CrunchyAuth
+//     }
+//     if (cr_tv_auth && account_id && cr_tv_auth.account_id === account_id) {
+//         tv_auth_running = false
+//         return
+//     }
 
-    if (cr_tv_auth && account_id && cr_tv_auth.account_id !== account_id) {
-        console.warn('Detected new user, creating new tv auth...')
-        await browser.storage.local.remove('cr_tv_auth')
-    }
+//     if (cr_tv_auth && account_id && cr_tv_auth.account_id !== account_id) {
+//         console.warn('Detected new user, creating new tv auth...')
+//         await browser.storage.local.remove('cr_tv_auth')
+//     }
 
-    console.log('Started TV Auth process...')
-    try {
-        const device = await fetch('https://www.crunchyroll.com/auth/v1/device/code', {
-            method: 'POST',
-            headers: {
-                'User-Agent': 'Crunchyroll/ANDROIDTV/3.58.0_22336 (Android 12; en-US; SHIELD Android TV Build/SR1A.211012.001)',
-                Authorization: 'Basic bzd1b3d5N3E0bGdsdGJhdnloanE6bHFyakVUTng2Vzd1Um5wY0RtOHdSVmo4QkNoakMxZXI='
-            }
-        }).then((r) => r.json())
-        if (!device) {
-            tv_auth_running = false
-            console.error('Failed to get device auth code')
-            return
-        }
+//     console.log('Started TV Auth process...')
+//     try {
+//         const device = await fetch('https://www.crunchyroll.com/auth/v1/device/code', {
+//             method: 'POST',
+//             headers: {
+//                 'User-Agent': 'Crunchyroll/ANDROIDTV/3.58.0_22336 (Android 12; en-US; SHIELD Android TV Build/SR1A.211012.001)',
+//                 Authorization: 'Basic bzd1b3d5N3E0bGdsdGJhdnloanE6bHFyakVUTng2Vzd1Um5wY0RtOHdSVmo4QkNoakMxZXI='
+//             }
+//         }).then((r) => r.json())
+//         if (!device) {
+//             tv_auth_running = false
+//             console.error('Failed to get device auth code')
+//             return
+//         }
 
-        const account_auth = await fetch('https://www.crunchyroll.com/auth/v1/device', {
-            method: 'POST',
-            headers: {
-                Authorization: `Bearer ${web_auth}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                user_code: device.user_code
-            })
-        }).then((r) => r.json())
-        if (!account_auth) {
-            tv_auth_running = false
-            console.error('Failed to authorize new device')
-            return
-        }
+//         const account_auth = await fetch('https://www.crunchyroll.com/auth/v1/device', {
+//             method: 'POST',
+//             headers: {
+//                 Authorization: `Bearer ${web_auth}`,
+//                 'Content-Type': 'application/json'
+//             },
+//             body: JSON.stringify({
+//                 user_code: device.user_code
+//             })
+//         }).then((r) => r.json())
+//         if (!account_auth) {
+//             tv_auth_running = false
+//             console.error('Failed to authorize new device')
+//             return
+//         }
 
-        let attempts = 0
-        while (attempts < 5) {
-            attempts++
+//         let attempts = 0
+//         while (attempts < 5) {
+//             attempts++
 
-            const data = await fetch('https://www.crunchyroll.com/auth/v1/device/token', {
-                method: 'POST',
-                headers: {
-                    'User-Agent': 'Crunchyroll/ANDROIDTV/3.58.0_22336 (Android 12; en-US; SHIELD Android TV Build/SR1A.211012.001)',
-                    Authorization: 'Basic bzd1b3d5N3E0bGdsdGJhdnloanE6bHFyakVUTng2Vzd1Um5wY0RtOHdSVmo4QkNoakMxZXI=',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    device_code: device.device_code
-                })
-            }).then((r) => r.json())
+//             const data = await fetch('https://www.crunchyroll.com/auth/v1/device/token', {
+//                 method: 'POST',
+//                 headers: {
+//                     'User-Agent': 'Crunchyroll/ANDROIDTV/3.58.0_22336 (Android 12; en-US; SHIELD Android TV Build/SR1A.211012.001)',
+//                     Authorization: 'Basic bzd1b3d5N3E0bGdsdGJhdnloanE6bHFyakVUTng2Vzd1Um5wY0RtOHdSVmo4QkNoakMxZXI=',
+//                     'Content-Type': 'application/json'
+//                 },
+//                 body: JSON.stringify({
+//                     device_code: device.device_code
+//                 })
+//             }).then((r) => r.json())
 
-            if (data.access_token) {
-                await browser.storage.local.set({
-                    cr_tv_auth: {
-                        createdAt: Date.now(),
-                        device_token: device.device_code,
-                        ...data
-                    }
-                })
-                console.log('Got TV Auth')
-                break
-            }
+//             if (data.access_token) {
+//                 await browser.storage.local.set({
+//                     cr_tv_auth: {
+//                         createdAt: Date.now(),
+//                         device_token: device.device_code,
+//                         ...data
+//                     }
+//                 })
+//                 console.log('Got TV Auth')
+//                 break
+//             }
 
-            await new Promise((r) => setTimeout(r, device.interval * 1000 || 5000))
-        }
-    } catch (e) {
-        console.error('TV Auth Error', e)
-    } finally {
-        tv_auth_running = false
-    }
-}
+//             await new Promise((r) => setTimeout(r, device.interval * 1000 || 5000))
+//         }
+//     } catch (e) {
+//         console.error('TV Auth Error', e)
+//     } finally {
+//         tv_auth_running = false
+//     }
+// }
 
 async function load_settings() {
     // Load settings
@@ -424,11 +424,11 @@ async function load_settings() {
             stop_observe_crunchyroll()
         }
 
-        tv_auth = settings.tvAuthEnabled !== false
-        // Only enable tv auth (CBR bypass) on firefox (manifest v2)
-        if (tv_auth) {
-            await init_tv_auth()
-        }
+        // tv_auth = settings.tvAuthEnabled !== false
+        // // Only enable tv auth (CBR bypass) on firefox (manifest v2)
+        // if (tv_auth) {
+        //     await init_tv_auth()
+        // }
     } else {
         const settings = await browser.storage.local.get(['playerButtonsEnabled'])
 
