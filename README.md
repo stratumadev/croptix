@@ -9,7 +9,6 @@
 Features:
 - Replaces the new Katamari player with the classic Vilos player
 - Re-enables the video quality selector (resolution picker)
-- Brings back the old CBR encodes (only on Firefox/MV2)
 - Modernized Crunchyroll design / UI improvements
 - More playback speed options
 - Theater mode for distraction-free watching
