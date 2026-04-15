@@ -49,7 +49,7 @@ async function generateManifest() {
         },
         content_scripts: [
             {
-                matches: ['*://*.crunchyroll.com/*'],
+                matches: ['*://www.crunchyroll.com/*'],
                 js: ['katamari_fix.js'],
                 run_at: 'document_start',
                 world: 'MAIN'
