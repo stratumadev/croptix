@@ -1,16 +1,20 @@
 [
     {
-        "id": 1,
+        "id": 2,
         "priority": 1,
-        "action": {
-            "type": "redirect",
-            "redirect": {
-                "extensionPath": "/bundle.js"
-            }
-        },
+        "action": { "type": "redirect", "redirect": { "extensionPath": "/player.html" } },
         "condition": {
-            "urlFilter": "||static.crunchyroll.com/vilos-v2/web/vilos/js/bundle.js",
-            "resourceTypes": ["script"]
+            "urlFilter": "||static.crunchyroll.com/vilos-v2/web/vilos/player.html",
+            "resourceTypes": ["main_frame", "sub_frame"]
+        }
+    },
+    {
+        "id": 3,
+        "priority": 1,
+        "action": { "type": "redirect", "redirect": { "extensionPath": "/fonts/Lato-Medium.ttf" } },
+        "condition": {
+            "urlFilter": "||static.crunchyroll.com/vilos-v2/web/vilos/assets/fonts/Lato-Medium.ttf",
+            "resourceTypes": ["other", "xmlhttprequest"]
         }
     }
 ]

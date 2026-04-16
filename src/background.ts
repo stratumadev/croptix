@@ -153,22 +153,48 @@ import browser from './utils/browser'
 // )
 
 // Replace player.html request body with modified player.html content
+browser.webRequest.onHeadersReceived.addListener(
+    (details) => {
+        let headers = details.responseHeaders || []
+
+        headers = headers.filter((h) => h.name.toLowerCase() !== 'content-type')
+        headers.push({
+            name: 'Content-Type',
+            value: 'text/html; charset=utf-8'
+        })
+
+        return { responseHeaders: headers }
+    },
+    {
+        urls: ['https://static.crunchyroll.com/vilos-v2/web/vilos/player.html']
+    },
+    ['blocking', 'responseHeaders']
+)
+
 browser.webRequest.onBeforeRequest.addListener(
     (details) => {
         const filter = browser.webRequest.filterResponseData(details.requestId)
         const encoder = new TextEncoder()
         filter.ondata = () => {}
 
-        filter.onstop = async () => {
-            try {
-                const localScript = await fetch(browser.runtime.getURL('player.html')).then((r) => r.text())
+        filter.onstop = () => {
+            const bundleUrl = browser.runtime.getURL('bundle.js')
+            const html = `<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Vilos</title>
+        <style>body, #vilos { display: flex; flex: 1; }</style>
+    </head>
+    <body>
+        <div id="vilos"></div>
+        <script type="text/javascript" src="${bundleUrl}" charset="utf-8"></script>
+    </body>
+</html>`
 
-                filter.write(encoder.encode(localScript))
-            } catch (e) {
-                console.error('Chunk replace failed', e)
-            } finally {
-                filter.close()
-            }
+            filter.write(encoder.encode(html))
+            filter.close()
         }
 
         return {}
@@ -181,29 +207,41 @@ browser.webRequest.onBeforeRequest.addListener(
 )
 
 // Replace bundle.js request body with modified bundle.js content
+// browser.webRequest.onBeforeRequest.addListener(
+//     (details) => {
+//         const filter = browser.webRequest.filterResponseData(details.requestId)
+//         const encoder = new TextEncoder()
+//         filter.ondata = () => {}
+
+//         filter.onstop = async () => {
+//             try {
+//                 const localScript = await fetch(browser.runtime.getURL('bundle.js')).then((r) => r.text())
+
+//                 filter.write(encoder.encode(localScript))
+//             } catch (e) {
+//                 console.error('Bundle replace failed', e)
+//             } finally {
+//                 filter.close()
+//             }
+//         }
+
+//         return {}
+//     },
+//     {
+//         urls: ['https://static.crunchyroll.com/vilos-v2/web/vilos/js/bundle.js'],
+//         types: ['script']
+//     },
+//     ['blocking']
+// )
+
 browser.webRequest.onBeforeRequest.addListener(
-    (details) => {
-        const filter = browser.webRequest.filterResponseData(details.requestId)
-        const encoder = new TextEncoder()
-        filter.ondata = () => {}
-
-        filter.onstop = async () => {
-            try {
-                const localScript = await fetch(browser.runtime.getURL('bundle.js')).then((r) => r.text())
-
-                filter.write(encoder.encode(localScript))
-            } catch (e) {
-                console.error('Bundle replace failed', e)
-            } finally {
-                filter.close()
-            }
+    () => {
+        return {
+            redirectUrl: browser.runtime.getURL('fonts/Lato-Medium.ttf')
         }
-
-        return {}
     },
     {
-        urls: ['https://static.crunchyroll.com/vilos-v2/web/vilos/js/bundle.js'],
-        types: ['script']
+        urls: ['https://static.crunchyroll.com/vilos-v2/web/vilos/assets/fonts/Lato-Medium.ttf']
     },
     ['blocking']
 )

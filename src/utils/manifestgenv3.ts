@@ -16,12 +16,18 @@ async function generateManifest() {
         description: 'Crunchyroll improvements and fixes',
         permissions: ['storage', 'declarativeNetRequest'],
         host_permissions: ['*://*.crunchyroll.com/*'],
+        sandbox: {
+            pages: ['player.html']
+        },
         web_accessible_resources: [
             {
-                resources: ['bundle.js', 'katamari_fix.js'],
+                resources: ['player.html', 'bundle.js', 'config_init.js', 'katamari_fix.js', 'subtitle-octopus/*', 'fonts/*'],
                 matches: ['*://*.crunchyroll.com/*', '*://static.crunchyroll.com/*']
             }
         ],
+        content_security_policy: {
+            extension_pages: "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+        },
         icons: {
             '16': 'icons/icon_16x16.png',
             '32': 'icons/icon_32x32.png',
@@ -72,6 +78,15 @@ async function generateManifest() {
 
     await cp('static', 'dist', { recursive: true })
     console.log('Copied static folder into dist')
+
+    await cp('./src/utils/player.html', 'dist/player.html')
+    console.log('Copied player.html into dist')
+
+    await cp('subtitle-octopus', 'dist/subtitle-octopus', { recursive: true })
+    console.log('Copied subtitle octopus folder into dist')
+
+    await cp('fonts', 'dist/fonts', { recursive: true })
+    console.log('Copied fonts folder into dist')
 }
 
 generateManifest()

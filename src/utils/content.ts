@@ -9,6 +9,11 @@ let vilos_observer: MutationObserver | null = null
 // let tv_auth_running: boolean = false
 // let tv_auth_refresh_running: boolean = false
 
+const s = document.createElement('script')
+s.src = browser.runtime.getURL('config_init.js')
+s.dataset.baseUrl = browser.runtime.getURL('')
+;(document.head || document.documentElement).appendChild(s)
+
 // Throttle utility - limits function execution to once per interval
 function throttle<T extends (...args: unknown[]) => void>(fn: T, ms: number): T {
     let lastCall = 0
