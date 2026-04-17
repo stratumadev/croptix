@@ -4,7 +4,7 @@
 ### Chrome Version (MV3) is retired.
 #### A browser extension that fixes alot of stuff on Crunchyroll.
 
-[<img lign="right" width="150" height="90" src="https://blog.mozilla.org/addons/files/2020/04/get-the-addon-fx-apr-2020.svg" alt="for Firefox" height="60px">](https://addons.mozilla.org/de/firefox/addon/croptix/)
+[<img lign="right" width="150" height="90" src="https://blog.mozilla.org/addons/files/2020/04/get-the-addon-fx-apr-2020.svg" alt="for Firefox" height="60px">](https://addons.mozilla.org/firefox/addon/croptix/)
 
 Features:
 - Replaces the new Katamari player with the classic Vilos player
