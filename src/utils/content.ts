@@ -106,7 +106,7 @@ function add_new_control_vilos(controls_container: HTMLElement | null, video: HT
 function start_observe_crunchyroll() {
     if (crunchyroll_observer || is_vilos) return
 
-    const player = document.querySelector('.video-player')
+    const player = document.querySelector('.video-player') ?? document.querySelector('.player-container')
     if (player) {
         document.documentElement.classList.add('cropix-player')
     } else {
@@ -115,7 +115,7 @@ function start_observe_crunchyroll() {
 
     const handle_crunchyroll_mutation = throttle(() => {
         // Player Class Toggle
-        const player = document.querySelector('.video-player')
+        const player = document.querySelector('.video-player') ?? document.querySelector('.player-container')
         if (player) {
             document.documentElement.classList.add('cropix-player')
         } else {

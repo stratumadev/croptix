@@ -15,19 +15,13 @@ async function generateManifest() {
         version: version,
         description: 'Crunchyroll improvements and fixes',
         permissions: ['storage', 'declarativeNetRequest'],
-        host_permissions: ['*://*.crunchyroll.com/*'],
-        sandbox: {
-            pages: ['player.html']
-        },
+        host_permissions: ['*://www.crunchyroll.com/*'],
         web_accessible_resources: [
             {
-                resources: ['player.html', 'bundle.js', 'config_init.js', 'katamari_fix.js', 'subtitle-octopus/*', 'fonts/*'],
-                matches: ['*://*.crunchyroll.com/*', '*://static.crunchyroll.com/*']
+                resources: ['config_init.js', 'katamari.js'],
+                matches: ['*://www.crunchyroll.com/*']
             }
         ],
-        content_security_policy: {
-            extension_pages: "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
-        },
         icons: {
             '16': 'icons/icon_16x16.png',
             '32': 'icons/icon_32x32.png',
@@ -56,12 +50,6 @@ async function generateManifest() {
         content_scripts: [
             {
                 matches: ['*://www.crunchyroll.com/*'],
-                js: ['katamari_fix.js'],
-                run_at: 'document_start',
-                world: 'MAIN'
-            },
-            {
-                matches: ['*://*.crunchyroll.com/*'],
                 js: ['content.js'],
                 css: ['css/cropix.css', 'css/cropix-player.css', 'css/cropix-theater.css', 'css/cropix-vilos.css'],
                 all_frames: true
@@ -78,15 +66,6 @@ async function generateManifest() {
 
     await cp('static', 'dist', { recursive: true })
     console.log('Copied static folder into dist')
-
-    await cp('./src/utils/player.html', 'dist/player.html')
-    console.log('Copied player.html into dist')
-
-    await cp('subtitle-octopus', 'dist/subtitle-octopus', { recursive: true })
-    console.log('Copied subtitle octopus folder into dist')
-
-    await cp('fonts', 'dist/fonts', { recursive: true })
-    console.log('Copied fonts folder into dist')
 }
 
 generateManifest()

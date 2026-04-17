@@ -245,3 +245,15 @@ browser.webRequest.onBeforeRequest.addListener(
     },
     ['blocking']
 )
+
+browser.webRequest.onBeforeRequest.addListener(
+    () => {
+        return {
+            redirectUrl: browser.runtime.getURL('katamari.js')
+        }
+    },
+    {
+        urls: ['https://www.crunchyroll.com/build/_next/static/chunks/1556d68d-*.js']
+    },
+    ['blocking']
+)
