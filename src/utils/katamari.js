@@ -11068,14 +11068,14 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                         n = (0, h.useMemo)(
                             () =>
                                 os(
-                                    'kat:flex kat:items-center kat:justify-center kat:border-transparent kat:cursor-pointer',
+                                    'kat:flex kat:items-center kat:justify-center kat:border-transparent kat:cursor-pointer kat:outline-none',
                                     'kat:h-40 kat:w-40',
                                     a ? 'kat:text-[20px] kat:@lg:text-[20px]' : 'kat:text-[20px] kat:@lg:text-[20px]',
                                     'kat:font-bold kat:leading-20 kat:tracking-[-0.36px] kat:@lg:tracking-[-0.52px]',
                                     'kat:border-4 kat:p-6 kat:fill-icon-tertiary kat:text-icon-tertiary kat:hover:bg-neutral-700',
-                                    'kat:opacity-100 kat:transition-opacity kat:duration-200 kat:ease-linear kat:hover:opacity-75 kat:focus-visible:opacity-100',
-                                    'kat:active:fill-icon-tertiary-pressed kat:active:text-icon-tertiary-pressed',
-                                    'kat:focus-visible:border-neutral-50 kat:focus-visible:border-solid '
+                                    'kat:opacity-100 kat:transition-opacity kat:duration-200 kat:ease-linear kat:hover:opacity-75 kat:focus-visible:opacity-100'
+                                    // 'kat:active:fill-icon-tertiary-pressed kat:active:text-icon-tertiary-pressed',
+                                    // 'kat:focus-visible:border-neutral-50 kat:focus-visible:border-solid '
                                 ),
                             [a]
                         )
@@ -11705,7 +11705,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                                 right: `${window.innerWidth - t.right}px`,
                                 top: 'auto'
                             }
-                            ;(i && ((e.maxHeight = `${t.top - i.top - 8}px`), (e.maxWidth = `${i.right - i.left - 16}px`)), console.log(e.maxWidth))
+                            i && ((e.maxHeight = `${t.top - i.top - 8}px`), (e.maxWidth = `${i.right - i.left - 16}px`))
                             d(e)
                         } else {
                             let e = {
@@ -11713,7 +11713,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                                 right: `${window.innerWidth - t.right}px`,
                                 bottom: 'auto'
                             }
-                            ;(i && ((e.maxHeight = `${i.bottom - t.bottom - 8}px`), (e.maxWidth = `${i.right - i.left - 16}px`)), console.log(e.maxWidth))
+                            i && ((e.maxHeight = `${i.bottom - t.bottom - 8}px`), (e.maxWidth = `${i.right - i.left - 16}px`))
                             d(e)
                         }
                     }, [a, r, p])
@@ -12050,6 +12050,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                                             : null
                                     if (me) {
                                         let heights = []
+                                        // console.log(me.getAvailableVideoQualities())
                                         heights = me.getAvailableVideoQualities().map((x) => x.height)
                                         if (heights.length > 0) {
                                             let validH = heights.filter((x) => x > 0)
