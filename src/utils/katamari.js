@@ -19413,7 +19413,10 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
 
                     var formatTrack = function (tr) {
                         if (!tr) return t('none')
-                        return tr.displayName !== tr.language ? tr.displayName : t(tr.language) || tr.language
+                        var name = tr.displayName !== tr.language ? tr.displayName : t(tr.language) || tr.language
+                        if (tr.role === 'description') return name + ' [AD]'
+                        if (tr.role === 0) return name + ' [CC]'
+                        return name
                     }
 
                     var getEffectiveQuality = function (selected, available) {
@@ -19880,7 +19883,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
 
                     h.useEffect(
                         function () {
-                            if (!activeText || !activeText.externalTextUrl) {
+                            if (!activeText || !activeText.externalTextUrl || activeText.role === 0) {
                                 if (octoRef.current && typeof octoRef.current.freeTrack === 'function') {
                                     octoRef.current.freeTrack()
                                 }
