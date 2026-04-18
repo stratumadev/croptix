@@ -3703,16 +3703,10 @@
                 }
                 async _activateTextTrack(e) {
                     var t, i, r
-                    if ((this._mediaEngine.setTextTrack(e), e.format === nR.EXTERNAL)) {
-                        if (e.role !== nP.CLOSED_CAPTION)
-                            return (
-                                g.warn('External text track not applied: only CLOSED_CAPTION supported', {
-                                    role: e.role,
-                                    language: e.language
-                                }),
-                                !1
-                            )
-                        if (e.videoUrl)
+                    this._mediaEngine.setTextTrack(e)
+
+                    if (e.format === nR.EXTERNAL) {
+                        if (e.videoUrl) {
                             try {
                                 await ek(
                                     this._mediaEngine.activeVideoTrack$.pipe(
@@ -3728,33 +3722,26 @@
                                     language: e.language
                                 })
                             }
-                        let i = this._preferredTextTrackRenderer[a0.VTT]
-                        if (!i)
-                            return (
-                                g.warn('External CC not applied: missing VTT renderer', {
-                                    language: e.language
-                                }),
-                                !1
-                            )
-                        if (!e.externalTextUrl)
-                            return (
-                                g.warn('External CC not applied: missing externalTextUrl', {
-                                    language: e.language
-                                }),
-                                !1
-                            )
-                        try {
-                            await i.setActive(e)
-                        } catch (t) {
-                            return (
-                                g.warn('External CC renderer failed to activate track', {
-                                    language: e.language,
-                                    error: t
-                                }),
-                                !1
-                            )
+                        }
+
+                        if (e.role === nP.CLOSED_CAPTION) {
+                            let i = this._preferredTextTrackRenderer[a0.VTT]
+                            if (i && e.externalTextUrl) {
+                                try {
+                                    await i.setActive(e)
+                                } catch (t) {
+                                    return (
+                                        g.warn('External CC renderer failed to activate track', {
+                                            language: e.language,
+                                            error: t
+                                        }),
+                                        !1
+                                    )
+                                }
+                            }
                         }
                     }
+
                     return (
                         g.info('Switched to text track', {
                             format: e.format,
@@ -16590,141 +16577,228 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                         this.nextEpisodeVM.dispose())
                 }
             }
-            let cp = ({ anchorElementRef: e, duration: t, getThumbnailUri: i }) => {
-                    let r = (0, h.useRef)(null),
-                        a = (0, h.useRef)(null),
-                        n = (0, h.useRef)(0),
-                        s = (0, h.useRef)(0),
-                        [o, l] = (0, h.useState)(!1),
-                        [u, c] = (0, h.useState)('--:--'),
-                        [d, p] = (0, h.useState)(!1),
-                        f = (0, h.useCallback)(() => {
-                            l(!1)
-                        }, []),
-                        g = (0, h.useCallback)(() => {
-                            l(!0)
-                        }, []),
-                        v = (0, h.useCallback)(() => {
+            let cp = (props) => {
+                    var e = props.anchorElementRef,
+                        t = props.duration,
+                        i = props.getThumbnailUri
+                    var r = h.useRef(null)
+                    var a = h.useRef(null)
+                    var timestampRef = h.useRef(null)
+                    var n = h.useRef(0)
+                    var s = h.useRef(0)
+                    var stateO = h.useState(!1),
+                        o = stateO[0],
+                        l = stateO[1]
+                    var stateD = h.useState(!1),
+                        d = stateD[0],
+                        p = stateD[1]
+
+                    var f = h.useCallback(function () {
+                        l(!1)
+                    }, [])
+                    var g = h.useCallback(function () {
+                        l(!0)
+                    }, [])
+
+                    var v = h.useCallback(
+                        function () {
                             if ((p(!0), null !== e.current)) {
-                                let t = getComputedStyle(e.current)
-                                s.current = 1.33 * parseFloat(t.getPropertyValue('--slider-thumb-base-size')) || 0
-                                let i = e.current.getBoundingClientRect()
-                                n.current = i.width
+                                var compStyle = getComputedStyle(e.current)
+                                s.current = 1.33 * parseFloat(compStyle.getPropertyValue('--slider-thumb-base-size')) || 0
+                                n.current = e.current.getBoundingClientRect().width
                             }
-                        }, []),
-                        _ = (0, h.useCallback)(() => {
-                            ;(p(!1), null !== e.current && e.current.style.setProperty('--timeline-hover-percentage', 'initial'))
-                        }, []),
-                        y = (0, h.useCallback)(
-                            (o) => {
-                                if (null === r.current || null === e.current || o.currentTarget !== e.current) return
-                                let l = r.current.clientWidth / 2,
-                                    u = n.current - l,
-                                    d = Math.min(Math.max(l, o.offsetX), u) - l
-                                r.current.style.left = `${d}px`
-                                let h = Math.round(n.current - s.current),
-                                    p = Math.min(Math.max(o.offsetX - s.current / 2, 0), h) / h
-                                e.current.style.setProperty('--timeline-hover-percentage', `${100 * p}%`)
-                                let f = t * p
-                                c(ci(f))
-                                let g = i ? i(f) : void 0
-                                g && a.current && (a.current.src = g)
-                            },
-                            [i, t, e]
-                        )
-                    return (
-                        (0, h.useEffect)(() => {
-                            let t = e.current
-                            return (
-                                t && (t.addEventListener('mousemove', y), t.addEventListener('mouseenter', v), t.addEventListener('mouseleave', _)),
-                                () => {
-                                    t && (t.removeEventListener('mousemove', y), t.removeEventListener('mouseenter', v), t.removeEventListener('mouseleave', _))
-                                }
-                            )
-                        }, [e.current, y, v, _]),
-                        oi.jsxs('div', {
-                            ref: r,
-                            className: os('kat:flex kat:shrink-0 kat:pointer-events-none kat:select-none trickplay', d ? 'kat:opacity-100' : 'kat:opacity-0'),
-                            'aria-hidden': !0,
-                            'data-testid': 'trickplay-container',
-                            children: [
-                                oi.jsx('img', {
-                                    className: os(
-                                        'kat:aspect-video kat:w-133 kat:@lg:w-195 kat:shrink-0 kat:min-w-133 kat:@lg:min-w-195 kat:object-contain',
-                                        o ? 'kat:block' : 'kat:hidden'
-                                    ),
-                                    ref: a,
-                                    onLoad: g,
-                                    onError: f,
-                                    'data-testid': 'trickplay-image'
-                                }),
-                                oi.jsx('span', {
-                                    className: os(
-                                        'kat:text-neutral-50 kat:not-italic kat:text-[14px] kat:leading-20 kat:font-bold kat:tracking-[-0.42px] kat:pl-8 kat:pr-8 kat:pb-4 kat:pt-4',
-                                        o ? 'kat:absolute kat:bottom-0 kat:left-1/2 kat:-translate-x-1/2' : 'kat:relative kat:object-bottom'
-                                    ),
-                                    'data-testid': 'trickplay-timestamp',
-                                    children: u
-                                })
-                            ]
-                        })
+                        },
+                        [e]
                     )
+
+                    var _ = h.useCallback(
+                        function () {
+                            p(!1)
+                            if (null !== e.current) e.current.style.setProperty('--timeline-hover-percentage', 'initial')
+                        },
+                        [e]
+                    )
+
+                    var y = h.useCallback(
+                        function (evt) {
+                            if (null === r.current || null === e.current || evt.currentTarget !== e.current) return
+
+                            var halfWidth = r.current.clientWidth / 2
+                            var maxLeft = n.current - halfWidth
+                            var clampedLeft = Math.min(Math.max(halfWidth, evt.offsetX), maxLeft) - halfWidth
+
+                            r.current.style.left = clampedLeft + 'px'
+
+                            var trackWidth = Math.round(n.current - s.current)
+                            var hoverPercent = Math.min(Math.max(evt.offsetX - s.current / 2, 0), trackWidth) / trackWidth
+                            e.current.style.setProperty('--timeline-hover-percentage', 100 * hoverPercent + '%')
+
+                            var timeHovered = t * hoverPercent
+
+                            if (timestampRef.current) {
+                                timestampRef.current.textContent = ci(timeHovered)
+                            }
+
+                            var thumbUri = i ? i(timeHovered) : void 0
+                            if (thumbUri && a.current) {
+                                a.current.src = thumbUri
+                            }
+                        },
+                        [i, t, e]
+                    )
+
+                    h.useEffect(
+                        function () {
+                            var el = e.current
+                            if (el) {
+                                el.addEventListener('mousemove', y)
+                                el.addEventListener('mouseenter', v)
+                                el.addEventListener('mouseleave', _)
+                            }
+                            return function () {
+                                if (el) {
+                                    el.removeEventListener('mousemove', y)
+                                    el.removeEventListener('mouseenter', v)
+                                    el.removeEventListener('mouseleave', _)
+                                }
+                            }
+                        },
+                        [e.current, y, v, _]
+                    )
+
+                    return oi.jsxs('div', {
+                        ref: r,
+                        className: os('kat:flex kat:shrink-0 kat:pointer-events-none kat:select-none trickplay', d ? 'kat:opacity-100' : 'kat:opacity-0'),
+                        'aria-hidden': !0,
+                        'data-testid': 'trickplay-container',
+                        children: [
+                            oi.jsx('img', {
+                                className: os(
+                                    'kat:aspect-video kat:w-133 kat:@lg:w-195 kat:shrink-0 kat:min-w-133 kat:@lg:min-w-195 kat:object-contain',
+                                    o ? 'kat:block' : 'kat:hidden'
+                                ),
+                                ref: a,
+                                onLoad: g,
+                                onError: f,
+                                'data-testid': 'trickplay-image'
+                            }),
+                            oi.jsx('span', {
+                                ref: timestampRef,
+                                className: os(
+                                    'kat:text-neutral-50 kat:not-italic kat:text-[14px] kat:leading-20 kat:font-bold kat:tracking-[-0.42px] kat:pl-8 kat:pr-8 kat:pb-4 kat:pt-4',
+                                    o ? 'kat:absolute kat:bottom-0 kat:left-1/2 kat:-translate-x-1/2' : 'kat:relative kat:object-bottom'
+                                ),
+                                style: { fontVariantNumeric: 'tabular-nums', textShadow: '0px 1px 3px rgba(0,0,0,0.8)' },
+                                'data-testid': 'trickplay-timestamp',
+                                children: '--:--'
+                            })
+                        ]
+                    })
                 },
                 cf = {
                     gradientStartPercent: 5,
-                    keyboardDebounceTimeoutMs: 250
+                    keyboardDebounceTimeoutMs: 0
                 },
-                cg = (0, h.forwardRef)(({ ariaLabel: e, duration: t, getAriaValueText: i, getThumbnailUri: r, seekTo: a, config: n = cf }, s) => {
-                    let { elapsedTime, remainingTime } = c_()
-                    let o = (0, h.useRef)(null),
-                        l = (0, h.useRef)(!1),
-                        u = (0, h.useRef)(!1),
-                        c = (0, h.useRef)(void 0),
-                        d = (0, h.useRef)(void 0)
-                    ;((0, h.useImperativeHandle)(
+                cg = (0, h.forwardRef)((props, s) => {
+                    var e = props.ariaLabel,
+                        t = props.duration,
+                        i = props.getAriaValueText,
+                        r = props.getThumbnailUri,
+                        a = props.seekTo,
+                        nConf = props.config,
+                        n = nConf === void 0 ? cf : nConf
+                    var times = c_(),
+                        elapsedTime = times.elapsedTime,
+                        remainingTime = times.remainingTime
+
+                    var o = h.useRef(null)
+                    var l = h.useRef(!1)
+                    var u = h.useRef(!1)
+                    var c = h.useRef(void 0)
+                    var d = h.useRef(void 0)
+                    var seekLock = h.useRef(!1)
+                    var seekTimeout = h.useRef(null)
+
+                    var updateVisuals = h.useCallback(
+                        function (val) {
+                            if (null !== o.current) {
+                                var percent = 0 !== t ? (val / t) * 100 : 0
+                                o.current.style.setProperty('--timeline-progress-percent', percent + '%')
+                                var grad = lg(percent, n.gradientStartPercent)
+                                o.current.style.setProperty('--moz-progress-gradient-percent', grad + '%')
+                                var fl = Math.floor(val)
+                                o.current.ariaValueNow = fl.toFixed(0)
+                                o.current.ariaValueText = i(fl)
+                            }
+                        },
+                        [t, n.gradientStartPercent, i]
+                    )
+
+                    h.useImperativeHandle(
                         s,
-                        () => ({
-                            updatePosition: (e) => {
-                                if (null !== o.current && !1 === l.current && !1 === u.current) {
-                                    o.current.valueAsNumber = e
-                                    let r = 0 !== t ? (e / t) * 100 : 0
-                                    o.current.style.setProperty('--timeline-progress-percent', `${r}%`)
-                                    let a = lg(r, n.gradientStartPercent)
-                                    o.current.style.setProperty('--moz-progress-gradient-percent', `${a}%`)
-                                    let s = Math.floor(e)
-                                    ;((o.current.ariaValueNow = s.toFixed(0)), (o.current.ariaValueText = i(s)))
+                        function () {
+                            return {
+                                updatePosition: function (val) {
+                                    if (null !== o.current && !1 === l.current && !1 === u.current && !1 === seekLock.current) {
+                                        o.current.valueAsNumber = val
+                                        updateVisuals(val)
+                                    }
                                 }
                             }
-                        }),
-                        [t, n.gradientStartPercent, i]
-                    ),
-                        (0, h.useEffect)(() => {
-                            null !== o.current &&
-                                n.gradientStartPercent >= 0 &&
-                                n.gradientStartPercent <= 100 &&
-                                o.current.style.setProperty('--gradient-start-percent', `${n.gradientStartPercent.toFixed(2)}%`)
-                        }, [n]))
-                    let p = (0, h.useCallback)((e) => {
-                        e.target !== o.current || null === e.target || ((!0 === l.current || !0 === u.current) && (d.current = e.target.valueAsNumber))
-                    }, [])
+                        },
+                        [updateVisuals]
+                    )
+
+                    h.useEffect(
+                        function () {
+                            if (null !== o.current && n.gradientStartPercent >= 0 && n.gradientStartPercent <= 100) {
+                                o.current.style.setProperty('--gradient-start-percent', n.gradientStartPercent.toFixed(2) + '%')
+                            }
+                        },
+                        [n]
+                    )
+
+                    var p = h.useCallback(
+                        function (evt) {
+                            if (evt.target === o.current && null !== evt.target) {
+                                if (!0 === l.current || !0 === u.current) {
+                                    var val = evt.target.valueAsNumber
+                                    d.current = val
+                                    updateVisuals(val)
+                                }
+                            }
+                        },
+                        [updateVisuals]
+                    )
+
+                    var triggerSeek = function (val) {
+                        if (a && void 0 !== val) {
+                            seekLock.current = !0
+                            if (seekTimeout.current) clearTimeout(seekTimeout.current)
+
+                            a(val)
+                            seekTimeout.current = setTimeout(function () {
+                                seekLock.current = !1
+                            }, 1000)
+                        }
+                    }
+
                     return oi.jsxs('div', {
                         className: 'timeline-container kat:flex kat:items-center kat:w-full kat:pt-20 kat:pb-20',
                         children: [
                             oi.jsx('span', {
                                 className: 'kat:text-start kat:text-[rgb(249, 249, 250)] kat:text-[14px] kat:min-w-100',
+                                style: { fontVariantNumeric: 'tabular-nums' },
                                 children: elapsedTime
                             }),
                             oi.jsxs('div', {
                                 className: 'kat:relative kat:flex-1 kat:flex kat:items-center kat:w-full',
                                 children: [
-                                    oi.jsx(cp, {
-                                        anchorElementRef: o,
-                                        duration: t,
-                                        getThumbnailUri: r
-                                    }),
+                                    oi.jsx(cp, { anchorElementRef: o, duration: t, getThumbnailUri: r }),
                                     oi.jsx('input', {
                                         ref: o,
                                         className: 'kat:cursor-pointer timeline-slider kat:flex kat:w-full kat:appearance-none kat:pt-20 kat:pb-20',
+                                        style: { background: 'transparent', outline: 'none' },
                                         type: 'range',
                                         'aria-label': e,
                                         min: '0',
@@ -16733,44 +16807,58 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                                         'aria-valuemax': t,
                                         step: 0.25,
                                         onChange: p,
-                                        onMouseDown: () => {
+                                        onMouseDown: function () {
                                             l.current = !0
+                                            seekLock.current = !0
+                                            if (seekTimeout.current) clearTimeout(seekTimeout.current)
                                         },
-                                        onMouseUp: (e) => {
-                                            ;(!0 !== l.current ||
-                                                e.currentTarget !== o.current ||
-                                                isNaN(e.currentTarget.valueAsNumber) ||
-                                                (d.current = e.currentTarget.valueAsNumber),
-                                                (l.current = !1),
-                                                a && void 0 !== d.current && (a(d.current), (d.current = void 0)))
+                                        onMouseUp: function (evt) {
+                                            if (!0 === l.current && evt.currentTarget === o.current && !isNaN(evt.currentTarget.valueAsNumber)) {
+                                                d.current = evt.currentTarget.valueAsNumber
+                                            }
+                                            l.current = !1
+                                            triggerSeek(d.current)
+                                            d.current = void 0
                                         },
-                                        onClick: (e) => {
-                                            e.preventDefault()
+                                        onClick: function (evt) {
+                                            evt.preventDefault()
                                         },
-                                        onKeyDown: (e) => {
+                                        onKeyDown: function (evt) {
                                             if (null === o.current) return
-                                            ;((u.current = !0),
-                                                void 0 !== c.current && clearTimeout(c.current),
-                                                (c.current = setTimeout(() => {
-                                                    ;((u.current = !1), a && void 0 !== d.current && (a(d.current), (d.current = void 0)))
-                                                }, n.keyboardDebounceTimeoutMs)))
-                                            let t = !1
-                                            switch (e.key) {
+                                            evt.preventDefault()
+
+                                            u.current = !0
+                                            seekLock.current = !0
+                                            if (seekTimeout.current) clearTimeout(seekTimeout.current)
+
+                                            void 0 !== c.current && clearTimeout(c.current)
+                                            c.current = setTimeout(function () {
+                                                u.current = !1
+                                                triggerSeek(d.current)
+                                                d.current = void 0
+                                            }, n.keyboardDebounceTimeoutMs)
+
+                                            var isArrow = !1
+                                            switch (evt.key) {
                                                 case 'ArrowLeft':
                                                 case 'ArrowDown':
-                                                    ;(o.current.stepDown(), (d.current = o.current.valueAsNumber), (t = !0))
+                                                    o.current.valueAsNumber = Math.max(0, o.current.valueAsNumber - 5)
                                                     break
                                                 case 'ArrowRight':
                                                 case 'ArrowUp':
-                                                    ;(o.current.stepUp(), (d.current = o.current.valueAsNumber), (t = !0))
+                                                    o.current.valueAsNumber = Math.min(t, o.current.valueAsNumber + 5)
+                                                    break
                                             }
-                                            t && e.preventDefault()
+
+                                            d.current = o.current.valueAsNumber
+                                            updateVisuals(d.current)
                                         }
                                     })
                                 ]
                             }),
                             oi.jsx('span', {
                                 className: 'kat:text-center kat:flex kat:justify-end kat:text-[rgb(249, 249, 250)] kat:text-[14px] kat:min-w-100',
+                                style: { fontVariantNumeric: 'tabular-nums' },
                                 children: remainingTime
                             })
                         ]
@@ -19328,6 +19416,21 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                         return tr.displayName !== tr.language ? tr.displayName : t(tr.language) || tr.language
                     }
 
+                    var getEffectiveQuality = function (selected, available) {
+                        if (!selected || selected === 'AUTO') return 'AUTO'
+                        if (available.includes(selected)) return selected
+
+                        var order = ['1080p', '720p', '480p', '360p', '240p']
+                        var startIndex = order.indexOf(selected)
+                        for (var i = startIndex + 1; i < order.length; i++) {
+                            if (available.includes(order[i])) return order[i]
+                        }
+                        for (var j = 0; j < order.length; j++) {
+                            if (available.includes(order[j])) return order[j]
+                        }
+                        return 'AUTO'
+                    }
+
                     var MainItem = function (p) {
                         return oi.jsxs('div', {
                             className:
@@ -19347,9 +19450,10 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                     }
 
                     var renderPanel = function () {
+                        var effectiveQual = getEffectiveQuality(settings.selectedQualityBucket, settings.availableBuckets)
+
                         if (activePanel === 'main') {
-                            var qualLabel = settings.selectedQualityBucket || 'Auto'
-                            var qualBadge = qualLabel === '1080p' ? ' FHD' : qualLabel === '720p' ? ' HD' : qualLabel === '480p' ? ' SD' : ''
+                            var qualBadge = effectiveQual === '1080p' ? ' FHD' : effectiveQual === '720p' ? ' HD' : effectiveQual === '480p' ? ' SD' : ''
 
                             return oi.jsxs('div', {
                                 className: 'kat:flex kat:flex-col kat:py-10',
@@ -19373,7 +19477,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                                     oi.jsxs(MainItem, {
                                         label: t('quality'),
                                         value: oi.jsxs('span', {
-                                            children: [qualLabel, oi.jsx('span', { style: { color: '#ff5e00', fontWeight: 'bold', marginLeft: '4px' }, children: qualBadge })]
+                                            children: [effectiveQual, oi.jsx('span', { style: { color: '#ff5e00', fontWeight: 'bold', marginLeft: '4px' }, children: qualBadge })]
                                         }),
                                         onClick: function () {
                                             setActivePanel('quality')
@@ -19478,7 +19582,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                                         oi.jsx('div', {
                                             className: 'kat:py-5',
                                             children: qOpts.map(function (opt) {
-                                                var isSel = settings.selectedQualityBucket === opt.bucket
+                                                var isSel = effectiveQual === opt.bucket
                                                 return oi.jsx(
                                                     oB,
                                                     {
@@ -19558,6 +19662,313 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                             oi.jsx(oJ, { isVisible: isOpen, toggleVisibility: closeMenu, anchorElement: menuRef.current, expandDirection: 'up', children: renderPanel() })
                         ]
                     })
+                },
+                pip = () => {
+                    var state = h.useState(!1),
+                        isPiP = state[0],
+                        setIsPiP = state[1]
+                    var supported = document.pictureInPictureEnabled
+
+                    h.useEffect(
+                        function () {
+                            if (!supported) return
+                            var video = document.querySelector('video')
+                            if (!video) return
+
+                            if (video.hasAttribute('disablePictureInPicture')) {
+                                video.removeAttribute('disablePictureInPicture')
+                            }
+
+                            var onEnter = function () {
+                                setIsPiP(!0)
+                            }
+                            var onLeave = function () {
+                                setIsPiP(!1)
+                            }
+
+                            video.addEventListener('enterpictureinpicture', onEnter)
+                            video.addEventListener('leavepictureinpicture', onLeave)
+
+                            return function () {
+                                video.removeEventListener('enterpictureinpicture', onEnter)
+                                video.removeEventListener('leavepictureinpicture', onLeave)
+                            }
+                        },
+                        [supported]
+                    )
+
+                    var togglePiP = h.useCallback(function () {
+                        var video = document.querySelector('video')
+                        if (!video) return
+
+                        if (video.hasAttribute('disablePictureInPicture')) {
+                            video.removeAttribute('disablePictureInPicture')
+                        }
+
+                        if (document.pictureInPictureElement) {
+                            document.exitPictureInPicture().catch(function (e) {
+                                console.warn(e)
+                            })
+                        } else {
+                            video.requestPictureInPicture().catch(function (e) {
+                                console.warn(e)
+                            })
+                        }
+                    }, [])
+                    if (!supported) return null
+
+                    var icon = oi.jsxs('svg', {
+                        width: 20,
+                        height: 20,
+                        viewBox: '0 0 24 24',
+                        fill: 'none',
+                        stroke: 'currentColor',
+                        strokeWidth: '2',
+                        strokeLinecap: 'round',
+                        strokeLinejoin: 'round',
+                        children: [
+                            oi.jsx('rect', { x: '3', y: '3', width: '18', height: '18', rx: '2', ry: '2' }),
+                            oi.jsx('rect', { x: '12', y: '14', width: '7', height: '5', rx: '1', ry: '1' })
+                        ]
+                    })
+
+                    return oi.jsx(oo, {
+                        Icon: icon,
+                        label: isPiP ? 'Exit Picture-in-Picture' : 'Enter Picture-in-Picture',
+                        onClick: togglePiP,
+                        'data-testid': 'pip-button'
+                    })
+                },
+                fonts = {
+                    'Adobe Arabic': 'AdobeArabic-Bold.otf',
+                    'Andale Mono': 'andalemo.woff2',
+                    Arial: 'arial.ttf',
+                    'Arial Black': 'ariblk.ttf',
+                    'Arial Bold': 'arialbd.ttf',
+                    'Arial Bold Italic': 'arialbi.ttf',
+                    'Arial Italic': 'ariali.ttf',
+                    'Arial Unicode MS': 'arialuni.ttf',
+                    'Comic Sans MS': 'comic.ttf',
+                    'Comic Sans MS Bold': 'comicbd.ttf',
+                    'Courier New': 'cour.ttf',
+                    'Courier New Bold': 'courbd.ttf',
+                    'Courier New Bold Italic': 'courbi.ttf',
+                    'Courier New Italic': 'couri.ttf',
+                    'DejaVu LGC Sans Mono': 'DejaVuLGCSansMono.ttf',
+                    'DejaVu LGC Sans Mono Bold': 'DejaVuLGCSansMono-Bold.ttf',
+                    'DejaVu LGC Sans Mono Bold Oblique': 'DejaVuLGCSansMono-BoldOblique.ttf',
+                    'DejaVu LGC Sans Mono Oblique': 'DejaVuLGCSansMono-Oblique.ttf',
+                    'DejaVu Sans': 'DejaVuSans.ttf',
+                    'DejaVu Sans Bold': 'DejaVuSans-Bold.ttf',
+                    'DejaVu Sans Bold Oblique': 'DejaVuSans-BoldOblique.ttf',
+                    'DejaVu Sans Condensed': 'DejaVuSansCondensed.ttf',
+                    'DejaVu Sans Condensed Bold': 'DejaVuSansCondensed-Bold.ttf',
+                    'DejaVu Sans Condensed Bold Oblique': 'DejaVuSansCondensed-BoldOblique.ttf',
+                    'DejaVu Sans Condensed Oblique': 'DejaVuSansCondensed-Oblique.ttf',
+                    'DejaVu Sans ExtraLight': 'DejaVuSans-ExtraLight.ttf',
+                    'DejaVu Sans Mono': 'DejaVuSansMono.ttf',
+                    'DejaVu Sans Mono Bold': 'DejaVuSansMono-Bold.ttf',
+                    'DejaVu Sans Mono Bold Oblique': 'DejaVuSansMono-BoldOblique.ttf',
+                    'DejaVu Sans Mono Oblique': 'DejaVuSansMono-Oblique.ttf',
+                    'DejaVu Sans Oblique': 'DejaVuSans-Oblique.ttf',
+                    Gautami: 'gautami.woff2',
+                    Georgia: 'georgia.ttf',
+                    'Georgia Bold': 'georgiab.ttf',
+                    'Georgia Bold Italic': 'georgiaz.ttf',
+                    'Georgia Italic': 'georgiai.ttf',
+                    Impact: 'impact.ttf',
+                    Mangal: 'MANGAL.woff2',
+                    'Meera Inimai': 'MeeraInimai-Regular.woff2',
+                    'Noto Sans Tamil': 'NotoSansTamilVariable.woff2',
+                    'Noto Sans Telugu': 'NotoSansTeluguVariable.woff2',
+                    'Noto Sans Thai': 'NotoSansThai.woff2',
+                    Rubik: 'Rubik-Regular.ttf',
+                    'Rubik Black': 'Rubik-Black.ttf',
+                    'Rubik Black Italic': 'Rubik-BlackItalic.ttf',
+                    'Rubik Bold': 'Rubik-Bold.ttf',
+                    'Rubik Bold Italic': 'Rubik-BoldItalic.ttf',
+                    'Rubik Italic': 'Rubik-Italic.ttf',
+                    'Rubik Light': 'Rubik-Light.ttf',
+                    'Rubik Light Italic': 'Rubik-LightItalic.ttf',
+                    'Rubik Medium': 'Rubik-Medium.ttf',
+                    'Rubik Medium Italic': 'Rubik-MediumItalic.ttf',
+                    Tahoma: 'tahoma.ttf',
+                    'Times New Roman': 'times.ttf',
+                    'Times New Roman Bold': 'timesbd.ttf',
+                    'Times New Roman Bold Italic': 'timesbi.ttf',
+                    'Times New Roman Italic': 'timesi.ttf',
+                    'Trebuchet MS': 'trebuc.ttf',
+                    'Trebuchet MS Bold': 'trebucbd.ttf',
+                    'Trebuchet MS Bold Italic': 'trebucbi.ttf',
+                    'Trebuchet MS Italic': 'trebucit.ttf',
+                    Verdana: 'verdana.ttf',
+                    'Verdana Bold': 'verdanab.ttf',
+                    'Verdana Bold Italic': 'verdanaz.ttf',
+                    'Verdana Italic': 'verdanai.ttf',
+                    Vrinda: 'vrinda.woff2',
+                    'Vrinda Bold': 'vrindab.woff2',
+                    Webdings: 'webdings.woff2'
+                },
+                getAvailableFonts = () => {
+                    const e = {}
+                    return (
+                        Object.keys(fonts).forEach((t) => {
+                            const n = t.toLowerCase()
+                            e[n] = window.CROPTIX_BASE_URL + 'fonts/' + fonts[t]
+                        }),
+                        e
+                    )
+                },
+                fixSubs = async (e) => {
+                    const subs = await fetch(e)
+                    let sub_content = await subs.text()
+
+                    // Fixes for Thai
+                    if (sub_content.includes('DilleniaUPC')) {
+                        // Fix font
+                        sub_content = sub_content.replace(
+                            /Style:\s*Font1,DilleniaUPC,85,[^\n]*/g,
+                            'Style: Default,Noto Sans Thai,30,&H00FFFFFF,&H0000FFFF,&H00000000,&H7F404040,-1,0,0,0,100,100,0,0,1,2,1,2,0020,0020,0022,0'
+                        )
+
+                        // Fix resolution
+                        sub_content = sub_content.replace(/PlayResX:\s*1920/g, 'PlayResX: 640').replace(/PlayResY:\s*1080/g, 'PlayResY: 360')
+                        console.warn('CROPTIX THAI SUBS FIX APPLIED')
+                    }
+
+                    return sub_content
+                },
+                osr = () => {
+                    var vmc = oO().viewModelContainer.trackSelectionVM
+                    var state = h.useState(void 0),
+                        activeText = state[0],
+                        setActiveText = state[1]
+                    var octoRef = h.useRef(null)
+                    var blobUrlRef = h.useRef(null)
+
+                    h.useEffect(
+                        function () {
+                            var sub = vmc.activeTextTrack$.subscribe(setActiveText)
+                            return function () {
+                                sub.unsubscribe()
+                            }
+                        },
+                        [vmc]
+                    )
+
+                    h.useEffect(function () {
+                        var handleResize = function () {
+                            if (octoRef.current && typeof octoRef.current.resize === 'function') {
+                                octoRef.current.resize()
+                            }
+                        }
+
+                        window.addEventListener('resize', handleResize)
+
+                        var video = document.querySelector('video')
+                        var ro = null
+                        if (video && video.parentElement && typeof ResizeObserver !== 'undefined') {
+                            ro = new ResizeObserver(handleResize)
+                            ro.observe(video.parentElement)
+                        }
+
+                        return function () {
+                            window.removeEventListener('resize', handleResize)
+                            if (ro) ro.disconnect()
+                        }
+                    }, [])
+
+                    h.useEffect(
+                        function () {
+                            if (!activeText || !activeText.externalTextUrl) {
+                                if (octoRef.current && typeof octoRef.current.freeTrack === 'function') {
+                                    octoRef.current.freeTrack()
+                                }
+                                return
+                            }
+
+                            var subUrlString = activeText.externalTextUrl.toString()
+                            var loadAndApplySubtitles = async function () {
+                                var fixedContent = await fixSubs(subUrlString)
+
+                                if (octoRef.current) {
+                                    octoRef.current.setTrack(fixedContent)
+                                } else {
+                                    var video = document.querySelector('video')
+                                    if (!video) return
+
+                                    if (video.textTracks) {
+                                        for (var i = 0; i < video.textTracks.length; i++) {
+                                            video.textTracks[i].mode = 'hidden'
+                                        }
+                                    }
+
+                                    var extBase = window.CROPTIX_BASE_URL + 'subtitle-octopus/'
+                                    var workerJs = extBase + 'subtitles-octopus-worker.js'
+                                    var blobCode =
+                                        `
+                var base = "` +
+                                        extBase +
+                                        `";
+                var origFetch = self.fetch;
+                
+                self.fetch = function(input, init) {
+                    var url = typeof input === 'string' ? input : (input instanceof Request ? input.url : String(input));
+                    if (url.indexOf('.wasm') > -1 || url.indexOf('.data') > -1) {
+                        var fileName = url.split('/').pop();
+                        return origFetch(base + fileName, init);
+                    }
+                    return origFetch(input, init);
+                };
+                
+                var Module = {
+                    locateFile: function(path, prefix) {
+                        if (path.indexOf('.wasm') > -1 || path.indexOf('.data') > -1) {
+                            return base + path;
+                        }
+                        return prefix + path;
+                    }
+                };
+
+                importScripts('` +
+                                        workerJs +
+                                        `');
+            `
+
+                                    blobUrlRef.current = URL.createObjectURL(new Blob([blobCode], { type: 'application/javascript' }))
+                                    if (typeof SubtitlesOctopus !== 'undefined') {
+                                        octoRef.current = new SubtitlesOctopus({
+                                            video: video,
+                                            subContent: fixedContent,
+                                            workerUrl: blobUrlRef.current,
+                                            wasmUrl: window.CROPTIX_BASE_URL + 'subtitle-octopus/subtitles-octopus-worker.wasm',
+                                            dataUrl: window.CROPTIX_BASE_URL + 'subtitle-octopus/subtitles-octopus-worker.data',
+                                            fonts: Object.values(getAvailableFonts()),
+                                            fallbackFont: window.CROPTIX_BASE_URL + 'fonts/arial.ttf',
+                                            debug: false
+                                        })
+                                    }
+                                }
+                            }
+
+                            loadAndApplySubtitles()
+                        },
+                        [activeText]
+                    )
+
+                    h.useEffect(function () {
+                        return function () {
+                            if (octoRef.current) {
+                                octoRef.current.dispose()
+                                octoRef.current = null
+                            }
+                            if (blobUrlRef.current) {
+                                URL.revokeObjectURL(blobUrlRef.current)
+                                blobUrlRef.current = null
+                            }
+                        }
+                    }, [])
+                    return null
                 },
                 da = () => {
                     let { accessibilityAnnouncer: e } = oO(),
@@ -19645,7 +20056,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                                                     oi.jsxs('div', {
                                                         'data-testid': 'bottom-right-controls-stack',
                                                         className: 'kat:flex kat:items-end kat:justify-end',
-                                                        children: [oi.jsx(uSM, {}), oi.jsx(lo, {})]
+                                                        children: [oi.jsx(osr, {}), oi.jsx(pip, {}), oi.jsx(uSM, {}), oi.jsx(lo, {})]
                                                     })
                                                 ]
                                             }),
@@ -20597,6 +21008,24 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                                                             if (e3(e)) {
                                                                 let r = e0(e, 'url') && e1(e.url) ? new URL(e.url) : void 0
                                                                 if (!r) throw new eX('Manifest is missing clean version url', ng.MANIFEST_PARSE)
+                                                                if (e0(e, 'subtitles') && e3(e.subtitles)) {
+                                                                    let a = e.subtitles
+                                                                    for (let e of Object.keys(a)) {
+                                                                        let n = {
+                                                                            role: nP.SUBTITLE,
+                                                                            format: nR.EXTERNAL,
+                                                                            language: e,
+                                                                            displayName: t.getTextTrackDisplayName(e),
+                                                                            videoUrl: r,
+                                                                            ...(e0(a[e], 'url') && e1(a[e].url)
+                                                                                ? {
+                                                                                      externalTextUrl: new URL(a[e].url)
+                                                                                  }
+                                                                                : {})
+                                                                        }
+                                                                        i.push(n)
+                                                                    }
+                                                                }
                                                                 if (e0(e, 'captions') && e3(e.captions)) {
                                                                     let a = e.captions
                                                                     for (let e of Object.keys(a)) {
@@ -20629,24 +21058,6 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                                                                             }
                                                                             i.push(a)
                                                                         }
-                                                                }
-                                                                if (e0(e, 'subtitles') && e3(e.subtitles)) {
-                                                                    let a = e.subtitles
-                                                                    for (let e of Object.keys(a)) {
-                                                                        let n = {
-                                                                            role: nP.SUBTITLE,
-                                                                            format: nR.EXTERNAL,
-                                                                            language: e,
-                                                                            displayName: t.getTextTrackDisplayName(e),
-                                                                            videoUrl: r,
-                                                                            ...(e0(a[e], 'url') && e1(a[e].url)
-                                                                                ? {
-                                                                                      externalTextUrl: new URL(a[e].url)
-                                                                                  }
-                                                                                : {})
-                                                                        }
-                                                                        i.push(n)
-                                                                    }
                                                                 }
                                                             }
                                                             return i
@@ -21173,7 +21584,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                 }
                 getAvailableTextTracks(e) {
                     let t = e.manifest.stitchedElements.find((e) => e.type === nw.MAIN)
-                    return t ? t.textTracks.filter((e) => e.format === nR.BURNED_IN || e.role === nP.CLOSED_CAPTION) : []
+                    return t ? t.textTracks.filter((e) => e.format === nR.EXTERNAL || e.role === nP.CLOSED_CAPTION) : []
                 }
                 getAvailableAudioTracks(e) {
                     let t = e.manifest.stitchedElements.find((e) => e.type === nw.MAIN)
