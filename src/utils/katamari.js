@@ -19266,6 +19266,299 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                             : null
                     )
                 },
+                uSM = () => {
+                    var state = h.useState(!1),
+                        isOpen = state[0],
+                        setIsOpen = state[1]
+                    var panelState = h.useState('main'),
+                        activePanel = panelState[0],
+                        setActivePanel = panelState[1]
+                    var menuRef = h.useRef(null)
+                    var t = oL().t
+                    var settings = lt()
+                    var speed = oX()
+                    var vmc = oO().viewModelContainer.trackSelectionVM
+
+                    var auState = h.useState([]),
+                        audioTracks = auState[0],
+                        setAudioTracks = auState[1]
+                    var aaState = h.useState(void 0),
+                        activeAudio = aaState[0],
+                        setActiveAudio = aaState[1]
+                    var txState = h.useState([]),
+                        textTracks = txState[0],
+                        setTextTracks = txState[1]
+                    var atState = h.useState(void 0),
+                        activeText = atState[0],
+                        setActiveText = atState[1]
+
+                    h.useEffect(
+                        function () {
+                            var s1 = vmc.availableAudioTracks$.subscribe(setAudioTracks)
+                            var s2 = vmc.activeAudioTrack$.subscribe(setActiveAudio)
+                            var s3 = vmc.availableTextTracks$.subscribe(setTextTracks)
+                            var s4 = vmc.activeTextTrack$.subscribe(setActiveText)
+                            return function () {
+                                s1.unsubscribe()
+                                s2.unsubscribe()
+                                s3.unsubscribe()
+                                s4.unsubscribe()
+                            }
+                        },
+                        [vmc]
+                    )
+
+                    var closeMenu = h.useCallback(function () {
+                        setIsOpen(!1)
+                        setActivePanel('main')
+                    }, [])
+                    var toggleMenu = h.useCallback(function () {
+                        setIsOpen(function (p) {
+                            return !p
+                        })
+                        setActivePanel('main')
+                    }, [])
+                    var handleBgClick = h.useCallback(function (e) {
+                        setIsOpen(!1)
+                        e.preventDefault()
+                    }, [])
+
+                    var formatTrack = function (tr) {
+                        if (!tr) return t('none')
+                        return tr.displayName !== tr.language ? tr.displayName : t(tr.language) || tr.language
+                    }
+
+                    var MainItem = function (p) {
+                        return oi.jsxs('div', {
+                            className:
+                                'kat:flex kat:items-center kat:justify-between kat:gap-8 kat:cursor-pointer kat:ps-20 kat:pe-20 kat:pt-13 kat:pb-13 kat:hover:bg-neutral-600',
+                            onClick: p.onClick,
+                            children: [
+                                oi.jsx('span', { className: 'kat:text-sm kat:text-white', children: p.label }),
+                                oi.jsxs('div', {
+                                    className: 'kat:flex kat:items-center kat:gap-4',
+                                    children: [
+                                        oi.jsx('span', { className: 'kat:text-sm kat:text-neutral-300', children: p.value }),
+                                        oi.jsx('span', { className: 'kat:text-neutral-300 kat:font-bold', style: { fontSize: '16px', marginLeft: '4px' }, children: '>' })
+                                    ]
+                                })
+                            ]
+                        })
+                    }
+
+                    var renderPanel = function () {
+                        if (activePanel === 'main') {
+                            var qualLabel = settings.selectedQualityBucket || 'Auto'
+                            var qualBadge = qualLabel === '1080p' ? ' FHD' : qualLabel === '720p' ? ' HD' : qualLabel === '480p' ? ' SD' : ''
+
+                            return oi.jsxs('div', {
+                                className: 'kat:flex kat:flex-col kat:py-10',
+                                style: { width: '320px' },
+                                children: [
+                                    oi.jsx(o6, { label: t('autoplayNext'), checked: settings.isAutoplayNextEnabled ?? !1, onChange: settings.toggleAutoplayNext }),
+                                    oi.jsx(MainItem, {
+                                        label: t('audio'),
+                                        value: formatTrack(activeAudio),
+                                        onClick: function () {
+                                            setActivePanel('audio')
+                                        }
+                                    }),
+                                    oi.jsx(MainItem, {
+                                        label: t('subtitlesCc'),
+                                        value: formatTrack(activeText),
+                                        onClick: function () {
+                                            setActivePanel('subtitles')
+                                        }
+                                    }),
+                                    oi.jsxs(MainItem, {
+                                        label: t('quality'),
+                                        value: oi.jsxs('span', {
+                                            children: [qualLabel, oi.jsx('span', { style: { color: '#ff5e00', fontWeight: 'bold', marginLeft: '4px' }, children: qualBadge })]
+                                        }),
+                                        onClick: function () {
+                                            setActivePanel('quality')
+                                        }
+                                    }),
+                                    oi.jsx(MainItem, {
+                                        label: t('playbackSpeed'),
+                                        value: speed.selectedRate ? speed.selectedRate + 'x' : '1x',
+                                        onClick: function () {
+                                            setActivePanel('speed')
+                                        }
+                                    })
+                                ]
+                            })
+                        }
+
+                        var backBtn = oi.jsx('div', {
+                            className:
+                                'kat:flex kat:items-center kat:gap-4 kat:cursor-pointer kat:ps-20 kat:pe-20 kat:pt-13 kat:pb-13 kat:hover:bg-neutral-600 kat:border-b kat:border-neutral-600',
+                            onClick: function () {
+                                setActivePanel('main')
+                            },
+                            children: oi.jsx('span', { className: 'kat:text-sm kat:font-bold kat:text-white', children: '< ' + t('settings') })
+                        })
+
+                        switch (activePanel) {
+                            case 'audio': {
+                                return oi.jsxs('div', {
+                                    className: 'kat:flex kat:flex-col',
+                                    style: { width: '320px' },
+                                    children: [
+                                        backBtn,
+                                        oi.jsx('div', {
+                                            className: 'kat:overflow-y-auto',
+                                            style: { maxHeight: '300px' },
+                                            children: audioTracks.map(function (tr) {
+                                                var sel = activeAudio && activeAudio.language === tr.language && activeAudio.role === tr.role
+                                                return oi.jsx(
+                                                    oB,
+                                                    {
+                                                        label: formatTrack(tr),
+                                                        selected: sel,
+                                                        onSelect: function () {
+                                                            vmc.setAudioTrack(tr)
+                                                            setActivePanel('main')
+                                                        }
+                                                    },
+                                                    tr.language + '-' + tr.role
+                                                )
+                                            })
+                                        })
+                                    ]
+                                })
+                                break
+                            }
+                            case 'subtitles': {
+                                return oi.jsxs('div', {
+                                    className: 'kat:flex kat:flex-col',
+                                    style: { width: '320px' },
+                                    children: [
+                                        backBtn,
+                                        oi.jsx('div', {
+                                            className: 'kat:overflow-y-auto',
+                                            style: { maxHeight: '300px' },
+                                            children: textTracks.map(function (tr) {
+                                                var sel = activeText && activeText.language === tr.language && activeText.role === tr.role
+                                                return oi.jsx(
+                                                    oB,
+                                                    {
+                                                        label: formatTrack(tr),
+                                                        selected: sel,
+                                                        onSelect: function () {
+                                                            vmc.setTextTrack(tr)
+                                                            setActivePanel('main')
+                                                        }
+                                                    },
+                                                    tr.language + '-' + tr.role
+                                                )
+                                            })
+                                        })
+                                    ]
+                                })
+                                break
+                            }
+                            case 'quality': {
+                                var qOpts = [
+                                    { label: 'Auto', bucket: 'AUTO', badge: '' },
+                                    { label: '1080p', bucket: '1080p', badge: ' FHD' },
+                                    { label: '720p', bucket: '720p', badge: ' HD' },
+                                    { label: '480p', bucket: '480p', badge: ' SD' },
+                                    { label: '360p', bucket: '360p', badge: '' },
+                                    { label: '240p', bucket: '240p', badge: '' }
+                                ].filter(function (opt) {
+                                    return settings.availableBuckets.includes(opt.bucket)
+                                })
+
+                                return oi.jsxs('div', {
+                                    className: 'kat:flex kat:flex-col',
+                                    style: { width: '320px' },
+                                    children: [
+                                        backBtn,
+                                        oi.jsx('div', {
+                                            className: 'kat:py-5',
+                                            children: qOpts.map(function (opt) {
+                                                var isSel = settings.selectedQualityBucket === opt.bucket
+                                                return oi.jsx(
+                                                    oB,
+                                                    {
+                                                        label: oi.jsxs('span', {
+                                                            children: [
+                                                                opt.label,
+                                                                oi.jsx('span', { style: { color: '#ff5e00', fontWeight: 'bold', marginLeft: '6px' }, children: opt.badge })
+                                                            ]
+                                                        }),
+                                                        selected: isSel,
+                                                        onSelect: function () {
+                                                            settings.setPlaybackQualityBucket(opt.bucket)
+                                                            setActivePanel('main')
+                                                        }
+                                                    },
+                                                    opt.bucket
+                                                )
+                                            })
+                                        })
+                                    ]
+                                })
+                                break
+                            }
+                            case 'speed': {
+                                return oi.jsxs('div', {
+                                    className: 'kat:flex kat:flex-col',
+                                    style: { width: '320px' },
+                                    children: [
+                                        backBtn,
+                                        oi.jsx('div', {
+                                            className: 'kat:overflow-y-auto',
+                                            style: { maxHeight: '300px' },
+                                            children: speed.availableRates.map(function (r) {
+                                                return oi.jsx(
+                                                    oB,
+                                                    {
+                                                        label: r + 'x',
+                                                        selected: speed.selectedRate === r,
+                                                        onSelect: function () {
+                                                            speed.selectPlaybackSpeed(r)
+                                                            setActivePanel('main')
+                                                        }
+                                                    },
+                                                    r
+                                                )
+                                            })
+                                        })
+                                    ]
+                                })
+                                break
+                            }
+                            default: {
+                                return null
+                                break
+                            }
+                        }
+                    }
+
+                    return oi.jsxs(oi.Fragment, {
+                        children: [
+                            isOpen && oi.jsx('div', { 'data-testid': 'menu-background', className: 'kat:absolute kat:inset-0', onClick: handleBgClick }),
+                            oi.jsx('div', {
+                                className: os('kat:relative', isOpen ? 'kat:z-1' : ''),
+                                ref: menuRef,
+                                children: oi.jsx(oo, {
+                                    Icon: oi.jsx('img', {
+                                        src: 'data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cdefs%3E%3Cstyle%3E.white%7Bfill%3A%23fff%3Bfill-rule%3Aevenodd%3B%7D%3C%2Fstyle%3E%3C%2Fdefs%3E%3Cpath%20class%3D%22white%22%20d%3D%22M17.969%2C9.5A.539.539%2C0%2C0%2C0%2C17.8%2C9.11a.679.679%2C0%2C0%2C0-.359-.2L16.344%2C8.75a.734.734%2C0%2C0%2C1-.656-.532l-.407-1a.777.777%2C0%2C0%2C1%2C.063-.843l.687-.874A.59.59%2C0%2C0%2C0%2C16%2C4.719L15.25%2C4a.549.549%2C0%2C0%2C0-.751-.031l-.874.656a.744.744%2C0%2C0%2C1-.843.094l-1-.407a.808.808%2C0%2C0%2C1-.36-.265.607.607%2C0%2C0%2C1-.172-.391l-.156-1.094a.679.679%2C0%2C0%2C0-.2-.359.539.539%2C0%2C0%2C0-.391-.172A2.808%2C2.808%2C0%2C0%2C0%2C10%2C2l-.5.031A.539.539%2C0%2C0%2C0%2C9.11%2C2.2a.666.666%2C0%2C0%2C0-.2.359L8.75%2C3.656a.735.735%2C0%2C0%2C1-.531.656l-1%2C.407a.745.745%2C0%2C0%2C1-.844-.094L5.5%2C3.969A.59.59%2C0%2C0%2C0%2C4.719%2C4L4%2C4.719a.59.59%2C0%2C0%2C0-.031.782l.656.874a.747.747%2C0%2C0%2C1%2C.094.844l-.407%2C1a.818.818%2C0%2C0%2C1-.265.359.609.609%2C0%2C0%2C1-.391.172l-1.094.156a.679.679%2C0%2C0%2C0-.359.2.535.535%2C0%2C0%2C0-.172.391A2.808%2C2.808%2C0%2C0%2C0%2C2%2C10l.031.5a.535.535%2C0%2C0%2C0%2C.172.391.666.666%2C0%2C0%2C0%2C.359.2l1.094.156a.614.614%2C0%2C0%2C1%2C.391.172.821.821%2C0%2C0%2C1%2C.265.36l.407%2C1a.745.745%2C0%2C0%2C1-.094.843l-.656.876c-.187.27-.209.489-.063.656a.744.744%2C0%2C0%2C1%2C.078.093c.032.041.067.088.11.141a1.758%2C1.758%2C0%2C0%2C0%2C.124.14l.126.125.125.126a.44.44%2C0%2C0%2C0%2C.125.092.822.822%2C0%2C0%2C0%2C.422.189.739.739%2C0%2C0%2C0%2C.485-.032l.874-.656a.745.745%2C0%2C0%2C1%2C.843-.094l1%2C.407a.815.815%2C0%2C0%2C1%2C.36.265.614.614%2C0%2C0%2C1%2C.172.391l.156%2C1.094a.666.666%2C0%2C0%2C0%2C.2.359.537.537%2C0%2C0%2C0%2C.389.171A2.711%2C2.711%2C0%2C0%2C0%2C10%2C18l.5-.031a.539.539%2C0%2C0%2C0%2C.391-.172.679.679%2C0%2C0%2C0%2C.2-.359l.156-1.094a.614.614%2C0%2C0%2C1%2C.172-.391.815.815%2C0%2C0%2C1%2C.36-.265l1-.407a.745.745%2C0%2C0%2C1%2C.843.094l.876.656a.588.588%2C0%2C0%2C0%2C.78-.031L16%2C15.281a.591.591%2C0%2C0%2C0%2C.032-.782l-.688-.874a.779.779%2C0%2C0%2C1-.063-.843l.407-1a.734.734%2C0%2C0%2C1%2C.656-.532l1.094-.156a.666.666%2C0%2C0%2C0%2C.359-.2.539.539%2C0%2C0%2C0%2C.172-.391A2.786%2C2.786%2C0%2C0%2C0%2C18%2C10ZM10%2C13.2A3.2%2C3.2%2C0%2C1%2C1%2C13.2%2C10%2C3.2%2C3.2%2C0%2C0%2C1%2C10%2C13.2Z%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E',
+                                        className: 'kat:w-20 kat:h-20 kat:shrink-0'
+                                    }),
+                                    label: t('playerSettings'),
+                                    onClick: toggleMenu,
+                                    'aria-expanded': isOpen,
+                                    'aria-haspopup': 'menu',
+                                    'data-testid': 'player-settings-menu-button'
+                                })
+                            }),
+                            oi.jsx(oJ, { isVisible: isOpen, toggleVisibility: closeMenu, anchorElement: menuRef.current, expandDirection: 'up', children: renderPanel() })
+                        ]
+                    })
+                },
                 da = () => {
                     let { accessibilityAnnouncer: e } = oO(),
                         { isVisible: t, bump: i } = cW(),
@@ -19352,7 +19645,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                                                     oi.jsxs('div', {
                                                         'data-testid': 'bottom-right-controls-stack',
                                                         className: 'kat:flex kat:items-end kat:justify-end',
-                                                        children: [oi.jsx(cC, {}), oi.jsx(o2, {}), oi.jsx(li, {}), oi.jsx(lo, {})]
+                                                        children: [oi.jsx(uSM, {}), oi.jsx(lo, {})]
                                                     })
                                                 ]
                                             }),
