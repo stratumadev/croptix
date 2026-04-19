@@ -16825,6 +16825,21 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                                         },
                                         onKeyDown: function (evt) {
                                             if (null === o.current) return
+
+                                            var isArrow = !1
+                                            switch (evt.key) {
+                                                case 'ArrowLeft':
+                                                case 'ArrowDown':
+                                                    o.current.valueAsNumber = Math.max(0, o.current.valueAsNumber - 5)
+                                                    isArrow = !0
+                                                    break
+                                                case 'ArrowRight':
+                                                case 'ArrowUp':
+                                                    o.current.valueAsNumber = Math.min(t, o.current.valueAsNumber + 5)
+                                                    isArrow = !0
+                                                    break
+                                            }
+                                            if (!isArrow) return
                                             evt.preventDefault()
 
                                             u.current = !0
@@ -16837,18 +16852,6 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                                                 triggerSeek(d.current)
                                                 d.current = void 0
                                             }, n.keyboardDebounceTimeoutMs)
-
-                                            var isArrow = !1
-                                            switch (evt.key) {
-                                                case 'ArrowLeft':
-                                                case 'ArrowDown':
-                                                    o.current.valueAsNumber = Math.max(0, o.current.valueAsNumber - 5)
-                                                    break
-                                                case 'ArrowRight':
-                                                case 'ArrowUp':
-                                                    o.current.valueAsNumber = Math.min(t, o.current.valueAsNumber + 5)
-                                                    break
-                                            }
 
                                             d.current = o.current.valueAsNumber
                                             updateVisuals(d.current)
