@@ -12211,22 +12211,50 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                 (uf.VolDown = 'VolDown'),
                 (uf.JumpForward = 'JumpForward'),
                 (uf.JumpBackward = 'JumpBackward'),
+                (uf.JumpForward10 = 'JumpForward10'),
+                (uf.JumpBackward10 = 'JumpBackward10'),
                 (uf.Mute = 'Mute'),
                 (uf.Fullscreen = 'Fullscreen'),
                 (uf.SkipEvent = 'SkipEvent'),
                 (uf.NextEpisode = 'NextEpisode'),
-                (uf.RestartEpisode = 'RestartEpisode'))
+                (uf.RestartEpisode = 'RestartEpisode'),
+                (uf.ToggleSubs = 'ToggleSubs'),
+                (uf.SeekPercent1 = 'SeekPercent1'),
+                (uf.SeekPercent2 = 'SeekPercent2'),
+                (uf.SeekPercent3 = 'SeekPercent3'),
+                (uf.SeekPercent4 = 'SeekPercent4'),
+                (uf.SeekPercent5 = 'SeekPercent5'),
+                (uf.SeekPercent6 = 'SeekPercent6'),
+                (uf.SeekPercent7 = 'SeekPercent7'),
+                (uf.SeekPercent8 = 'SeekPercent8'),
+                (uf.SeekPercent9 = 'SeekPercent9'),
+                (uf.FrameForward = 'FrameForward'),
+                (uf.FrameBackward = 'FrameBackward'))
             let ln = {
-                    [uv.PlayPause]: [' ', 'k'],
+                    [uv.PlayPause]: [' ', 'k', 'K'],
                     [uv.VolUp]: ['ArrowUp'],
                     [uv.VolDown]: ['ArrowDown'],
                     [uv.JumpForward]: ['ArrowRight'],
                     [uv.JumpBackward]: ['ArrowLeft'],
-                    [uv.Mute]: ['m'],
-                    [uv.Fullscreen]: ['f'],
-                    [uv.SkipEvent]: ['s'],
+                    [uv.JumpForward10]: ['l', 'L'],
+                    [uv.JumpBackward10]: ['j', 'J'],
+                    [uv.Mute]: ['m', 'M'],
+                    [uv.Fullscreen]: ['f', 'F'],
+                    [uv.SkipEvent]: ['s', 'S'],
                     [uv.NextEpisode]: ['N'],
-                    [uv.RestartEpisode]: ['Home']
+                    [uv.RestartEpisode]: ['Home', '0'],
+                    [uv.ToggleSubs]: ['c', 'C'],
+                    [uv.SeekPercent1]: ['1'],
+                    [uv.SeekPercent2]: ['2'],
+                    [uv.SeekPercent3]: ['3'],
+                    [uv.SeekPercent4]: ['4'],
+                    [uv.SeekPercent5]: ['5'],
+                    [uv.SeekPercent6]: ['6'],
+                    [uv.SeekPercent7]: ['7'],
+                    [uv.SeekPercent8]: ['8'],
+                    [uv.SeekPercent9]: ['9'],
+                    [uv.FrameForward]: ['>', '.'],
+                    [uv.FrameBackward]: ['<', ',']
                 },
                 ls = ({ shortcut: e, handleShortcut: t }) => {
                     let { keyboardShortcutTarget: i } = oO(),
@@ -16243,6 +16271,18 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                 jumpBackward() {
                     this._relativeSeek(-5)
                 }
+                jumpForward10() {
+                    this._relativeSeek(10)
+                }
+                jumpBackward10() {
+                    this._relativeSeek(-10)
+                }
+                frameForward() {
+                    this._relativeSeek(1 / 24)
+                }
+                frameBackward() {
+                    this._relativeSeek(-1 / 24)
+                }
                 dispose() {
                     this._disposeRelativeSeek()
                 }
@@ -19977,7 +20017,67 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                     }, [])
                     return null
                 },
+                customShortcuts = () => {
+                    let {
+                        viewModelContainer: { timelineScrubberVM: e, jumpButtonsVM: j, playPauseButtonVM: p, trackSelectionVM: ts }
+                    } = oO()
+                    let [dur, setDur] = (0, h.useState)(0)
+                    let [isPaused, setIsPaused] = (0, h.useState)(!1)
+                    let [txtTracks, setTxtTracks] = (0, h.useState)([])
+                    let [activeTxt, setActiveTxt] = (0, h.useState)(null)
+
+                    ;(0, h.useEffect)(() => {
+                        let s1 = e.duration$.subscribe(setDur)
+                        let s2 = p.isPlaying$.subscribe((playing) => setIsPaused(!playing))
+                        let s3 = ts.availableTextTracks$.subscribe(setTxtTracks)
+                        let s4 = ts.activeTextTrack$.subscribe(setActiveTxt)
+                        return () => {
+                            s1.unsubscribe()
+                            s2.unsubscribe()
+                            s3.unsubscribe()
+                            s4.unsubscribe()
+                        }
+                    }, [e, p, ts])
+
+                    ls({ shortcut: uv.JumpBackward10, handleShortcut: () => j.jumpBackward10() })
+                    ls({ shortcut: uv.JumpForward10, handleShortcut: () => j.jumpForward10() })
+                    ls({
+                        shortcut: uv.FrameBackward,
+                        handleShortcut: () => {
+                            if (isPaused) j.frameBackward()
+                        }
+                    })
+                    ls({
+                        shortcut: uv.FrameForward,
+                        handleShortcut: () => {
+                            if (isPaused) j.frameForward()
+                        }
+                    })
+                    ls({ shortcut: uv.RestartEpisode, handleShortcut: () => e.setPosition(0) })
+                    ls({ shortcut: uv.SeekPercent1, handleShortcut: () => e.setPosition(dur * 0.1) })
+                    ls({ shortcut: uv.SeekPercent2, handleShortcut: () => e.setPosition(dur * 0.2) })
+                    ls({ shortcut: uv.SeekPercent3, handleShortcut: () => e.setPosition(dur * 0.3) })
+                    ls({ shortcut: uv.SeekPercent4, handleShortcut: () => e.setPosition(dur * 0.4) })
+                    ls({ shortcut: uv.SeekPercent5, handleShortcut: () => e.setPosition(dur * 0.5) })
+                    ls({ shortcut: uv.SeekPercent6, handleShortcut: () => e.setPosition(dur * 0.6) })
+                    ls({ shortcut: uv.SeekPercent7, handleShortcut: () => e.setPosition(dur * 0.7) })
+                    ls({ shortcut: uv.SeekPercent8, handleShortcut: () => e.setPosition(dur * 0.8) })
+                    ls({ shortcut: uv.SeekPercent9, handleShortcut: () => e.setPosition(dur * 0.9) })
+                    ls({
+                        shortcut: uv.ToggleSubs,
+                        handleShortcut: () => {
+                            if (activeTxt && activeTxt.language !== 'none') {
+                                let noneTrack = txtTracks.find((tr) => tr.language === 'none')
+                                if (noneTrack) ts.setTextTrack(noneTrack)
+                            } else {
+                                let firstReal = txtTracks.find((tr) => tr.language !== 'none')
+                                if (firstReal) ts.setTextTrack(firstReal)
+                            }
+                        }
+                    })
+                },
                 da = () => {
+                    customShortcuts()
                     let { accessibilityAnnouncer: e } = oO(),
                         { isVisible: t, bump: i } = cW(),
                         { isAnyMenuOpen: r } = oK(),
