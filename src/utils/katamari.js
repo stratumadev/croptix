@@ -21063,6 +21063,16 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                                                                             i.push(a)
                                                                         }
                                                                 }
+                                                                // add none option to every track (not just dub tracks)
+                                                                if (!i.some((track) => track.language === 'none')) {
+                                                                    i.unshift({
+                                                                        role: nP.SUBTITLE,
+                                                                        format: nR.EXTERNAL,
+                                                                        language: 'none',
+                                                                        displayName: t.getTextTrackDisplayName('none'),
+                                                                        videoUrl: r
+                                                                    })
+                                                                }
                                                             }
                                                             return i
                                                         })(e, t),
@@ -21588,7 +21598,15 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                 }
                 getAvailableTextTracks(e) {
                     let t = e.manifest.stitchedElements.find((e) => e.type === nw.MAIN)
-                    return t ? t.textTracks.filter((e) => e.format === nR.EXTERNAL || e.role === nP.CLOSED_CAPTION) : []
+                    if (!t) return []
+                    let tracks = t.textTracks.filter((e) => e.format === nR.EXTERNAL || e.role === nP.CLOSED_CAPTION)
+
+                    return tracks.sort((a, b) => {
+                        let wA = a.language === 'none' ? 0 : a.role === nP.SUBTITLE ? 1 : a.role === nP.CLOSED_CAPTION ? 2 : 3
+                        let wB = b.language === 'none' ? 0 : b.role === nP.SUBTITLE ? 1 : b.role === nP.CLOSED_CAPTION ? 2 : 3
+
+                        return wA - wB
+                    })
                 }
                 getAvailableAudioTracks(e) {
                     let t = e.manifest.stitchedElements.find((e) => e.type === nw.MAIN)
