@@ -3853,8 +3853,22 @@
                                                     this._eventBus.emit(a2.AVAILABLE_TEXT_TRACKS_CHANGED, {
                                                         availableTextTracks: this._availableTextTracks,
                                                         source: a3.SYSTEM
-                                                    }),
-                                                    this._initializeTextTrackSelection(e).catch((e) => g.warn('Initial text selection failed', e)))
+                                                    }))
+
+                                                // Disable active subtitle track when same lang is not avaiable
+                                                if (this._currentTextTrack && !this._availableTextTracks.some((t) => this._isSameTextTrack(this._currentTextTrack, t))) {
+                                                    let noneTrack = this._availableTextTracks.find((t) => t.language === 'none') || this._availableTextTracks[0]
+                                                    if (noneTrack) {
+                                                        let prev = this._currentTextTrack
+                                                        this._currentTextTrack = noneTrack
+                                                        this._eventBus.emit(a2.ACTIVE_TEXT_TRACK_CHANGE, {
+                                                            activeTextTrack: noneTrack,
+                                                            previousTextTrack: prev,
+                                                            source: a3.SYSTEM
+                                                        })
+                                                    }
+                                                }
+                                                this._initializeTextTrackSelection(e).catch((err) => g.warn('Initial text selection failed', err))
                                             })
                                         ),
                                         this._subscriptions.push(
@@ -11888,8 +11902,8 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                                         _ = 'u' > typeof document && 'rtl' === document.documentElement.dir ? 'rtl' : void 0
                                     return oi.jsx('div', {
                                         ref: o,
-                                        className: `kat:inline-flex kat:flex-col kat:fixed kat:z-[1001] kat:bg-neutral-700 kat:rounded-sm kat:shadow-lg kat:outline-none kat:w-max kat:overflow-hidden focus-visible:kat:outline-2 focus-visible:kat:outline-offset-2 focus-visible:kat:outline-white/50 ${v}`,
-                                        style: c,
+                                        className: `kat:inline-flex kat:flex-col kat:z-[1001] kat:bg-neutral-700 kat:rounded-sm kat:shadow-lg kat:outline-none kat:w-max kat:overflow-hidden focus-visible:kat:outline-2 focus-visible:kat:outline-offset-2 focus-visible:kat:outline-white/50 ${v}`,
+                                        style: { ...c, position: 'fixed' },
                                         role: 'menu',
                                         tabIndex: -1,
                                         dir: _,
