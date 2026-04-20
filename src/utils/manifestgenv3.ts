@@ -38,19 +38,19 @@ async function generateManifest() {
             },
             default_title: 'CrOptix'
         },
-        declarative_net_request: {
-            rule_resources: [
-                {
-                    id: 'redirectRules',
-                    enabled: true,
-                    path: 'rules.json'
-                }
-            ]
-        },
+        // declarative_net_request: {
+        //     rule_resources: [
+        //         {
+        //             id: 'redirectRules',
+        //             enabled: true,
+        //             path: 'rules.json'
+        //         }
+        //     ]
+        // },
         content_scripts: [
             {
                 matches: ['*://*.crunchyroll.com/*'],
-                js: ['subtitle-octopus/subtitles-octopus.js'],
+                js: ['katamari.js', 'subtitle-octopus/subtitles-octopus.js'],
                 world: 'MAIN',
                 run_at: 'document_start'
             },

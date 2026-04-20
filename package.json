@@ -2,7 +2,7 @@
     "name": "croptix",
     "description": "Browser extension that enhances Crunchyroll with quality selector and playback improvements",
     "author": "stratuma",
-    "version": "1.4.1",
+    "version": "1.4.2",
     "type": "module",
     "private": true,
     "devDependencies": {
