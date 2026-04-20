@@ -16713,10 +16713,8 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                         'data-testid': 'trickplay-container',
                         children: [
                             oi.jsx('img', {
-                                className: os(
-                                    'kat:aspect-video kat:w-133 kat:@lg:w-195 kat:shrink-0 kat:min-w-133 kat:@lg:min-w-195 kat:object-contain',
-                                    o ? 'kat:block' : 'kat:hidden'
-                                ),
+                                className: os('kat:aspect-video kat:shrink-0 kat:object-contain', o ? 'kat:block' : 'kat:hidden'),
+                                style: { width: '250px', minWidth: '250px', height: 'auto' },
                                 ref: a,
                                 onLoad: g,
                                 onError: f,
@@ -19800,6 +19798,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                     'Courier New Bold': 'courbd.woff2',
                     'Courier New Bold Italic': 'courbi.woff2',
                     'Courier New Italic': 'couri.woff2',
+                    Consolas: 'Consolas.woff2',
                     'DejaVu LGC Sans Mono': 'DejaVuLGCSansMono.woff2',
                     'DejaVu LGC Sans Mono Bold': 'DejaVuLGCSansMono-Bold.woff2',
                     'DejaVu LGC Sans Mono Bold Oblique': 'DejaVuLGCSansMono-BoldOblique.woff2',

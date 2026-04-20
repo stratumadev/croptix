@@ -1,5 +1,5 @@
 ;(() => {
-    document.documentElement.setAttribute('cropix-katamari-fix', '1')
+    document.documentElement.setAttribute('croptix-katamari-fix', '1')
 
     function patch_webpack_chunk(chunk_data: any) {
         try {

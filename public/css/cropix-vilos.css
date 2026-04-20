@@ -1,6 +1,0 @@
-/* Fix blue outline on player (chrome) */
-html.cropix-vilos,
-html.cropix-vilos * {
-    outline: none !important;
-    box-shadow: none !important;
-}

@@ -1,0 +1,395 @@
+/* Main variables */
+html.croptix {
+    /* Colors */
+    --croptix-bg: #272727d1;
+    --croptix-bg-solid: #272727f1;
+    --croptix-bg-dark: #00000090;
+    --croptix-hover: #ffffff25;
+    --croptix-hover-active: #ffffff40;
+    --croptix-btn-weak: #ffffff20;
+
+    /* Effects */
+    --croptix-blur: blur(10px);
+    --croptix-shadow: inset 0 1px 2px #ffffff50, 0 2px 4px #00000030, 0 4px 8px #00000015;
+
+    /* Layout */
+    --croptix-radius: 8px;
+    --croptix-radius-lg: 10px;
+}
+
+/* Header Styles */
+html.croptix .app-layout__header--ywueY {
+    height: 0px !important;
+}
+
+html.croptix .container--cq5XE.container--has-no-gutters--WqnNJ.header-content {
+    border-radius: var(--croptix-radius);
+    width: calc(100% - var(--container-inline-padding) - var(--container-inline-padding)) !important;
+    margin: 1.25rem var(--container-inline-padding) var(--container-inline-padding) var(--container-inline-padding);
+    background-color: var(--croptix-bg) !important;
+    backdrop-filter: var(--croptix-blur);
+    box-shadow: var(--croptix-shadow) !important;
+    transition: all 150ms;
+}
+
+html.croptix .erc-sticky-header.state-sticky {
+    --container-inline-padding: 1.25rem;
+    --transform-duration: 0.3s;
+    position: fixed;
+    inset-block-start: var(--initial-sticky-pos);
+    padding-block-start: 0;
+    border-radius: var(--croptix-radius);
+    width: calc(100% - var(--container-inline-padding) - var(--container-inline-padding)) !important;
+    margin: 1.25rem var(--container-inline-padding) 0rem var(--container-inline-padding);
+    background-color: var(--croptix-bg) !important;
+    backdrop-filter: var(--croptix-blur);
+    box-shadow: var(--croptix-shadow) !important;
+}
+
+html.croptix .erc-sticky-header {
+    transition: all var(--transform-duration) ease 1ms !important;
+    opacity: 0%;
+}
+
+html.croptix .erc-sticky-header.scrolling-up {
+    transform: translate3d(0, calc(var(--initial-sticky-pos) * -1 + var(--cx-header-height) + 5px), 0) !important;
+    opacity: 100% !important;
+}
+
+html.croptix .erc-sticky-header.state-sticky,
+html.croptix .search-field-wrapper,
+html.croptix .broadcast-message--sbAcy {
+    --container-inline-padding: 1.25rem;
+}
+
+html.croptix .erc-header-tile {
+    color: #fff !important;
+}
+
+html.croptix .erc-header-tile.state-active {
+    color: #fff;
+    background-color: var(--croptix-hover-active) !important;
+}
+
+/* Dropdown Profile Button (Header) */
+html.croptix .erc-authenticated-user-menu-old .erc-header-tile {
+    border-radius: 0 var(--croptix-radius-lg) var(--croptix-radius-lg) 0;
+}
+
+/* Buttons & Controls */
+html.croptix .button--xqVd0 {
+    border-radius: var(--croptix-radius);
+    box-shadow: var(--croptix-shadow) !important;
+}
+
+html.croptix .button--xqVd0.button--is-type-one-weak--KLvCX,
+html.croptix .button--xqVd0.button--is-type-two-weak--VH7er {
+    background-color: var(--croptix-btn-weak);
+}
+
+html.croptix .text--is-regular--M4487 {
+    font-weight: 500;
+}
+
+/* Layout & Spacing */
+html.croptix .video-player-spacer {
+    max-height: calc(100vh - 120px) !important;
+}
+
+html.croptix .page-wrapper--has-padding-top--h1N8H {
+    padding-block-start: 6rem;
+}
+
+html.croptix .erc-search-page .search-page-content {
+    padding-block-start: 6rem;
+}
+
+html.croptix .erc-profile-form {
+    padding-block: 7rem 2.5rem;
+}
+
+html.croptix .erc-account .page-wrapper {
+    padding-block-start: 7rem;
+}
+
+html.croptix .hero-carousel__content-wrapper--njtFs {
+    margin-top: 80px;
+}
+
+/* Responsive Breakpoints */
+@media (min-width: 35.5em) {
+    html.croptix .erc-sticky-header.state-sticky,
+    html.croptix .search-field-wrapper,
+    html.croptix .broadcast-message--sbAcy {
+        --container-inline-padding: 2.5rem !important;
+    }
+
+    html.croptix .page-wrapper--has-padding-top--h1N8H {
+        padding-block-start: 6rem !important;
+    }
+
+    html.croptix .erc-search-page .search-page-content {
+        padding-block-start: 7.5rem !important;
+    }
+
+    html.croptix .erc-profile-form {
+        padding-block: 8rem 3.75rem !important;
+    }
+
+    html.croptix .playable-card--GnRbX {
+        flex-direction: column;
+    }
+}
+
+@media (min-width: 50em) {
+    html.croptix .series-container__grid--IlHFH {
+        padding-block-start: 5.5rem !important;
+    }
+
+    html.croptix .hero-container__grid--pZ6Z- {
+        padding-block-start: 5.5rem !important;
+    }
+
+    html.croptix .hero-container__sizer--DxOfT {
+        aspect-ratio: 19/7 !important;
+        max-height: calc(100vh - var(--under-hero-whitespace));
+        min-height: 22.75rem !important;
+    }
+
+    html.croptix .page-wrapper--has-padding-top--h1N8H {
+        padding-block-start: 7.75rem !important;
+    }
+}
+
+@media (min-width: 61.25em) {
+    html.croptix .erc-account .page-wrapper {
+        padding-block-start: 8rem !important;
+    }
+
+    html.croptix .erc-browse-cards-collection {
+        grid-template-columns: repeat(5, 1fr) !important;
+    }
+}
+
+@media (min-width: 64em) {
+    html.croptix .erc-sticky-header.state-sticky,
+    html.croptix .search-field-wrapper,
+    html.croptix .broadcast-message--sbAcy {
+        --container-inline-padding: 4rem !important;
+    }
+
+    html.croptix .series-container__sizer--42xPb {
+        max-height: calc(100vh - var(--under-hero-whitespace) + 4rem) !important;
+    }
+
+    html.croptix .hero-container__sizer--DxOfT {
+        min-height: 25.5rem !important;
+    }
+}
+
+@media (min-width: 107.5em) {
+    html.croptix .erc-sticky-header.state-sticky,
+    html.croptix .search-field-wrapper,
+    html.croptix .broadcast-message--sbAcy {
+        --container-inline-padding: 5rem !important;
+    }
+}
+
+/* Hover States */
+@media (hover: hover) {
+    html.croptix .erc-header-tile:focus,
+    html.croptix .erc-header-tile:hover,
+    html.croptix .browse-menu-item__link--JmxT8:focus,
+    html.croptix .browse-menu-item__link--JmxT8:hover,
+    html.croptix .browse-submenu-item__link--SSQp9:focus,
+    html.croptix .browse-submenu-item__link--SSQp9:hover,
+    html.croptix .user-menu-nav-item---CLa2:focus,
+    html.croptix .user-menu-nav-item---CLa2:hover,
+    html.croptix .erc-menu-item-title:focus,
+    html.croptix .erc-menu-item-title:hover,
+    html.croptix .user-menu-account-item--is-interactive--XiPoy:focus,
+    html.croptix .user-menu-account-item--is-interactive--XiPoy:hover,
+    html.croptix .dropdown-text-option---72eL:not(.dropdown-text-option--is-disabled--xhPA1):focus,
+    html.croptix .dropdown-text-option---72eL:not(.dropdown-text-option--is-disabled--xhPA1):hover,
+    html.croptix .select-content__option--gq8Uo:focus,
+    html.croptix .select-content__option--gq8Uo:hover,
+    html.croptix .extended-option--Wk-jL:focus,
+    html.croptix .extended-option--Wk-jL:hover {
+        color: #fff;
+        background-color: var(--croptix-hover) !important;
+    }
+
+    html.croptix .card:hover .playable-card-more-options--uBSQV,
+    html.croptix .collection-item:hover .playable-card-more-options--uBSQV,
+    html.croptix .playable-card-more-options--uBSQV:has(.dropdown-trigger--is-open--DP-0Q) {
+        right: 13px;
+        bottom: 13px;
+    }
+}
+
+html.croptix .playable-card-more-options--uBSQV {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+}
+
+/* Dropdown Menus */
+html.croptix .browse-menu--71A2V,
+html.croptix .user-menu--ZzPZG,
+html.croptix .erc-news-menu-dropdown,
+html.croptix .dropdown-content--5b5F7 {
+    background-color: var(--croptix-bg-solid) !important;
+    border-radius: var(--croptix-radius);
+    box-shadow: var(--croptix-shadow) !important;
+    margin-top: 10px;
+}
+
+html.croptix .dropdown-content--5b5F7 {
+    color: #fff;
+}
+
+html.croptix .dropdown-content__children--HW28H {
+    padding-block-start: 0 !important;
+    padding-block: 0 !important;
+}
+
+html.croptix .user-menu-section--is-sticky--h7FI8 {
+    background-color: transparent !important;
+}
+
+html.croptix .user-menu-section--is-sticky--h7FI8::before {
+    background-image: none !important;
+}
+
+/* Search */
+html.croptix .erc-search-page .search-field-wrapper {
+    inset-block-start: calc(var(--cx-header-height) + 2rem) !important;
+    border-radius: var(--croptix-radius);
+    width: calc(100% - var(--container-inline-padding) - var(--container-inline-padding)) !important;
+    margin: 1.25rem var(--container-inline-padding) 0rem var(--container-inline-padding);
+    background-color: var(--croptix-bg) !important;
+    backdrop-filter: var(--croptix-blur);
+    box-shadow: var(--croptix-shadow) !important;
+}
+
+/* Cards & Content */
+html.croptix .content-image--is-sized--SOai1,
+html.croptix .playable-thumbnail--is-sized--ttnK8 {
+    border-radius: var(--croptix-radius-lg);
+    overflow: hidden;
+    height: 100%;
+}
+
+html.croptix .browse-card-hover__content--aD-bn,
+html.croptix .playable-card-hover--preaw {
+    border-radius: var(--croptix-radius);
+    background-color: var(--croptix-bg) !important;
+    backdrop-filter: var(--croptix-blur);
+    box-shadow: var(--croptix-shadow) !important;
+}
+
+html.croptix .browse-card-hover__content--aD-bn {
+    padding: 0.5rem;
+}
+
+html.croptix .playable-card-hover--preaw {
+    padding: 0.75rem;
+}
+
+html.croptix .browse-card-hover__poster-wrapper--Yf-IK {
+    inset: 0 !important;
+}
+
+html.croptix .playable-card-hover__description--4Lpe4 {
+    --description-max-lines: 4 !important;
+}
+
+html.croptix .playable-card-hover__secondary-title-link--Exdsq {
+    padding-block-end: 0 !important;
+    margin-block-end: 0 !important;
+}
+
+html.croptix .browse-card--esJdT,
+html.croptix .card {
+    height: 100%;
+}
+
+html.croptix .browse-card--esJdT {
+    display: flex;
+    flex-direction: column;
+}
+
+html.croptix .browse-card__body--yGjzX {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+html.croptix .playable-card--GnRbX {
+    display: flex !important;
+    height: 100% !important;
+}
+
+html.croptix .content-image__figure-wrapper--TRCnl {
+    height: 100% !important;
+}
+
+/* Player & Thumbnails */
+html.croptix .playable-thumbnail--HKMt2 .playable-thumbnail__duration--p-Ldq {
+    border-radius: var(--croptix-radius);
+    background-color: var(--croptix-bg-dark) !important;
+    backdrop-filter: var(--croptix-blur);
+    padding: 3px 6px !important;
+    box-shadow: var(--croptix-shadow) !important;
+    inset-block-end: 0.5rem !important;
+    inset-inline-end: 0.5rem !important;
+}
+
+html.croptix .playable-thumbnail-icon__play-overlay--vzI7I {
+    align-items: end !important;
+    justify-content: start !important;
+    padding: 0.5rem;
+}
+
+html.croptix .play-media-icon--is-scalable--ZPGW9 .play-media-icon__symbol--feBy- {
+    margin-inline-start: 0.25rem !important;
+}
+
+html.croptix .play-media-icon--is-scalable--ZPGW9 {
+    height: 2rem !important;
+    width: 2rem !important;
+}
+
+html.croptix .play-media-icon--CpSht,
+html.croptix .progress-bar--4cDQR {
+    background-color: var(--croptix-bg-dark) !important;
+    backdrop-filter: var(--croptix-blur);
+    box-shadow: var(--croptix-shadow) !important;
+}
+
+html.croptix .play-media-icon--CpSht {
+    padding: 0.25rem;
+    border-radius: var(--croptix-radius) !important;
+}
+
+/* Carousel */
+html.croptix .hero-carousel__page-pill--NDpl-,
+html.croptix .hero-carousel__page-loader--iHKEw {
+    box-shadow: var(--croptix-shadow) !important;
+}
+
+/* Utilities */
+html.croptix div[data-id]:has(.container--cq5XE.container--is-contained--MuvQK) {
+    display: none !important;
+}
+
+/* Email Verify field */
+html.croptix .broadcast-message--sbAcy {
+    border-radius: var(--croptix-radius);
+    background-color: var(--croptix-bg) !important;
+    backdrop-filter: var(--croptix-blur);
+    box-shadow: var(--croptix-shadow) !important;
+    width: calc(100% - var(--container-inline-padding) - var(--container-inline-padding)) !important;
+    margin: 1.5rem var(--container-inline-padding) var(--container-inline-padding) var(--container-inline-padding);
+}

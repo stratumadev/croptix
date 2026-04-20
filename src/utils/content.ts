@@ -33,8 +33,8 @@ function setup_listener_crunchyroll() {
     crunchyroll_listener = (e: MessageEvent) => {
         if (!e.data?.type) return
 
-        if (e.data.type === 'CROPIX_TOGGLE_THEATER') {
-            document.documentElement.classList.toggle('cropix-theater')
+        if (e.data.type === 'CROPTIX_TOGGLE_THEATER') {
+            document.documentElement.classList.toggle('croptix-theater')
         }
     }
 
@@ -106,20 +106,30 @@ function add_new_control_vilos(controls_container: HTMLElement | null, video: HT
 function start_observe_crunchyroll() {
     if (crunchyroll_observer || is_vilos) return
 
-    const player = document.querySelector('.video-player') ?? document.querySelector('.player-container')
-    if (player) {
-        document.documentElement.classList.add('cropix-player')
+    const vilos = document.querySelector('.video-player')
+    const katamari = document.querySelector('.player-container')
+    const player_wrapper = document.querySelector('video-player-wrapper')
+    if (vilos || katamari) {
+        document.documentElement.classList.add('croptix-player')
+        if (player_wrapper) {
+            player_wrapper.classList.add('croptix-vilos')
+        }
     } else {
-        document.documentElement.classList.remove('cropix-player')
+        document.documentElement.classList.remove('croptix-player')
     }
 
     const handle_crunchyroll_mutation = throttle(() => {
         // Player Class Toggle
-        const player = document.querySelector('.video-player') ?? document.querySelector('.player-container')
-        if (player) {
-            document.documentElement.classList.add('cropix-player')
+        const vilos = document.querySelector('.video-player')
+        const katamari = document.querySelector('.player-container')
+        const player_wrapper = document.querySelector('video-player-wrapper')
+        if (vilos || katamari) {
+            document.documentElement.classList.add('croptix-player')
+            if (player_wrapper) {
+                player_wrapper.classList.add('croptix-vilos')
+            }
         } else {
-            document.documentElement.classList.remove('cropix-player')
+            document.documentElement.classList.remove('croptix-player')
         }
     }, 100)
 
@@ -137,7 +147,7 @@ function stop_observe_crunchyroll() {
         crunchyroll_observer = null
     }
 
-    document.documentElement.classList.remove('cropix-player')
+    document.documentElement.classList.remove('croptix-player')
 }
 
 // Observer Iframe
@@ -209,7 +219,7 @@ function add_theater_control(controls_container: HTMLElement | null, video: HTML
 
     el.addEventListener('click', (e) => {
         e.stopImmediatePropagation()
-        window.top?.postMessage({ type: 'CROPIX_TOGGLE_THEATER' }, 'https://www.crunchyroll.com')
+        window.top?.postMessage({ type: 'CROPTIX_TOGGLE_THEATER' }, 'https://www.crunchyroll.com')
     })
 }
 
@@ -416,13 +426,13 @@ async function load_settings() {
         const crunchyroll_design = settings.designEnabled !== false
         if (crunchyroll_design) {
             // Inject custom design
-            document.documentElement.classList.add('cropix')
+            document.documentElement.classList.add('croptix')
             // Start crunchyroll listener
             setup_listener_crunchyroll()
             // Start custom player design listener
             start_observe_crunchyroll()
         } else {
-            document.documentElement.classList.remove('cropix')
+            document.documentElement.classList.remove('croptix')
             // Remove crunchyroll listener
             remove_listener_crunchyroll()
             // Stop custom player design listener
@@ -448,7 +458,7 @@ async function load_settings() {
 
 // Set default vilos class
 if (is_vilos) {
-    document.documentElement.classList.add('cropix-vilos')
+    document.documentElement.classList.add('croptix-vilos')
 }
 
 load_settings()
