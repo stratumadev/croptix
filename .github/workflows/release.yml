@@ -1,0 +1,46 @@
+name: Build
+
+on:
+    release:
+        types: [published]
+
+jobs:
+    build:
+        name: Build
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+
+        steps:
+            - uses: actions/checkout@v4
+            - uses: oven-sh/setup-bun@v1
+            - run: bun install
+
+            - name: Build Manifest V2
+              run: |
+                  bun run build:v2
+                  for f in build/crunchyroll_enhancer_croptix-*.zip; do
+                    filename=$(basename "$f")
+                    mv "$f" "./${filename%.zip}.xpi"
+                  done
+
+            - name: Build Chrome Manifest V3
+              run: |
+                  bun run build:v3
+                  for f in build/crunchyroll_enhancer_croptix-*.zip; do
+                    filename=$(basename "$f")
+                    mv "$f" "./${filename%.zip}.zip"
+                  done
+
+                  for f in build/crunchyroll_enhancer_croptix-*.crx; do
+                    filename=$(basename "$f")
+                    mv "$f" "./${filename%.crx}.crx"
+                  done
+
+            - name: Upload Artifacts to Release
+              uses: softprops/action-gh-release@v2
+              with:
+                  files: |
+                      *.xpi
+                      *.zip
+                      *.crx
