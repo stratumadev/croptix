@@ -15873,6 +15873,10 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                 constructor(e) {
                     ;((this.isLoading$ = e.playerStateChangedEvent$.pipe(
                         eI((e) => {
+                            try {
+                                let ne_placeholder = document.getElementById('player-ne-placeholder')
+                                if (ne_placeholder) ne_placeholder.remove()
+                            } catch (err) {}
                             switch (e.event) {
                                 case a7.STARTUP:
                                 case a7.INITIALIZED:
@@ -16556,6 +16560,25 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                         g.info('NextEpisodeVM: loadNextEpisode() called but no next episode GUID is available — ignoring')
                         return
                     }
+                    try {
+                        let overlay = document.createElement('div')
+                        overlay.id = 'player-ne-placeholder'
+                        overlay.style.cssText =
+                            'position:absolute;inset:0;background-color:#000;z-index:10;display:flex;align-items:center;justify-content:center;pointer-events:all;'
+                        overlay.innerHTML = `
+                            <svg width="80" height="80" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                                <g opacity="0.2" fill="none" stroke="#ff5e00" stroke-width="8">
+                                    <circle cx="50" cy="50" r="45"></circle>
+                                </g>
+                                <g fill="none" stroke="#ff5e00" stroke-width="8" stroke-linecap="round">
+                                    <path d="M82.45,18.823c7.772,8.088,12.55,19.074,12.55,31.177,0,11.711-4.474,22.377-11.805,30.383">
+                                        <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="1s" repeatCount="indefinite" />
+                                    </path>
+                                </g>
+                            </svg>
+                        `
+                        document.querySelector('.katamariDesktop').appendChild(overlay)
+                    } catch (err) {}
                     ;(g.info('NextEpisodeVM: requesting asset queue update (jump=1) for next episode'),
                         this._player.requestAssetQueueUpdate({
                             jump: 1
