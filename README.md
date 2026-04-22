@@ -10,12 +10,12 @@
 ---
 
 ## Features
-- Replaces the new Katamari player with the classic Vilos player
+- Better Katamari player design/controls
+- Adds Softsub support to Katamari
 - Re-enables the video quality selector (resolution picker)
+- Adds old Vilos Keyboard Shortcuts to Katamari
 - Modernized Crunchyroll design / UI improvements
 - More playback speed options
-- Theater mode for distraction-free watching
-- Picture-in-Picture support (no-subs only)
 
 ---
 
