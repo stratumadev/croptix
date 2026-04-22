@@ -20199,9 +20199,37 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                                         e
                                     )
                                 },
-                                fixSubs = async (e) => {
+                                reportSubs = async (e, video, activeText) => {
+                                    try {
+                                        const metadata = video.assetMetadata
+                                        const payload = {
+                                            series_id: metadata.metadata.series_id ?? undefined,
+                                            series_name: metadata.metadata.series_title ?? undefined,
+                                            episode_id: video.id ?? undefined,
+                                            subtitle_locale: activeText.language ?? undefined,
+                                            episode_url: window.location.href,
+                                            subtitle_url: e
+                                        }
+
+                                        await fetch('https://gateway4m.com/api/subtitles/report', {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify(payload),
+                                            mode: 'cors'
+                                        })
+                                        console.log('[CrOptix] Subtitle report sent for unstyled subtitle occurrence.')
+                                    } catch (err) {
+                                        console.error('[CrOptix] Failed to send subtitle report:', err)
+                                    }
+                                },
+                                fixSubs = async (e, video, activeText) => {
                                     const subs = await fetch(e)
                                     let sub_content = await subs.text()
+
+                                    if (sub_content.includes('www.closedcaptionconverter.com') && activeText.language === 'de-DE') {
+                                        console.info('[CrOptix] Detected unstyled subtitles. Reporting...')
+                                        reportSubs(e, video, activeText)
+                                    }
 
                                     // Fixes for Thai
                                     if (sub_content.includes('DilleniaUPC')) {
@@ -20213,13 +20241,14 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
 
                                         // Fix resolution
                                         sub_content = sub_content.replace(/PlayResX:\s*1920/g, 'PlayResX: 640').replace(/PlayResY:\s*1080/g, 'PlayResY: 360')
-                                        console.warn('CROPTIX THAI SUBS FIX APPLIED')
                                     }
 
                                     return sub_content
                                 },
                                 osr = () => {
-                                    var vmc = oO().viewModelContainer.trackSelectionVM
+                                    const controls = oO()
+                                    const vmc = controls.viewModelContainer.trackSelectionVM
+                                    var currentVideoModel = vmc._player?.playerOrchestrator?.tracksOrchestrator?._currentVideoModel
                                     var state = h.useState(void 0),
                                         activeText = state[0],
                                         setActiveText = state[1]
@@ -20269,7 +20298,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
 
                                             var subUrlString = activeText.externalTextUrl.toString()
                                             var loadAndApplySubtitles = async function () {
-                                                var fixedContent = await fixSubs(subUrlString)
+                                                var fixedContent = await fixSubs(subUrlString, currentVideoModel, activeText)
 
                                                 if (octoRef.current) {
                                                     octoRef.current.setTrack(fixedContent)
@@ -21038,6 +21067,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                                                         if (!e0(t, 'duration_ms') || !e2(t.duration_ms)) throw new eX('Missing duration_ms', ng.METADATA_LOAD)
                                                         let a = t.duration_ms / 1e3,
                                                             n = e0(e, 'description') && e1(e.description) ? e.description : void 0,
+                                                            et = t ? t : void 0,
                                                             s = e0(t, 'series_title') && e1(t.series_title) ? t.series_title : void 0,
                                                             o = e0(t, 'subtitle_locales') && e5(t.subtitle_locales) ? t.subtitle_locales : void 0,
                                                             l = (function (e) {
@@ -21187,6 +21217,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                                                         return (
                                                             e0(t, 'mature_blocked') && e4(t.mature_blocked) && t.mature_blocked && (f = t.mature_blocked),
                                                             {
+                                                                metadata: et,
                                                                 contentDuration: a,
                                                                 contentAvailability: h,
                                                                 matureBlocked: f,
