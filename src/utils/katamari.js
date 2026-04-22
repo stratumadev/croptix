@@ -11903,7 +11903,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                                     return oi.jsx('div', {
                                         ref: o,
                                         className: `kat:inline-flex kat:flex-col kat:z-[1001] kat:bg-neutral-700 kat:rounded-sm kat:shadow-lg kat:outline-none kat:w-max kat:overflow-hidden focus-visible:kat:outline-2 focus-visible:kat:outline-offset-2 focus-visible:kat:outline-white/50 ${v}`,
-                                        style: { ...c, position: 'fixed' },
+                                        style: { ...c, position: 'fixed', userSelect: 'none' },
                                         role: 'menu',
                                         tabIndex: -1,
                                         dir: _,

@@ -38,15 +38,6 @@ async function generateManifest() {
             },
             default_title: 'CrOptix'
         },
-        // declarative_net_request: {
-        //     rule_resources: [
-        //         {
-        //             id: 'redirectRules',
-        //             enabled: true,
-        //             path: 'rules.json'
-        //         }
-        //     ]
-        // },
         content_scripts: [
             {
                 matches: ['*://*.crunchyroll.com/*'],
@@ -57,7 +48,7 @@ async function generateManifest() {
             {
                 matches: ['*://www.crunchyroll.com/*'],
                 js: ['content.js'],
-                css: ['css/croptix.css', 'css/croptix-player.css', 'css/croptix-theater.css', 'css/croptix-vilos.css'],
+                css: ['css/croptix.css', 'css/croptix-player.css', 'css/croptix-katamari.css'],
                 all_frames: true
             }
         ]
@@ -69,9 +60,6 @@ async function generateManifest() {
 
     await cp('public', 'dist', { recursive: true })
     console.log('Copied public folder into dist')
-
-    await cp('static', 'dist', { recursive: true })
-    console.log('Copied static folder into dist')
 
     await cp('subtitle-octopus', 'dist/subtitle-octopus', { recursive: true })
     console.log('Copied subtitle octopus folder into dist')

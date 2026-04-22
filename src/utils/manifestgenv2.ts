@@ -15,10 +15,6 @@ async function generateManifest() {
         version: version,
         description: 'Crunchyroll improvements and fixes',
         permissions: ['storage', 'webRequest', 'webRequestBlocking', '*://*.crunchyroll.com/*'],
-        content_security_policy: "script-src 'self'; object-src 'self'; worker-src 'self' blob:;",
-        background: {
-            scripts: ['background.js']
-        },
         icons: {
             '16': 'icons/icon_16x16.png',
             '32': 'icons/icon_32x32.png',
@@ -43,18 +39,18 @@ async function generateManifest() {
                 }
             }
         },
-        web_accessible_resources: ['bundle.js', 'config_init.js', 'katamari.js', 'subtitle-octopus/*', 'fonts/*'],
+        web_accessible_resources: ['config_init.js', 'katamari.js', 'subtitle-octopus/*', 'fonts/*'],
         content_scripts: [
             {
                 matches: ['*://www.crunchyroll.com/*'],
-                js: ['katamari_fix_loader.js'],
+                js: ['katamari_fix_loader.js', 'subtitle-octopus/subtitles-octopus.js'],
                 run_at: 'document_start',
                 all_frames: true
             },
             {
                 matches: ['*://*.crunchyroll.com/*'],
                 js: ['content.js'],
-                css: ['css/croptix.css', 'css/croptix-player.css', 'css/croptix-theater.css', 'css/croptix-vilos.css'],
+                css: ['css/croptix.css', 'css/croptix-player.css', 'css/croptix-katamari.css'],
                 all_frames: true
             }
         ]
