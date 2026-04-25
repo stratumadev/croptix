@@ -117,6 +117,12 @@ html.croptix .hero-carousel__content-wrapper--njtFs {
 }
 
 /* Responsive Breakpoints */
+@media (min-width: 35.5em) and (min-height: 43.75rem) {
+    .user-menu--ZzPZG {
+        height: auto !important;
+    }
+}
+
 @media (min-width: 35.5em) {
     html.croptix .erc-sticky-header.state-sticky,
     html.croptix .search-field-wrapper,
@@ -242,6 +248,7 @@ html.croptix .dropdown-content--5b5F7 {
     border-radius: var(--croptix-radius);
     box-shadow: var(--croptix-shadow) !important;
     margin-top: 10px;
+    height: calc(100vh - var(--cx-header-height) - 80px);
 }
 
 html.croptix .dropdown-content--5b5F7 {
@@ -254,7 +261,10 @@ html.croptix .dropdown-content__children--HW28H {
 }
 
 html.croptix .user-menu-section--is-sticky--h7FI8 {
-    background-color: transparent !important;
+    background-color: #272727;
+    box-shadow: var(--croptix-shadow) !important;
+    border-bottom-left-radius: var(--croptix-radius);
+    border-bottom-right-radius: var(--croptix-radius);
 }
 
 html.croptix .user-menu-section--is-sticky--h7FI8::before {
