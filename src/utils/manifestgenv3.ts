@@ -22,6 +22,14 @@ async function generateManifest() {
                 matches: ['*://www.crunchyroll.com/*']
             }
         ],
+        browser_specific_settings: {
+            gecko: {
+                id: '{bc118c9c-5c07-4347-b502-657d03d87065}',
+                data_collection_permissions: {
+                    required: ['none']
+                }
+            }
+        },
         icons: {
             '16': 'icons/icon_16x16.png',
             '32': 'icons/icon_32x32.png',
