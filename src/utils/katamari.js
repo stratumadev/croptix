@@ -12660,6 +12660,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                                         { isVisible: ctrlVisible } = cW(),
                                         // state for 3 sec cooldown
                                         [f, setF] = (0, h.useState)(!1),
+                                        [seEnabled, setSeEnabled] = (0, h.useState)(localStorage.getItem('skip_events') !== 'false'),
                                         r = (0, h.useRef)(''),
                                         a = (0, h.useCallback)(() => {
                                             e && t()
@@ -12685,12 +12686,17 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                                         }
                                         return () => clearTimeout(timeOut)
                                     }, [e])
+                                    ;(0, h.useEffect)(() => {
+                                        let handler = () => setSeEnabled(localStorage.getItem('skip_events') !== 'false')
+                                        window.addEventListener('skip_events_listener', handler)
+                                        return () => window.removeEventListener('skip_events_listener', handler)
+                                    }, [])
 
                                     let s = n || r.current
                                     return oi.jsx(lh, {
                                         label: s,
                                         icon: oi.jsx(oP, {}),
-                                        isVisible: !!e && (f || ctrlVisible),
+                                        isVisible: !!e && (f || ctrlVisible) && seEnabled,
                                         onSkip: t,
                                         className: 'kat:self-end kat:mr-40 kat:pointer-events-auto'
                                     })
@@ -19720,6 +19726,18 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                                     var panelState = h.useState('main'),
                                         activePanel = panelState[0],
                                         setActivePanel = panelState[1]
+                                    var seState = h.useState(localStorage.getItem('skip_events') !== 'false'),
+                                        skipEventsEnabled = seState[0],
+                                        setSkipEventsEnabled = seState[1]
+                                    var toggleSkipEvents = h.useCallback(
+                                        function () {
+                                            var active = !skipEventsEnabled
+                                            setSkipEventsEnabled(active)
+                                            localStorage.setItem('skip_events', active.toString())
+                                            window.dispatchEvent(new Event('skip_events_listener'))
+                                        },
+                                        [skipEventsEnabled]
+                                    )
                                     var menuRef = h.useRef(null)
                                     var t = oL().t
                                     var settings = lt()
@@ -19826,6 +19844,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                                                 style: { width: '320px' },
                                                 children: [
                                                     oi.jsx(o6, { label: t('autoplayNext'), checked: settings.isAutoplayNextEnabled ?? !1, onChange: settings.toggleAutoplayNext }),
+                                                    oi.jsx(o6, { label: 'Skip Events', checked: skipEventsEnabled, onChange: toggleSkipEvents }),
                                                     oi.jsx(MainItem, {
                                                         label: t('audio'),
                                                         value: formatTrack(activeAudio),
@@ -21752,6 +21771,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                                     }
                                 }
                                 async getSkipEvents(e) {
+                                    if (localStorage.getItem('skip_events') === 'false') return []
                                     try {
                                         let t = await this.apiServicesContainer.getSkipEventsService().getSkipEvents({
                                             contentId: e
