@@ -20878,7 +20878,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                                                             a = v.read(aX.autoplayNext, !0),
                                                             sr = localStorage.getItem("show_recommendations")
                                                         if (r && a) { return f.LOAD_NEXT_VIDEO }
-				                                        if (sr2 == "true") { return f.DONE_WATCHING }
+				                                        if (sr == "true") { return f.DONE_WATCHING }
                                                         if (this._viewModels && this._viewModels.fullScreenVM) {
                                                             let isFullscreen = false;
                                                             this._viewModels.fullScreenVM.isFullScreen$.subscribe(value => {
