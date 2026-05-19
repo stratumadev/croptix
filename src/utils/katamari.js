@@ -15,21 +15,10 @@
                 }
 
                 if (fn_str.includes('@crunchyroll/katamari-desktop-player')) {
-                    const [stageE, stageB] = ex(/staging:\s*\(\)\s*=>\s*[a-zA-Z0-9_$]+\.e\((\d+)\)\.then\([a-zA-Z0-9_$]+\.bind\([a-zA-Z0-9_$]+,\s*(\d+)\)\)/)
-                    const [prodE, prodB] = ex(/production:\s*\(\)\s*=>\s*[a-zA-Z0-9_$]+\.e\((\d+)\)\.then\([a-zA-Z0-9_$]+\.bind\([a-zA-Z0-9_$]+,\s*(\d+)\)\)/)
-                    const [devE, devB] = ex(/development:\s*\(\)\s*=>\s*[a-zA-Z0-9_$]+\.e\((\d+)\)\.then\([a-zA-Z0-9_$]+\.bind\([a-zA-Z0-9_$]+,\s*(\d+)\)\)/)
-                    const [shakaE, shakaB] = ex(
-                        /\?\s*await\s*[a-zA-Z0-9_$]+\.e\((\d+)\)\.then\([a-zA-Z0-9_$]+\.bind\([a-zA-Z0-9_$]+,\s*(\d+)\)\)\.then\(\(\{\s*ShakaMediaEngine/,
-                        7469,
-                        73997
-                    )
-                    const [bitE, bitB] = ex(
-                        /:\s*await\s*[a-zA-Z0-9_$]+\.e\((\d+)\)\.then\([a-zA-Z0-9_$]+\.bind\([a-zA-Z0-9_$]+,\s*(\d+)\)\)\.then\(\(\{\s*BitmovinMediaEngine/,
-                        5946,
-                        70407
-                    )
+                    const [shakaE, shakaB] = ex(/\?\s*await\s*[a-zA-Z0-9_$]+\.e\((\d+)\)\.then\([a-zA-Z0-9_$]+\.bind\([a-zA-Z0-9_$]+,\s*(\d+)\)\)\.then\(\(\{\s*ShakaMediaEngine/)
+                    const [bitE, bitB] = ex(/:\s*await\s*[a-zA-Z0-9_$]+\.e\((\d+)\)\.then\([a-zA-Z0-9_$]+\.bind\([a-zA-Z0-9_$]+,\s*(\d+)\)\)\.then\(\(\{\s*BitmovinMediaEngine/)
 
-                    modules[module_id] = (function (STAGE_E, STAGE_B, PROD_E, PROD_B, DEV_E, DEV_B, SHAKA_E, SHAKA_B, BIT_E, BIT_B) {
+                    modules[module_id] = (function (SHAKA_E, SHAKA_B, BIT_E, BIT_B) {
                         return function (e, t, i) {
                             let r
                             i.d(t, {
@@ -100,31 +89,25 @@
                                     return tA
                                 },
                                 k: function () {
-                                    return nh
+                                    return f
                                 },
                                 l: function () {
-                                    return nA
+                                    return dD
                                 },
                                 m: function () {
-                                    return f
+                                    return nc
                                 },
                                 n: function () {
                                     return t_
                                 },
                                 o: function () {
-                                    return dD
-                                },
-                                p: function () {
-                                    return nc
+                                    return nu
                                 },
                                 q: function () {
-                                    return nu
+                                    return np
                                 },
                                 s: function () {
                                     return tm
-                                },
-                                t: function () {
-                                    return np
                                 }
                             })
                             var a,
@@ -22241,22 +22224,71 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                                     return r.length > 0 ? r[0] : void 0
                                 }
                             }
+                            const prodConfig = {
+                                apiConfig: {
+                                    default: { baseUrl: 'https://www.crunchyroll.com', resiliencyConfig: { maxRetries: 3, retryBackoffInterval: 1e3 } },
+                                    auth: { errorCodePrefix: 'AU' },
+                                    accounts: { errorCodePrefix: 'AC' },
+                                    content: { errorCodePrefix: 'CO' },
+                                    eec: { baseUrl: 'https://qq.crunchyroll.com', errorCodePrefix: 'EEC' },
+                                    license: { basePathname: '/license', errorCodePrefix: 'PBSL' },
+                                    playback: { basePathname: '/playback', errorCodePrefix: 'PBSP' },
+                                    skipEvents: { baseUrl: 'https://static.crunchyroll.com', basePathname: '/skip-events/production', errorCodePrefix: 'SKIP' },
+                                    i18n: { baseUrl: 'https://static.crunchyroll.com', basePathname: '/i18n/cr-web-video-player', errorCodePrefix: 'I18N' },
+                                    subscriptions: { errorCodePrefix: 'SUBS' },
+                                    remoteConfig: { baseUrl: 'https://www.crunchyroll.com/device-capabilities/config' },
+                                    imgSrv: { baseUrl: 'https://imgsrv.crunchyroll.com' }
+                                },
+                                mediaEngineConfig: { mediaEngineType: 'bitmovin', drm: { drms: [{ type: 'widevine', level: 'l3' }] } },
+                                featureFlags: { remoteConfigResolver: !1 },
+                                experiments: { activeExperiments: {} },
+                                resiliencyConfig: { methods: ['GET'], maxRetries: 3, retryBackoffInterval: 1e3 },
+                                plugins: { mux: { environmentKey: 'e0vemjple0l1luii7h5vlu5no' } }
+                            }
+                            const stagingConfig = {
+                                apiConfig: {
+                                    default: { baseUrl: 'https://stage.crunchyroll.com', resiliencyConfig: { maxRetries: 3, retryBackoffInterval: 1e3 } },
+                                    auth: { errorCodePrefix: 'AU' },
+                                    accounts: { errorCodePrefix: 'AC' },
+                                    content: { errorCodePrefix: 'CO' },
+                                    eec: { baseUrl: 'https://qq.stage.crunchyroll.com', errorCodePrefix: 'EEC' },
+                                    license: { basePathname: '/license', errorCodePrefix: 'PBSL' },
+                                    playback: { basePathname: '/playback', errorCodePrefix: 'PBSP' },
+                                    skipEvents: { baseUrl: 'https://static.etp-staging.com', basePathname: '/crunchyroll/skip-events/staging', errorCodePrefix: 'SKIP' },
+                                    i18n: { baseUrl: 'https://static.etp-staging.com', basePathname: '/i18n/cr-web-video-player', errorCodePrefix: 'I18N' },
+                                    subscriptions: { errorCodePrefix: 'SUBS' },
+                                    remoteConfig: { baseUrl: 'https://stage.crunchyroll.com/device-capabilities/config' },
+                                    imgSrv: { baseUrl: 'https://imgsrv.stage.crunchyroll.com' }
+                                },
+                                mediaEngineConfig: { mediaEngineType: 'bitmovin', drm: { drms: [{ type: 'widevine', level: 'l3' }] } },
+                                featureFlags: { remoteConfigResolver: !0 },
+                                experiments: { activeExperiments: {} },
+                                resiliencyConfig: { methods: ['GET'], maxRetries: 3, retryBackoffInterval: 1e3 }
+                            }
+                            const devConfig = {
+                                apiConfig: {
+                                    default: { baseUrl: 'https://dev.crunchyroll.com', resiliencyConfig: { maxRetries: 3, retryBackoffInterval: 1e3 } },
+                                    auth: { errorCodePrefix: 'AU' },
+                                    accounts: { errorCodePrefix: 'AC' },
+                                    content: { errorCodePrefix: 'CO' },
+                                    eec: { baseUrl: 'https://cr-eec.etp-proto0.com', errorCodePrefix: 'EEC' },
+                                    license: { basePathname: '/license', errorCodePrefix: 'PBSL' },
+                                    playback: { basePathname: '/playback', errorCodePrefix: 'PBSP' },
+                                    skipEvents: { baseUrl: 'https://stage-static.crunchyroll.com', basePathname: '/skip-events/staging', errorCodePrefix: 'SKIP' },
+                                    i18n: { baseUrl: 'https://stage-static.crunchyroll.com', basePathname: '/i18n/cr-web-video-player', errorCodePrefix: 'I18N' },
+                                    subscriptions: { errorCodePrefix: 'SUBS' },
+                                    remoteConfig: { baseUrl: 'https://dev.crunchyroll.com/device-capabilities/config' },
+                                    imgSrv: { baseUrl: 'https://imgsrv.stage.crunchyroll.com' }
+                                },
+                                mediaEngineConfig: { mediaEngineType: 'bitmovin', drm: { drms: [{ type: 'widevine', level: 'l3' }] } },
+                                featureFlags: { remoteConfigResolver: !0 },
+                                experiments: { activeExperiments: {} },
+                                resiliencyConfig: { methods: ['GET'], maxRetries: 3, retryBackoffInterval: 1e3 }
+                            }
                             let dR = {
-                                staging: () =>
-                                    i
-                                        .e(STAGE_E)
-                                        .then(i.bind(i, STAGE_B))
-                                        .then((e) => e.default),
-                                production: () =>
-                                    i
-                                        .e(PROD_E)
-                                        .then(i.bind(i, PROD_B))
-                                        .then((e) => e.default),
-                                development: () =>
-                                    i
-                                        .e(DEV_E)
-                                        .then(i.bind(i, DEV_B))
-                                        .then((e) => e.default)
+                                staging: () => Promise.resolve(stagingConfig),
+                                production: () => Promise.resolve(prodConfig),
+                                development: () => Promise.resolve(devConfig)
                             }
                             class dx {
                                 constructor({ tokenProvider: e, profileProvider: t, deviceInfoProvider: i, appInfoProvider: r }) {
@@ -22493,7 +22525,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                                 }
                             }
                         }
-                    })(stageE, stageB, prodE, prodB, devE, devB, shakaE, shakaB, bitE, bitB)
+                    })(shakaE, shakaB, bitE, bitB)
                 }
             }
         } catch (err) {
