@@ -11,12 +11,33 @@
                 const fn_str = fn.toString()
                 const ex = (regex) => {
                     const match = fn_str.match(regex)
-                    return [match[1], match[2]]
+                    return match ? [match[1], match[2]] : []
+                }
+                const engineImportRegex = (name) => {
+                    const ident = String.raw`[A-Za-z_$][\w$]*`
+                    const match = fn_str.match(
+                        new RegExp(
+                            String.raw`await\s*(` +
+                                ident +
+                                String.raw`)\s*\.\s*e\s*\(\s*(\d+)\s*\)\s*\.\s*then\s*\(\s*\1\s*\.\s*bind\s*\(\s*\1\s*,\s*(\d+)\s*\)\s*\)\s*\.\s*then\s*\(\s*\(\s*\{\s*` +
+                                name
+                        )
+                    )
+                    return match ? [match[2], match[3]] : null
                 }
 
                 if (fn_str.includes('@crunchyroll/katamari-desktop-player')) {
-                    const [shakaE, shakaB] = ex(/\?\s*await\s*[a-zA-Z0-9_$]+\.e\((\d+)\)\.then\([a-zA-Z0-9_$]+\.bind\([a-zA-Z0-9_$]+,\s*(\d+)\)\)\.then\(\(\{\s*ShakaMediaEngine/)
-                    const [bitE, bitB] = ex(/:\s*await\s*[a-zA-Z0-9_$]+\.e\((\d+)\)\.then\([a-zA-Z0-9_$]+\.bind\([a-zA-Z0-9_$]+,\s*(\d+)\)\)\.then\(\(\{\s*BitmovinMediaEngine/)
+                    const [shakaE, shakaB] =
+                        engineImportRegex('ShakaMediaEngine') ||
+                        ex(/\?\s*await\s*[a-zA-Z0-9_$]+\.e\((\d+)\)\.then\([a-zA-Z0-9_$]+\.bind\([a-zA-Z0-9_$]+,\s*(\d+)\)\)\.then\(\(\{\s*ShakaMediaEngine/)
+                    const [bitE, bitB] =
+                        engineImportRegex('BitmovinMediaEngine') ||
+                        ex(/:\s*await\s*[a-zA-Z0-9_$]+\.e\((\d+)\)\.then\([a-zA-Z0-9_$]+\.bind\([a-zA-Z0-9_$]+,\s*(\d+)\)\)\.then\(\(\{\s*BitmovinMediaEngine/)
+
+                    if (!shakaE || !shakaB || !bitE || !bitB) {
+                        console.warn('[CrOptix] Katamari Patch skipped: media engine chunk ids not found')
+                        continue
+                    }
 
                     modules[module_id] = (function (SHAKA_E, SHAKA_B, BIT_E, BIT_B) {
                         return function (e, t, i) {
@@ -98,13 +119,19 @@
                                     return nc
                                 },
                                 n: function () {
-                                    return t_
+                                    return crInterop
                                 },
                                 o: function () {
                                     return nu
                                 },
+                                ps: function () {
+                                    return dD
+                                },
                                 q: function () {
                                     return np
+                                },
+                                t: function () {
+                                    return crCjs
                                 },
                                 s: function () {
                                     return tm
@@ -121,6 +148,25 @@
                                 h = i(2265),
                                 p = i(54887),
                                 f = (((r = f || {}).LOAD_NEXT_VIDEO = 'loadNextVideo'), (r.DONE_WATCHING = 'doneWatching'), (r.TIMED_OUT = 'timedOut'), r)
+                            const crCjs = (factory, cache) => () => (cache || (factory((cache = { exports: {} }).exports, cache), (factory = null)), cache.exports)
+                            const crInterop = (mod, isNodeMode) => {
+                                if (!mod) return {}
+                                if (!isNodeMode && mod.__esModule) return mod
+                                const target = Object.create(Object.getPrototypeOf(mod) || null)
+                                Object.defineProperty(target, 'default', {
+                                    value: mod,
+                                    enumerable: true
+                                })
+                                for (const key of Object.getOwnPropertyNames(mod)) {
+                                    if (key !== 'default' && !Object.prototype.hasOwnProperty.call(target, key)) {
+                                        Object.defineProperty(target, key, {
+                                            get: () => mod[key],
+                                            enumerable: true
+                                        })
+                                    }
+                                }
+                                return target
+                            }
                             ;(((rZ = d || (d = {}))[(rZ.NONE = 0)] = 'NONE'),
                                 (rZ[(rZ.ERROR = 1)] = 'ERROR'),
                                 (rZ[(rZ.WARNING = 2)] = 'WARNING'),
@@ -3071,7 +3117,7 @@
                                 }
                             }
                             function tb(e) {
-                                return e.manifest.stitchedElements.find((e) => e.type === nw.MAIN)
+                                return e.manifest.stitchedElements.find((e) => e && e.type === nw.MAIN)
                             }
                             function tE(e) {
                                 let t = tb(e)
@@ -22092,9 +22138,9 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                                             }))
                                 }
                                 getAvailableTextTracks(e) {
-                                    let t = e.manifest.stitchedElements.find((e) => e.type === nw.MAIN)
+                                    let t = e.manifest.stitchedElements.find((e) => e && e.type === nw.MAIN)
                                     if (!t) return []
-                                    let tracks = t.textTracks.filter((e) => e.format === nR.EXTERNAL || e.role === nP.CLOSED_CAPTION)
+                                    let tracks = t.textTracks.filter((e) => e && (e.format === nR.EXTERNAL || e.role === nP.CLOSED_CAPTION))
 
                                     return tracks.sort((a, b) => {
                                         let wA = a.language === 'none' ? 0 : a.role === nP.SUBTITLE ? 1 : a.role === nP.CLOSED_CAPTION ? 2 : 3
@@ -22104,9 +22150,9 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                                     })
                                 }
                                 getAvailableAudioTracks(e) {
-                                    let t = e.manifest.stitchedElements.find((e) => e.type === nw.MAIN)
+                                    let t = e.manifest.stitchedElements.find((e) => e && e.type === nw.MAIN)
                                     if (!t) return []
-                                    let i = t.audioTracks.filter((e) => e.format === nn.SEPARATE_MASTER)
+                                    let i = t.audioTracks.filter((e) => e && e.format === nn.SEPARATE_MASTER)
                                     return i.length > 0 ? i : t.defaultAudioTrack ? [t.defaultAudioTrack] : []
                                 }
                                 getTextTrackDisplayName(e) {
@@ -22450,6 +22496,15 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                                     let t = await this._configResolver.resolve(),
                                         r = t.mediaEngineConfig.mediaEngineType
                                     this._apiServicesContainer.provideApiConfig(t.apiConfig, t.mediaEngineConfig.drm)
+                                    let resolveEngine = (e, t) => {
+                                        let i = e && (e[t] || ('function' == typeof e ? e : void 0))
+                                        for (let r = e && e.default; !i && r; r = r.default) i = r[t] || ('function' == typeof r ? r : void 0)
+                                        if ('function' != typeof i) {
+                                            g.error(`[CrOptix] ${t} export is not constructable`, Object.keys(e || {}))
+                                            throw TypeError(`${t} export is not constructable`)
+                                        }
+                                        return i
+                                    }
                                     let a = [],
                                         n = (await this._profileProvider.getUserProfile()).captionStyling,
                                         { mediaEngineLayer: s, controlsLayer: o } = this._createPlayerLayers(e),
@@ -22458,12 +22513,16 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                                                 ? await i
                                                       .e(SHAKA_E)
                                                       .then(i.bind(i, SHAKA_B))
-                                                      .then(({ ShakaMediaEngine: e }) => new e(s, this._tokenProvider))
+                                                      .then((e) => {
+                                                          let t = resolveEngine(e, 'ShakaMediaEngine')
+                                                          return new t(s, this._tokenProvider)
+                                                      })
                                                 : await i
                                                       .e(BIT_E)
                                                       .then(i.bind(i, BIT_B))
-                                                      .then(({ BitmovinMediaEngine: e }) => {
-                                                          let t = new e(s, this._tokenProvider)
+                                                      .then((e) => {
+                                                          let r = resolveEngine(e, 'BitmovinMediaEngine')
+                                                          let t = new r(s, this._tokenProvider)
                                                           return (a.push(t.textTrackRenderer), t)
                                                       })
                                     return (
