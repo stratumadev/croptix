@@ -158,3 +158,9 @@ html.croptix div[class^='playable-card__footer'].ic_action div[class^='dropdown-
   left: 0;
   transform: scaleX(-1.3);
 }
+
+/* Fix: porta in primo piano la card con il menu "Segna come visto/non visto"
+   aperto, cosi' il menu non finisce dietro alla card dell'episodio sotto */
+.card.ic_menu_open {
+  z-index: 9999999 !important;
+}

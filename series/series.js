@@ -214,8 +214,14 @@ class MarkAsWatchedNotWatched {
       const parent = optionsButton.parentElement;
       const isAlreadyOpen = parent.querySelector('.custom-action-menu');
 
+      // Helper: chiude tutti i menu aperti e riporta le card al loro z-index normale
+      const closeAllMenus = () => {
+        document.querySelectorAll('.custom-action-menu').forEach(menu => menu.remove());
+        document.querySelectorAll('.card.ic_menu_open').forEach(c => c.classList.remove('ic_menu_open'));
+      };
+
       // 1. Chiudi TUTTI i menu aperti in altre card prima di fare altro
-      document.querySelectorAll('.custom-action-menu').forEach(menu => menu.remove());
+      closeAllMenus();
 
       // 2. Se quello su cui abbiamo cliccato NON era aperto, lo apriamo
       if (!isAlreadyOpen) {
@@ -230,12 +236,17 @@ class MarkAsWatchedNotWatched {
           if (window.innerWidth - optionsButton.getBoundingClientRect().right < 300) {
             actionMenu.addClass('left');
           }
-          
+
+          // Porta in primo piano la card che contiene il menu, altrimenti il menu
+          // finisce dietro al riquadro dell'episodio sottostante e non e' cliccabile
+          const cardEl = optionsButton.closest('.card');
+          if (cardEl) cardEl.classList.add('ic_menu_open');
+
           parent.appendChild(menuElement);
 
           // 3. Listener globale: se clicchi ovunque fuori, chiudi il menu
           const closeAll = () => {
-            document.querySelectorAll('.custom-action-menu').forEach(m => m.remove());
+            closeAllMenus();
             document.removeEventListener('click', closeAll);
           };
           document.addEventListener('click', closeAll);
