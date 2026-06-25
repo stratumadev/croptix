@@ -21825,7 +21825,10 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                                     }
                                 }
                                 async getSkipEvents(e) {
-                                    if (localStorage.getItem('skip_events') === 'false') return []
+                                    // Always fetch skip events so they are available in the video model.
+                                    // Visibility is controlled in the UI layer via the 'skip_events' flag,
+                                    // so toggling on works without a full page reload, even on a video
+                                    // that was opened while skip events were disabled.
                                     try {
                                         let t = await this.apiServicesContainer.getSkipEventsService().getSkipEvents({
                                             contentId: e
