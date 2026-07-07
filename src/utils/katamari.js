@@ -479,6 +479,7 @@
                                     enabled: 'On',
                                     disabled: 'Off',
                                     skipEvents: 'Skip Events',
+                                    autoSkipIntroOutro: 'Auto Skip Intro/Outro',
                                     'trackSelectionMenu.audioTrack.audioDescription': '{{trackName}} [AD]',
                                     'trackSelectionMenu.textTrack.closedCaption': '{{trackName}} [CC]',
                                     quality: 'Quality',
@@ -541,7 +542,7 @@
                                 Y = (t, i, a) => {
                                     let r = q(i) ? i.split('.') : i,
                                         s = 0
-                                    for (; s < r.length - 1; ) {
+                                    for (; s < r.length - 1;) {
                                         if (J(t)) return {}
                                         let i = W(r[s])
                                         ;(!t[i] && a && (t[i] = new a()), (t = Object.prototype.hasOwnProperty.call(t, i) ? t[i] : {}), ++s)
@@ -557,7 +558,7 @@
                                     let n = i[i.length - 1],
                                         o = i.slice(0, i.length - 1),
                                         l = Y(t, o, Object)
-                                    for (; void 0 === l.obj && o.length; )
+                                    for (; void 0 === l.obj && o.length;)
                                         ((n = `${o[o.length - 1]}.${n}`),
                                             (l = Y(t, (o = o.slice(0, o.length - 1)), Object)) && l.obj && void 0 !== l.obj[`${l.k}.${n}`] && (l.obj = void 0))
                                     l.obj[`${l.k}.${n}`] = a
@@ -624,7 +625,7 @@
                                     if (t[i]) return t[i]
                                     let r = i.split(a),
                                         s = t
-                                    for (let t = 0; t < r.length; ) {
+                                    for (let t = 0; t < r.length;) {
                                         if (!s || 'object' != typeof s) return
                                         let i,
                                             n = ''
@@ -1088,7 +1089,7 @@
                                                                             h && l.push(r + a)))
                                                                 }
                                                             }
-                                                            for (; (o = l.pop()); ) this.isValidLookup(a) || ((s = o), (a = this.getResource(r, t, o, i)))
+                                                            for (; (o = l.pop());) this.isValidLookup(a) || ((s = o), (a = this.getResource(r, t, o, i)))
                                                         }))
                                                 })
                                             }),
@@ -1525,7 +1526,7 @@
                                                 { regex: this.regexpUnescape, safeValue: (t) => eA(t) },
                                                 { regex: this.regexp, safeValue: (t) => (this.escapeValue ? eA(this.escape(t)) : eA(t)) }
                                             ].forEach((i) => {
-                                                for (o = 0; (s = i.regex.exec(t)); ) {
+                                                for (o = 0; (s = i.regex.exec(t));) {
                                                     let a = s[1].trim()
                                                     if (void 0 === (n = d(a))) {
                                                         if ('function' == typeof u) {
@@ -1570,7 +1571,7 @@
                                                 }
                                                 return (n.defaultValue && n.defaultValue.indexOf(this.prefix) > -1 && delete n.defaultValue, t)
                                             }
-                                        for (; (r = this.nestingRegexp.exec(t)); ) {
+                                        for (; (r = this.nestingRegexp.exec(t));) {
                                             let l = []
                                             ;(((n = (n = { ...a }).replace && !q(n.replace) ? n.replace : n).applyPostProcessor = !1), delete n.defaultValue)
                                             let d = !1
@@ -3930,9 +3931,17 @@
                                             (this._annotations = []),
                                             (this._stitchedElements = []),
                                             (this._lastStreamTime = 0),
+                                            (this._autoSkipStorageKey = 'croptix.autoSkipIntroOutro'),
+                                            (this._autoSkippedEventIds = new Set()),
+                                            (this._autoSkipEnabled = this._readAutoSkipEnabled()),
+                                            (this._autoSkipSettingsListener = () => {
+                                                this._autoSkipEnabled = this._readAutoSkipEnabled()
+                                                this._autoSkipEnabled && this._maybeAutoSkip(this._currentActiveAnnotation)
+                                            }),
                                             (this._player = i),
                                             (this.activeSkipEvent$ = this._activeSkipEvent$.asObservable().pipe((0, l.pt)((t, i) => t?.id === i?.id))),
                                             (this.isAutoHideTimerExpired$ = this._isAutoHideTimerExpired$.asObservable()))
+                                        window.addEventListener('croptix_auto_skip_intro_outro_changed', this._autoSkipSettingsListener)
                                         let a = t.videoModelUpdated$.subscribe((t) => {
                                             this._handleVideoModelUpdate(t.videoModel)
                                         })
@@ -3949,11 +3958,13 @@
                                     }
                                     dispose() {
                                         ;(this._clearAutoHideTimer(),
+                                            window.removeEventListener('croptix_auto_skip_intro_outro_changed', this._autoSkipSettingsListener),
                                             this._subscriptions.forEach((t) => t.unsubscribe()),
                                             this._activeSkipEvent$.complete(),
                                             this._isAutoHideTimerExpired$.complete())
                                     }
                                     _handleVideoModelUpdate(t) {
+                                        this._autoSkippedEventIds.clear()
                                         if (!t.manifest?.annotations) {
                                             ;((this._annotations = []), (this._stitchedElements = []), this._updateActiveSkipEvent(void 0))
                                             return
@@ -3970,8 +3981,31 @@
                                     _updateActiveSkipEvent(t) {
                                         t?.id !== this._activeSkipEvent$.value?.id &&
                                             (t
-                                                ? (this._activeSkipEvent$.next({ id: t.id, type: t.type }), this._startAutoHideTimer())
+                                                ? (this._activeSkipEvent$.next({ id: t.id, type: t.type }), this._startAutoHideTimer(), this._maybeAutoSkip(t))
                                                 : (this._activeSkipEvent$.next(void 0), this._clearAutoHideTimer(), this._isAutoHideTimerExpired$.next(!1)))
+                                    }
+                                    _readAutoSkipEnabled() {
+                                        try {
+                                            return localStorage.getItem(this._autoSkipStorageKey) === 'true'
+                                        } catch (t) {
+                                            return !1
+                                        }
+                                    }
+                                    _isAutoSkippableEvent(t) {
+                                        let i = String(t?.type || '').toLowerCase()
+                                        return 'intro' === i || 'credits' === i || 'outro' === i
+                                    }
+                                    _maybeAutoSkip(t) {
+                                        if (!this._autoSkipEnabled || !t || !this._isAutoSkippableEvent(t)) return
+                                        let i = `${t.id ?? t.type}:${t.start}:${t.end}`
+                                        if (this._autoSkippedEventIds.has(i)) return
+                                        this._autoSkippedEventIds.add(i)
+                                        try {
+                                            let i = (0, l.c)(t.end, this._stitchedElements)
+                                            Number.isFinite(i) && this._player.seek(i)
+                                        } catch (t) {
+                                            console.warn('[CrOptix][AutoSkip] Failed to skip intro/outro event.', t)
+                                        }
                                     }
                                     _startAutoHideTimer() {
                                         ;(this._clearAutoHideTimer(),
@@ -5440,6 +5474,7 @@
                                         } = im(),
                                         [v, m] = (0, h.useState)('main'),
                                         [y, _] = (0, h.useState)(localStorage.getItem('skip_events') !== 'false'),
+                                        [N, j] = (0, h.useState)(localStorage.getItem('croptix.autoSkipIntroOutro') === 'true'),
                                         [b, k] = (0, h.useState)([]),
                                         [C, w] = (0, h.useState)(void 0),
                                         [x, E] = (0, h.useState)([]),
@@ -5465,6 +5500,12 @@
                                             let t = !y
                                             ;(_(t), localStorage.setItem('skip_events', t.toString()), window.dispatchEvent(new Event('skip_events_listener')))
                                         }, [y]),
+                                        O = (0, h.useCallback)(() => {
+                                            let t = !N
+                                            ;(j(t),
+                                                localStorage.setItem('croptix.autoSkipIntroOutro', t.toString()),
+                                                window.dispatchEvent(new Event('croptix_auto_skip_intro_outro_changed')))
+                                        }, [N]),
                                         I = (t) => {
                                             if (!t) return r('none')
                                             let i = t.displayName !== t.language ? t.displayName : r(t.language) || t.language
@@ -5610,7 +5651,8 @@
                                                         children: [
                                                             M,
                                                             (0, d.jsx)(iq, { label: r('autoplayNext'), checked: s ?? !1, onChange: n }),
-                                                            (0, d.jsx)(iq, { label: r('skipEvents'), checked: y, onChange: L })
+                                                            (0, d.jsx)(iq, { label: r('skipEvents'), checked: y, onChange: L }),
+                                                            (0, d.jsx)(iq, { label: r('autoSkipIntroOutro'), checked: N, onChange: O })
                                                         ]
                                                     })
                                                 default:
@@ -9281,7 +9323,7 @@
                                                     isVisible: u,
                                                     children: (0, d.jsxs)('div', {
                                                         className:
-                                                            'kat:flex kat:flex-col kat:items-start kat:self-stretch kat:pl-8 kat:pr-8 kat:pt-20 kat:pb-8 kat:@md:pl-20 kat:@md:pr-20 kat:@md:pt-20 kat:@md:pb-8 kat:@lg:pl-40 kat:@lg:pr-40 kat:@lg:pt-20 kat:@lg:pb-20',
+                                                            'kat:flex kat:flex-col kat:items-start kat:self-stretch kat:pl-8 kat:pr-8 kat:pt-20 kat:pb-8 kat:@md:pl-20 kat:@md:pr-20 kat:@md:pt-20 kat:@md:pb-8 kat:@lg:pl-40 kat:@lg:pr-40 kat:@lg:pt-20 kat:@lg:pb-20 kat:bg-gradient-90001000',
                                                         children: [
                                                             (0, d.jsxs)('div', {
                                                                 className: 'kat:flex kat:self-stretch kat:h-44 kat:@lg:h-64',
@@ -9674,7 +9716,7 @@
                                 rO = rA(function (t, i) {
                                     var a = Array.prototype.slice
                                     i.exports = function (t, i) {
-                                        for (('length' in t) || (t = [t]), t = a.call(t); t.length; ) {
+                                        for (('length' in t) || (t = [t]), t = a.call(t); t.length;) {
                                             var r = t.shift(),
                                                 s = i(r)
                                             if (s) return s
@@ -10236,7 +10278,7 @@
                                         ? Reflect.get
                                         : function (t, i, a) {
                                               var r = (function (t, i) {
-                                                  for (; !Object.prototype.hasOwnProperty.call(t, i) && null !== (t = so(t)); );
+                                                  for (; !Object.prototype.hasOwnProperty.call(t, i) && null !== (t = so(t)););
                                                   return t
                                               })(t, i)
                                               if (r) {
