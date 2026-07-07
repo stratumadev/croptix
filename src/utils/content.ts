@@ -36,6 +36,7 @@ function is_text_input_active() {
     )
 }
 
+// Focusing Katamari for hotkeys to work properly
 function focus_crunchyroll_player() {
     if (is_text_input_active()) return
 
