@@ -18,7 +18,7 @@ async function generateManifest() {
         host_permissions: ['*://www.crunchyroll.com/*'],
         web_accessible_resources: [
             {
-                resources: ['config_init.js', 'katamari.js', 'subtitle-octopus/*', 'fonts/*'],
+                resources: ['config_init.js', 'katamari.js', 'mobile-fix.js', 'subtitle-octopus/*', 'fonts/*'],
                 matches: ['*://www.crunchyroll.com/*']
             }
         ],

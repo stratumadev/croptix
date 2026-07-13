@@ -39,7 +39,7 @@ async function generateManifest() {
                 }
             }
         },
-        web_accessible_resources: ['config_init.js', 'katamari.js', 'subtitle-octopus/*', 'fonts/*'],
+        web_accessible_resources: ['config_init.js', 'katamari.js', 'mobile-fix.js', 'subtitle-octopus/*', 'fonts/*'],
         content_scripts: [
             {
                 matches: ['*://www.crunchyroll.com/*'],

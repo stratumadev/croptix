@@ -72,7 +72,7 @@ function stop_observe_crunchyroll() {
 
 async function load_settings() {
     // Load settings
-    const settings = await browser.storage.local.get(['designEnabled', 'tvAuthEnabled'])
+    const settings = await browser.storage.local.get(['designEnabled', 'tvAuthEnabled', 'mobileBypassEnabled'])
 
     const crunchyroll_design = settings.designEnabled !== false
     if (crunchyroll_design) {
@@ -84,6 +84,19 @@ async function load_settings() {
         document.documentElement.classList.remove('croptix')
         // Stop custom player design listener
         stop_observe_crunchyroll()
+    }
+
+    const crunchyroll_mobile_bypass = settings.mobileBypassEnabled !== false
+    if (crunchyroll_mobile_bypass) {
+        //is it wise?
+        //if (document.documentElement.hasAttribute('croptix-mobile-fix')) return
+
+        const script = document.createElement('script')
+        script.src = browser.runtime.getURL('mobile-fix.js')
+
+        //document.documentElement.setAttribute('croptix-mobile-fix', '1')
+        ;(document.head || document.documentElement).appendChild(script)
+        script.remove()
     }
 }
 
