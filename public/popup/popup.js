@@ -8,7 +8,7 @@ async function loadSettings() {
         'mobileBypassEnabled'
     ]);
     toggleDesign.checked = result.designEnabled !== false
-    toggleMobileBypass.checked = result.mobileBypassEnabled !== false
+    toggleMobileBypass.checked = result.mobileBypassEnabled === true // default to false
 }
 
 function saveSetting(key, value) {

@@ -86,7 +86,7 @@ async function load_settings() {
         stop_observe_crunchyroll()
     }
 
-    const crunchyroll_mobile_bypass = settings.mobileBypassEnabled !== false
+    const crunchyroll_mobile_bypass = settings.mobileBypassEnabled === true // default to false
     if (crunchyroll_mobile_bypass) {
         //is it wise?
         //if (document.documentElement.hasAttribute('croptix-mobile-fix')) return
