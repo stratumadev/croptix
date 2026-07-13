@@ -8878,10 +8878,16 @@
                                 aDisposeOctopus = (t, i = 'cleanup') => {
                                     if (!t) return
                                     try {
-                                        t.worker && 'function' == typeof t.worker.terminate && t.worker.terminate()
+                                        if ('function' == typeof t.dispose) return void t.dispose()
                                     } catch (t) {
-                                        console.warn('[CrOptix] Failed to terminate SubtitleOctopus worker during ' + i + '.', t)
+                                        console.warn('[CrOptix] Failed to dispose SubtitleOctopus during ' + i + '.', t)
                                     }
+                                    try {
+                                        t.worker && 'function' == typeof t.worker.terminate && t.worker.terminate()
+                                    } catch (t) {}
+                                    try {
+                                        t.canvasParent?.parentNode && t.canvasParent.parentNode.removeChild(t.canvasParent)
+                                    } catch (t) {}
                                 },
                                 aRevokeObjectUrlSoon = (t) => {
                                     t &&
@@ -9136,6 +9142,7 @@
                                                 aSetNativeTextTracks(null, q)
                                                 return
                                             }
+                                            r.current && n('track switch')
                                             let a = !1,
                                                 o = i.externalTextUrl.toString(),
                                                 p = ++pToken.current
@@ -9145,9 +9152,6 @@
                                                         let d = t._player?.playerOrchestrator?.tracksOrchestrator?._currentVideoModel,
                                                             u = await aFixSubs(o, d, i)
                                                         if (a || p !== pToken.current) return
-                                                        if (r.current) {
-                                                            n('track switch')
-                                                        }
                                                         let c = document.querySelector('video')
                                                         if (!c || p !== pToken.current) return
                                                         aSetNativeTextTracks(null, q)

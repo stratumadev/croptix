@@ -8009,6 +8009,7 @@ self.dropAllAnimations = false
 self.width = 0
 self.height = 0
 self.fontMap_ = {}
+self.fontFileMap_ = {}
 self.fontId = 0
 self.writeFontToFS = function (font) {
     font = font.trim().toLowerCase()
@@ -8021,10 +8022,13 @@ self.writeFontToFS = function (font) {
     self.loadFontFile('font' + self.fontId++ + '-', self.availableFonts[font])
 }
 self.loadFontFile = function (fontId, path) {
+    var fileName = fontId + path.split('/').pop()
+    if (self.fontFileMap_.hasOwnProperty(fileName)) return
+    self.fontFileMap_[fileName] = true
     if (self.lazyFileLoading && path.indexOf('blob:') !== 0) {
-        Module['FS'].createLazyFile('/fonts', fontId + path.split('/').pop(), path, true, false)
+        Module['FS'].createLazyFile('/fonts', fileName, path, true, false)
     } else {
-        Module['FS'].createPreloadedFile('/fonts', fontId + path.split('/').pop(), path, true, false)
+        Module['FS'].createPreloadedFile('/fonts', fileName, path, true, false)
     }
 }
 self.writeAvailableFontsToFS = function (content) {

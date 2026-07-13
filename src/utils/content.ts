@@ -1,7 +1,7 @@
 import browser from './browser'
 // import { CrunchyAuth } from '../types/crunchy'
 let crunchyroll_observer: MutationObserver | null = null
-let crunchyroll_listener: ((e: MessageEvent) => void) | null = null
+// let crunchyroll_listener: ((e: MessageEvent) => void) | null = null
 let focused_player_element: HTMLElement | null = null
 
 // let tv_auth: boolean = false
