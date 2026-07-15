@@ -49,7 +49,7 @@ async function generateManifest() {
         content_scripts: [
             {
                 matches: ['*://*.crunchyroll.com/*'],
-                js: ['katamari.js', 'subtitle-octopus/subtitles-octopus.js'],
+                js: ['subtitle-octopus/subtitles-octopus.js', 'katamari.js'],
                 world: 'MAIN',
                 run_at: 'document_start'
             },
