@@ -9,6 +9,8 @@
 
 ---
 
+Discord: https://discord.gg/TTvqgnjFJM
+
 ## Features
 - Better Katamari player design/controls
 - Adds Softsub support to Katamari
