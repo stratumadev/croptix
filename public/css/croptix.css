@@ -248,7 +248,13 @@ html.croptix .dropdown-content--5b5F7 {
     border-radius: var(--croptix-radius);
     box-shadow: var(--croptix-shadow) !important;
     margin-top: 10px;
-    height: calc(100vh - var(--cx-header-height) - 80px);
+}
+
+html.croptix .browse-menu--71A2V,
+html.croptix .user-menu--ZzPZG,
+html.croptix .dropdown-content--5b5F7 {
+    height: auto;
+    max-height: calc(100vh - var(--cx-header-height) - 80px);
 }
 
 html.croptix .dropdown-content--5b5F7 {
