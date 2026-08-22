@@ -4087,6 +4087,11 @@
                                         if (!t || this._boundShakaPlayer === t) return
                                         this._unbindShakaQualityEvents?.()
                                         this._boundShakaPlayer = t
+                                        try {
+                                            t.configure({ streaming: { bufferingGoal: 30 } })
+                                        } catch (t) {
+                                            this._errorQuality('Failed to set Shaka buffering goal.', t)
+                                        }
                                         let i = this._readResolutionBucket(),
                                             a = /^height:\d+$/.test(String(i)),
                                             r = (i) => {
@@ -4388,12 +4393,29 @@
                                     }
                                 },
                                 tU = class {
-                                    constructor(t, i) {
+                                    constructor(t, i, a) {
                                         ;((this._currentDuration = 0),
+                                            (this._stitchedElements = []),
+                                            (this._rootView = a),
                                             (this.setPosition = (t) => {
                                                 t >= 0 && t <= this._currentDuration && this._playerHandle.seek(t)
                                             }),
                                             (this.getThumbnailUri = (t) => this._playerHandle.getThumbnailUrl(t)),
+                                            (this.getBufferedEnd = () => {
+                                                try {
+                                                    let t = this._rootView?.querySelector('video')
+                                                    if (!t || !Number.isFinite(t.currentTime)) return 0
+                                                    let i = t.currentTime
+                                                    for (let a = 0; a < t.buffered.length; a++)
+                                                        if (t.currentTime >= t.buffered.start(a) - 0.1 && t.currentTime <= t.buffered.end(a)) {
+                                                            i = t.buffered.end(a)
+                                                            break
+                                                        }
+                                                    return Math.max(0, (0, l.c)(i, this._stitchedElements))
+                                                } catch (t) {
+                                                    return 0
+                                                }
+                                            }),
                                             (this._playerHandle = i),
                                             (this.currentPlayhead$ = t.playheadUpdate$.pipe(
                                                 (0, l.ht)((t) => t.playheadData.timelineTime),
@@ -4401,7 +4423,8 @@
                                             )),
                                             (this.duration$ = t.videoModelUpdated$.pipe(
                                                 (0, l.ht)((t) => {
-                                                    let i = t.videoModel.manifest.stitchedElements.filter((t) => t.timeline).reduce((t, i) => t + (i.end - i.start), 0)
+                                                    this._stitchedElements = t.videoModel.manifest.stitchedElements || []
+                                                    let i = this._stitchedElements.filter((t) => t.timeline).reduce((t, i) => t + (i.end - i.start), 0)
                                                     return isNaN(i) || !isFinite(i) || i <= 0 ? t.videoModel.assetMetadata.contentDuration : i
                                                 }),
                                                 (0, l.ft)(0),
@@ -4436,14 +4459,14 @@
                                     }
                                 },
                                 tF = class {
-                                    constructor(t, i, a) {
+                                    constructor(t, i, a, r) {
                                         ;((this.playPauseButtonVM = new tE(i, t)),
                                             (this.jumpButtonsVM = new tS(i, t)),
                                             (this.volumeVM = new tj(i, t)),
                                             (this.trackSelectionVM = new tT(i, t, a)),
                                             (this.timestampDisplayVM = new tN(i)),
                                             (this.playbackSpeedMenuVM = new tg(i, t)),
-                                            (this.timelineScrubberVM = new tU(i, t)),
+                                            (this.timelineScrubberVM = new tU(i, t, r)),
                                             (this.skipEventVM = new tO(i, t)),
                                             (this.ratingsAdvisoriesVM = new tk(i)),
                                             (this.errorOverlayVM = new tu(i, t)),
@@ -5375,12 +5398,13 @@
                                                 : (0, d.jsx)(iF, { className: (0, tG.default)('kat:w-20 kat:h-20', { 'kat:text-neutral-50': !i, 'kat:text-neutral-500': i }) })
                                         })
                                     }),
-                                iB = ({ label: t, checked: i, disabled: a = !1, ariaLabel: r, onChange: s }) =>
+                                iB = ({ label: t, checked: i, disabled: a = !1, ariaLabel: r, onChange: s, autoFocus: n = !1 }) =>
                                     (0, d.jsxs)('div', {
                                         role: 'menuitemcheckbox',
                                         'aria-checked': i,
                                         'aria-disabled': a,
                                         'aria-label': r ?? t,
+                                        autoFocus: n,
                                         onClick: (t) => {
                                             a || t.target.closest('[role="switch"]') || s(!i)
                                         },
@@ -5394,7 +5418,7 @@
                                             (0, d.jsx)(i$, { tabIndex: -1, checked: i, disabled: a, ariaLabel: r ?? t, onChange: s })
                                         ]
                                     }),
-                                iq = ({ label: t, checked: i, onChange: a }) => (0, d.jsx)(iB, { label: t, checked: i, onChange: a }),
+                                iq = ({ label: t, checked: i, onChange: a, autoFocus: r = !1 }) => (0, d.jsx)(iB, { label: t, checked: i, onChange: a, autoFocus: r }),
                                 iK = ({ options: t, selectedBucket: i, onSelect: a }) =>
                                     (0, d.jsx)(d.Fragment, {
                                         children: (0, h.useMemo)(
@@ -6037,7 +6061,7 @@
                                     )
                                 },
                                 i9 = (0, h.createContext)(void 0),
-                                ae = 6e3,
+                                ae = 2e3,
                                 at = 0.1,
                                 ai = ({ children: t, eventTarget: i, enabled: a = !0, idleTimeoutMs: r = ae, mouseIdlePercentage: s = at }) => {
                                     let [n, o] = (0, h.useState)(!0),
@@ -6265,6 +6289,7 @@
                                             totalTime: iT = tL(0),
                                             getAriaValueText: a,
                                             getThumbnailUri: r,
+                                            getBufferedEnd: aA,
                                             seekTo: s,
                                             chapters: tA = [],
                                             config: n = al
@@ -6312,28 +6337,45 @@
                                                         chapterBoundaries.filter((i) => i < t),
                                                         t
                                                     )
-                                                    l.current.style.setProperty('--chapter-progress-mask', i || 'none')
+                                                    l.current.style.setProperty('--chapter-progress-mask', i || 'linear-gradient(to right, #000 0%, #000 100%)')
                                                 },
                                                 [chapterBoundaries]
+                                            ),
+                                            updateTimelinePaint = (0, h.useCallback)(
+                                                (t) => {
+                                                    if (null === l.current) return
+                                                    let a = Number.isFinite(t) ? t : l.current.valueAsNumber,
+                                                        r = 0 === i ? 0 : Math.min(100, Math.max(0, (a / i) * 100)),
+                                                        s = Number(aA?.()) || 0,
+                                                        o = 0 === i ? 0 : Math.min(100, Math.max(0, (s / i) * 100)),
+                                                        u = Math.max(r, o)
+                                                    ;(l.current.style.setProperty('--timeline-progress-percent', `${r}%`),
+                                                        l.current.style.setProperty('--timeline-buffer-percent', `${u}%`),
+                                                        l.current.style.setProperty('--moz-progress-gradient-percent', `${an(r, n.gradientStartPercent)}%`))
+                                                },
+                                                [i, aA, n.gradientStartPercent]
                                             )
-                                        ;((0, h.useImperativeHandle)(
-                                            o,
-                                            () => ({
-                                                updatePosition: (t) => {
-                                                    if (null !== l.current && !1 === u.current && !1 === c.current) {
-                                                        l.current.valueAsNumber = t
-                                                        let r = 0 === i ? 0 : (t / i) * 100
-                                                        l.current.style.setProperty('--timeline-progress-percent', `${r}%`)
-                                                        let s = an(r, n.gradientStartPercent)
-                                                        l.current.style.setProperty('--moz-progress-gradient-percent', `${s}%`)
-                                                        updateProgressChapterMask(t)
-                                                        let o = Math.floor(t)
-                                                        ;((l.current.ariaValueNow = o.toFixed(0)), (l.current.ariaValueText = a(o)))
+                                        ;((0, h.useEffect)(() => {
+                                            let t = () => updateTimelinePaint(l.current?.valueAsNumber)
+                                            t()
+                                            let r = setInterval(t, 500)
+                                            return () => clearInterval(r)
+                                        }, [updateTimelinePaint]),
+                                            (0, h.useImperativeHandle)(
+                                                o,
+                                                () => ({
+                                                    updatePosition: (t) => {
+                                                        if (null !== l.current && !1 === u.current && !1 === c.current) {
+                                                            l.current.valueAsNumber = t
+                                                            updateTimelinePaint(t)
+                                                            updateProgressChapterMask(t)
+                                                            let o = Math.floor(t)
+                                                            ;((l.current.ariaValueNow = o.toFixed(0)), (l.current.ariaValueText = a(o)))
+                                                        }
                                                     }
-                                                }
-                                            }),
-                                            [i, n.gradientStartPercent, a, updateProgressChapterMask]
-                                        ),
+                                                }),
+                                                [a, updateProgressChapterMask, updateTimelinePaint]
+                                            ),
                                             (0, h.useEffect)(() => {
                                                 null !== l.current &&
                                                     n.gradientStartPercent >= 0 &&
@@ -6346,9 +6388,11 @@
                                         let g = (0, h.useCallback)(
                                             (t) => {
                                                 if (t.target !== l.current || null === t.target) return
-                                                ;((!0 !== u.current && !0 !== c.current) || (f.current = t.target.valueAsNumber), updateProgressChapterMask(t.target.valueAsNumber))
+                                                ;((!0 !== u.current && !0 !== c.current) || (f.current = t.target.valueAsNumber),
+                                                    updateTimelinePaint(t.target.valueAsNumber),
+                                                    updateProgressChapterMask(t.target.valueAsNumber))
                                             },
-                                            [updateProgressChapterMask]
+                                            [updateProgressChapterMask, updateTimelinePaint]
                                         )
                                         return (0, d.jsxs)('div', {
                                             className: 'timeline-container kat:flex kat:items-center kat:w-full kat:pt-20 kat:pb-20 kat:gap-10',
@@ -6366,7 +6410,10 @@
                                                                 '.timeline-slider[data-segmented="true"] { transition: --chapter-gap 360ms cubic-bezier(0.16, 1.55, 0.32, 1); }\n' +
                                                                 '.timeline-slider[data-segmented="true"]::-webkit-slider-runnable-track { -webkit-mask-image: var(--chapter-mask); mask-image: var(--chapter-mask); -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-size: 100% 100%; mask-size: 100% 100%; }\n' +
                                                                 '.timeline-slider[data-segmented="true"]::-moz-range-track { mask-image: var(--chapter-mask); mask-repeat: no-repeat; mask-size: 100% 100%; }\n' +
-                                                                '.timeline-slider[data-segmented="true"]::-moz-range-progress { mask-image: var(--chapter-progress-mask, none); mask-repeat: no-repeat; mask-size: 100% 100%; }\n' +
+                                                                '.timeline-slider[data-segmented="true"]::-moz-range-progress { mask-image: var(--chapter-progress-mask, linear-gradient(to right, #000 0%, #000 100%)); mask-repeat: no-repeat; mask-size: 100% 100%; }\n' +
+                                                                '.timeline-slider[data-scrubber="true"]::-webkit-slider-runnable-track { background: linear-gradient(to right, rgb(255,100,10) 0%, rgb(255,100,10) var(--timeline-progress-percent, 0%), rgb(154,155,160) var(--timeline-progress-percent, 0%), rgb(154,155,160) var(--timeline-buffer-percent, 0%), rgb(74,75,79) var(--timeline-buffer-percent, 0%), rgb(74,75,79) 100%) !important; }\n' +
+                                                                '.timeline-slider[data-scrubber="true"]::-moz-range-track { background: linear-gradient(to right, rgb(154,155,160) 0%, rgb(154,155,160) var(--timeline-buffer-percent, 0%), rgb(74,75,79) var(--timeline-buffer-percent, 0%), rgb(74,75,79) 100%) !important; }\n' +
+                                                                '.timeline-slider[data-scrubber="true"]::-moz-range-progress { background: rgb(255,100,10) !important; }\n' +
                                                                 '.timeline-slider[data-scrubber="true"]::-webkit-slider-thumb { -webkit-appearance: none !important; appearance: none !important; width: 14px !important; height: 14px !important; border: 0 !important; border-radius: 50% !important; background: rgb(255, 100, 10) !important; box-shadow: 0 0 0 2px rgba(0,0,0,0.22), 0 2px 7px rgba(0,0,0,0.38) !important; opacity: 1 !important; cursor: pointer; transform: scale(1); transform-origin: center; transition: transform 220ms cubic-bezier(0.2, 1.45, 0.35, 1), box-shadow 180ms ease !important; }\n' +
                                                                 '.timeline-slider[data-scrubber="true"]::-moz-range-thumb { width: 14px !important; height: 14px !important; border: 0 !important; border-radius: 50% !important; background: rgb(255, 100, 10) !important; box-shadow: 0 0 0 2px rgba(0,0,0,0.22), 0 2px 7px rgba(0,0,0,0.38) !important; opacity: 1 !important; cursor: pointer; transform: scale(1); transform-origin: center; transition: transform 220ms cubic-bezier(0.2, 1.45, 0.35, 1), box-shadow 180ms ease !important; }\n' +
                                                                 '.timeline-slider[data-scrubber="true"]:hover::-webkit-slider-thumb { transform: scale(1.22); box-shadow: 0 0 0 3px rgba(255,100,10,0.18), 0 3px 10px rgba(0,0,0,0.45) !important; }\n' +
@@ -6442,7 +6489,10 @@
                                                                     case 'ArrowUp':
                                                                         ;(l.current.stepUp(), (f.current = l.current.valueAsNumber), (i = !0))
                                                                 }
-                                                                i && t.preventDefault()
+                                                                i &&
+                                                                    (t.preventDefault(),
+                                                                    updateTimelinePaint(l.current.valueAsNumber),
+                                                                    updateProgressChapterMask(l.current.valueAsNumber))
                                                             }
                                                         })
                                                     ]
@@ -6508,6 +6558,7 @@
                                         totalTime: r,
                                         seekTo: l,
                                         getThumbnailUri: t.getThumbnailUri,
+                                        getBufferedEnd: t.getBufferedEnd,
                                         getAriaValueText: u,
                                         chapters,
                                         ariaLabel: n('timeline.ariaLabel')
@@ -9404,6 +9455,163 @@
                                             }
                                         }))
                                 },
+                                aStatsFormatTime = (t) => {
+                                    if (!Number.isFinite(t)) return '—'
+                                    let i = Math.max(0, Math.floor(t)),
+                                        a = Math.floor(i / 3600),
+                                        r = Math.floor((i % 3600) / 60),
+                                        s = String(i % 60).padStart(2, '0')
+                                    return a ? `${a}:${String(r).padStart(2, '0')}:${s}` : `${r}:${s}`
+                                },
+                                aStatsFormatBitrate = (t) => {
+                                    let i = Number(t)
+                                    return Number.isFinite(i) && i > 0 ? (i >= 1e6 ? `${(i / 1e6).toFixed(2)} Mbps` : `${Math.round(i / 1e3)} Kbps`) : '—'
+                                },
+                                aStatsText = (t, i, aActualPlaybackRate, aActualVolume, aActualMuted) => {
+                                    let a = t?._rootView?.querySelector('video')
+                                    if (!a) return 'Stats for Nerds\n\nWaiting for video…'
+                                    let r = {},
+                                        s
+                                    try {
+                                        let t = i?._getShakaPlayer?.()
+                                        ;((r = t?.getStats?.() || {}), (s = t?.getVariantTracks?.()?.find((t) => t.active)))
+                                    } catch (t) {}
+                                    let o = {}
+                                    try {
+                                        o = a.getVideoPlaybackQuality?.() || {}
+                                    } catch (t) {}
+                                    let l = 0
+                                    try {
+                                        for (let t = 0; t < a.buffered.length; t++)
+                                            if (a.currentTime >= a.buffered.start(t) - 0.1 && a.currentTime <= a.buffered.end(t)) {
+                                                l = Math.max(0, a.buffered.end(t) - a.currentTime)
+                                                break
+                                            }
+                                    } catch (t) {}
+                                    let u = t?._rootView?.getBoundingClientRect?.() || { width: 0, height: 0 },
+                                        c = window.devicePixelRatio || 1,
+                                        h = Number(r.decodedFrames ?? o.totalVideoFrames ?? a.webkitDecodedFrameCount ?? 0),
+                                        p = Number(r.droppedFrames ?? o.droppedVideoFrames ?? a.webkitDroppedFrameCount ?? 0),
+                                        f = h > 0 ? ` (${((p / h) * 100).toFixed(2)}%)` : '',
+                                        g = String(s?.codecs || '').split(','),
+                                        v = s?.videoCodec || g[0],
+                                        m = s?.audioCodec || g[1],
+                                        y = Number(s?.frameRate || r.frameRate),
+                                        _ = a.ended ? 'Ended' : a.paused ? 'Paused' : a.readyState < 3 ? 'Buffering' : 'Playing',
+                                        playbackRate = Number.isFinite(aActualPlaybackRate) ? aActualPlaybackRate : a.playbackRate,
+                                        volumePercent = Number.isFinite(aActualVolume) ? aActualVolume : 100 * a.volume,
+                                        isMuted = 'boolean' == typeof aActualMuted ? aActualMuted : a.muted,
+                                        b = [
+                                            ['Viewport', `${Math.round(u.width)}x${Math.round(u.height)} @ ${c.toFixed(2)}x`],
+                                            ['Resolution', `${a.videoWidth || '—'}x${a.videoHeight || '—'}${Number.isFinite(y) && y > 0 ? ` @ ${y.toFixed(2)} fps` : ''}`],
+                                            ['Codecs', [v, m].filter(Boolean).join(' / ') || '—'],
+                                            ['Bitrate', aStatsFormatBitrate(s?.bandwidth || r.streamBandwidth)],
+                                            ['Bandwidth', aStatsFormatBitrate(r.estimatedBandwidth)],
+                                            ['Buffer health', `${l.toFixed(2)} s`],
+                                            ['Frames', `${p} dropped of ${h}${f}`],
+                                            ['Playback', `${aStatsFormatTime(a.currentTime)} / ${aStatsFormatTime(a.duration)} · ${playbackRate}x · ${_}`],
+                                            ['Volume', isMuted ? 'Muted' : `${Math.round(volumePercent)}%`]
+                                        ]
+                                    return ['Stats for Nerds', '', ...b.map(([t, i]) => `${t.padEnd(15)} ${i}`)].join('\n')
+                                },
+                                aStatsForNerds = ({ isVisible: t, menuLocation: i, onToggle: a, onClose: r }) => {
+                                    let {
+                                            viewModelContainer: { timelineScrubberVM: s, settingsVM: n, playbackSpeedMenuVM: playbackSpeedVM, volumeVM }
+                                        } = im(),
+                                        [o, l] = (0, h.useState)('Stats for Nerds')
+                                    ;(0, h.useEffect)(() => {
+                                        if (!t) return
+                                        let i,
+                                            a,
+                                            r,
+                                            updateStats = () => l(aStatsText(s, n, i, a, r)),
+                                            subscriptions = [
+                                                playbackSpeedVM.selectedRate$.subscribe((t) => {
+                                                    ;((i = t), updateStats())
+                                                }),
+                                                volumeVM.volumePercent$.subscribe((t) => {
+                                                    ;((a = t), updateStats())
+                                                }),
+                                                volumeVM.isMuted$.subscribe((t) => {
+                                                    ;((r = t), updateStats())
+                                                })
+                                            ],
+                                            timer = setInterval(updateStats, 750)
+                                        return (
+                                            updateStats(),
+                                            () => {
+                                                ;(clearInterval(timer), subscriptions.forEach((t) => t.unsubscribe()))
+                                            }
+                                        )
+                                    }, [t, s, n, playbackSpeedVM, volumeVM])
+                                    if (!t && !i) return null
+                                    return (0, d.jsxs)(d.Fragment, {
+                                        children: [
+                                            t &&
+                                                (0, d.jsx)('div', {
+                                                    'data-testid': 'stats-for-nerds-overlay',
+                                                    'aria-live': 'off',
+                                                    style: {
+                                                        position: 'absolute',
+                                                        top: '12px',
+                                                        left: '12px',
+                                                        zIndex: 40,
+                                                        maxWidth: 'calc(100% - 24px)',
+                                                        boxSizing: 'border-box',
+                                                        padding: '10px 12px',
+                                                        background: 'rgba(0,0,0,.82)',
+                                                        color: '#fff',
+                                                        font: '12px/1.45 Consolas,"Courier New",monospace',
+                                                        whiteSpace: 'pre-wrap',
+                                                        overflowWrap: 'anywhere',
+                                                        pointerEvents: 'none',
+                                                        textShadow: '0 1px 1px #000'
+                                                    },
+                                                    children: o
+                                                }),
+                                            i &&
+                                                (0, d.jsxs)(d.Fragment, {
+                                                    children: [
+                                                        (0, d.jsx)('div', {
+                                                            className: 'kat:absolute kat:inset-0',
+                                                            style: { zIndex: 1000 },
+                                                            onClick: (t) => {
+                                                                ;(t.preventDefault(), t.stopPropagation(), r())
+                                                            }
+                                                        }),
+                                                        (0, d.jsx)('div', {
+                                                            role: 'menu',
+                                                            'data-testid': 'stats-for-nerds-menu',
+                                                            className:
+                                                                'kat:inline-flex kat:flex-col kat:absolute kat:z-[1001] kat:bg-neutral-700 kat:rounded-lg kat:shadow-lg kat:outline-none kat:w-max kat:overflow-hidden focus-visible:kat:outline-2 focus-visible:kat:outline-offset-2 focus-visible:kat:outline-white/50',
+                                                            style: {
+                                                                left: `${i.x}px`,
+                                                                top: `${i.y}px`,
+                                                                width: '320px',
+                                                                maxWidth: 'calc(100% - 16px)',
+                                                                boxSizing: 'border-box'
+                                                            },
+                                                            onClick: (t) => {
+                                                                ;(t.preventDefault(), t.stopPropagation())
+                                                            },
+                                                            onKeyDown: (t) => {
+                                                                'Escape' === t.key && (t.preventDefault(), r())
+                                                            },
+                                                            children: (0, d.jsx)('div', {
+                                                                className: 'kat:flex kat:flex-col kat:py-5',
+                                                                children: (0, d.jsx)(iq, {
+                                                                    label: 'Stats for Nerds',
+                                                                    checked: t,
+                                                                    autoFocus: !0,
+                                                                    onChange: a
+                                                                })
+                                                            })
+                                                        })
+                                                    ]
+                                                })
+                                        ]
+                                    })
+                                },
                                 a9 = () => {
                                     aCustomShortcuts()
                                     let { accessibilityAnnouncer: t } = im(),
@@ -9413,17 +9621,30 @@
                                         { isActive: o } = aq(),
                                         { topVisible: l, bottomVisible: u, rnaVisible: c, topGradientVisible: p } = a5({ isRnaActive: o }),
                                         f = (0, h.useRef)(!1),
-                                        g = (0, h.useRef)(!1)
+                                        g = (0, h.useRef)(!1),
+                                        [statsVisible, setStatsVisible] = (0, h.useState)(!1),
+                                        [statsMenu, setStatsMenu] = (0, h.useState)(null),
+                                        showStatsMenu = (0, h.useCallback)(
+                                            (t) => {
+                                                ;(t.preventDefault(), t.stopPropagation(), n(), r())
+                                                let i = t.currentTarget.getBoundingClientRect(),
+                                                    a = Math.max(8, Math.min(t.clientX - i.left, i.width - 328)),
+                                                    s = Math.max(8, Math.min(t.clientY - i.top, i.height - 66))
+                                                setStatsMenu({ x: a, y: s })
+                                            },
+                                            [n, r]
+                                        )
                                     return (
                                         (0, h.useEffect)(() => {
-                                            s && r()
-                                        }, [s, r]),
+                                            ;(s || statsMenu) && r()
+                                        }, [s, statsMenu, r]),
                                         (0, h.useEffect)(() => {
                                             ;(a || (g.current = !0), a && g.current && !f.current && ((f.current = !0), t.announce(i('controls.announcement.autohide'))))
                                         }, [a, t, i]),
                                         (0, d.jsxs)(aB, {
                                             'data-testid': 'player-controls-root',
-                                            className: `kat:relative kat:flex kat:flex-col kat:h-full kat:w-full kat:@container ${a || s ? '' : 'kat:cursor-none'}`,
+                                            className: `kat:relative kat:flex kat:flex-col kat:h-full kat:w-full kat:@container ${a || s || statsMenu ? '' : 'kat:cursor-none'}`,
+                                            onContextMenuCapture: showStatsMenu,
                                             children: [
                                                 // (0, d.jsx)('div', {
                                                 //     'data-testid': 'top-gradient',
@@ -9432,6 +9653,14 @@
                                                 // }),
                                                 (0, d.jsx)(aOctopusRenderer, {}),
                                                 (0, d.jsx)(ax, {}),
+                                                (0, d.jsx)(aStatsForNerds, {
+                                                    isVisible: statsVisible,
+                                                    menuLocation: statsMenu,
+                                                    onClose: () => setStatsMenu(null),
+                                                    onToggle: () => {
+                                                        ;(setStatsVisible((t) => !t), setStatsMenu(null))
+                                                    }
+                                                }),
                                                 (0, d.jsx)(a3, { isVisible: c }),
                                                 s &&
                                                     (0, d.jsx)('div', {
@@ -15041,7 +15270,7 @@
                                             rootView: r,
                                             nextEpisodeProvider: t.nextEpisodeProvider
                                         })),
-                                            (this._viewModels = new tF(this._katamariPlayer, this._katamariPlayer.eventSubscriptions(), o)),
+                                            (this._viewModels = new tF(this._katamariPlayer, this._katamariPlayer.eventSubscriptions(), o, r)),
                                             (this._desktopUIBuilder = new rn({
                                                 viewModels: this._viewModels,
                                                 containerElement: s,
