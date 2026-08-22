@@ -12,6 +12,24 @@ s.src = browser.runtime.getURL('config_init.js')
 s.dataset.baseUrl = browser.runtime.getURL('')
 ;(document.head || document.documentElement).appendChild(s)
 
+function is_mobile_or_tablet() {
+    const user_agent_data = (navigator as Navigator & { userAgentData?: { mobile?: boolean } }).userAgentData
+
+    if (user_agent_data?.mobile) return true
+
+    const mobile_user_agent = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|Tablet/i.test(navigator.userAgent)
+    const ipad_desktop_mode = navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1
+
+    return mobile_user_agent || ipad_desktop_mode
+}
+
+if (is_mobile_or_tablet()) {
+    const script = document.createElement('script')
+    script.src = browser.runtime.getURL('mobile-fix.js')
+    ;(document.head || document.documentElement).appendChild(script)
+    script.remove()
+}
+
 // Throttle utility - limits function execution to once per interval
 function throttle<T extends (...args: unknown[]) => void>(fn: T, ms: number): T {
     let lastCall = 0
@@ -72,7 +90,7 @@ function stop_observe_crunchyroll() {
 
 async function load_settings() {
     // Load settings
-    const settings = await browser.storage.local.get(['designEnabled', 'tvAuthEnabled', 'mobileBypassEnabled'])
+    const settings = await browser.storage.local.get(['designEnabled', 'tvAuthEnabled'])
 
     const crunchyroll_design = settings.designEnabled !== false
     if (crunchyroll_design) {
@@ -84,19 +102,6 @@ async function load_settings() {
         document.documentElement.classList.remove('croptix')
         // Stop custom player design listener
         stop_observe_crunchyroll()
-    }
-
-    const crunchyroll_mobile_bypass = settings.mobileBypassEnabled === true // default to false
-    if (crunchyroll_mobile_bypass) {
-        //is it wise?
-        //if (document.documentElement.hasAttribute('croptix-mobile-fix')) return
-
-        const script = document.createElement('script')
-        script.src = browser.runtime.getURL('mobile-fix.js')
-
-        //document.documentElement.setAttribute('croptix-mobile-fix', '1')
-        ;(document.head || document.documentElement).appendChild(script)
-        script.remove()
     }
 }
 
