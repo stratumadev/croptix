@@ -471,6 +471,12 @@
                                     'skip.preview': 'Skip Preview',
                                     'skip.promo': 'Skip Promo',
                                     'skip.bumper': 'Skip Bumper',
+                                    'chapter.intro': 'Opening',
+                                    'chapter.recap': 'Recap',
+                                    'chapter.credits': 'Ending / Credits',
+                                    'chapter.preview': 'Preview',
+                                    'chapter.promo': 'Promo',
+                                    'chapter.bumper': 'Bumper',
                                     'ratings.announcement.ratedFor': 'Rated {{rating}} for {{descriptors}}',
                                     'ratings.announcement.ratedOnly': 'Rated {{rating}}',
                                     'ratings.announcement.noRating': 'No rating information available',
@@ -4402,6 +4408,30 @@
                                                 (0, l.dt)((t) => {
                                                     this._currentDuration = t
                                                 })
+                                            )),
+                                            (this.chapterSegments$ = t.videoModelUpdated$.pipe(
+                                                (0, l.ht)((t) => {
+                                                    let i = t.videoModel.manifest,
+                                                        a = i.stitchedElements || []
+                                                    return (i.annotations || [])
+                                                        .map((t) => {
+                                                            let i = (0, l.c)(t.start, a),
+                                                                r = (0, l.c)(t.end, a),
+                                                                s = String(t.type || 'main').toLowerCase()
+                                                            return Number.isFinite(i) && Number.isFinite(r) && r > i
+                                                                ? {
+                                                                      id: t.id || `${s}-${i}-${r}`,
+                                                                      type: s,
+                                                                      localizedLabel: t.localizedLabel,
+                                                                      start: Math.max(0, i),
+                                                                      end: Math.max(0, r)
+                                                                  }
+                                                                : void 0
+                                                        })
+                                                        .filter(Boolean)
+                                                        .sort((t, i) => t.start - i.start)
+                                                }),
+                                                (0, l.ft)([])
                                             )))
                                     }
                                 },
@@ -6119,7 +6149,7 @@
                                     let a = Math.max(t - i, 0)
                                     return t <= 0 || a <= 0 ? 0 : (a / t) * 100
                                 },
-                                ao = ({ anchorElementRef: t, duration: i, getThumbnailUri: a }) => {
+                                ao = ({ anchorElementRef: t, duration: i, getThumbnailUri: a, chapters: tA = [] }) => {
                                     let r = (0, h.useRef)(null),
                                         s = (0, h.useRef)(null),
                                         n = (0, h.useRef)(0),
@@ -6127,6 +6157,7 @@
                                         [l, u] = (0, h.useState)(!1),
                                         [c, p] = (0, h.useState)('--:--'),
                                         [f, g] = (0, h.useState)(!1),
+                                        [chapterLabel, setChapterLabel] = (0, h.useState)(''),
                                         v = (0, h.useCallback)(() => {
                                             u(!1)
                                         }, []),
@@ -6141,7 +6172,7 @@
                                             }
                                         }, []),
                                         _ = (0, h.useCallback)(() => {
-                                            ;(g(!1), null !== t.current && t.current.style.setProperty('--timeline-hover-percentage', 'initial'))
+                                            ;(g(!1), setChapterLabel(''), null !== t.current && t.current.style.setProperty('--timeline-hover-percentage', 'initial'))
                                         }, []),
                                         b = (0, h.useCallback)(
                                             (l) => {
@@ -6155,10 +6186,12 @@
                                                 t.current.style.setProperty('--timeline-hover-percentage', `${100 * f}%`)
                                                 let g = i * f
                                                 p(tL(g))
+                                                let m = tA.find((t) => g >= t.start && g < t.end)
+                                                setChapterLabel(m?.label || '')
                                                 let v = a ? a(g) : void 0
                                                 v && s.current && (s.current.src = v)
                                             },
-                                            [a, i, t]
+                                            [a, i, t, tA]
                                         )
                                     return (
                                         (0, h.useEffect)(() => {
@@ -6188,6 +6221,28 @@
                                                     'data-testid': 'trickplay-image'
                                                 }),
                                                 (0, d.jsx)('span', {
+                                                    style: {
+                                                        position: l ? 'absolute' : 'relative',
+                                                        top: l ? '8px' : void 0,
+                                                        left: l ? '50%' : void 0,
+                                                        maxWidth: '244px',
+                                                        padding: '5px 9px',
+                                                        overflow: 'hidden',
+                                                        borderRadius: '6px',
+                                                        background: 'rgba(8, 8, 10, 0.86)',
+                                                        color: 'rgb(249, 249, 250)',
+                                                        fontSize: '13px',
+                                                        fontWeight: 700,
+                                                        lineHeight: '18px',
+                                                        opacity: chapterLabel ? 1 : 0,
+                                                        textOverflow: 'ellipsis',
+                                                        transform: l ? `translate(-50%, ${chapterLabel ? '0' : '5px'})` : `translateY(${chapterLabel ? '0' : '5px'})`,
+                                                        transition: 'opacity 160ms ease, transform 260ms cubic-bezier(0.16, 1.35, 0.32, 1)',
+                                                        whiteSpace: 'nowrap'
+                                                    },
+                                                    children: chapterLabel || '\u00a0'
+                                                }),
+                                                (0, d.jsx)('span', {
                                                     className: (0, tG.default)(
                                                         'kat:text-neutral-50 kat:not-italic kat:font-bold kat:tracking-[-0.42px] kat:pl-8 kat:pr-8 kat:pb-4 kat:pt-4',
                                                         l ? 'kat:absolute kat:bottom-0 kat:left-1/2 kat:-translate-x-1/2' : 'kat:relative kat:object-bottom'
@@ -6211,6 +6266,7 @@
                                             getAriaValueText: a,
                                             getThumbnailUri: r,
                                             seekTo: s,
+                                            chapters: tA = [],
                                             config: n = al
                                         },
                                         o
@@ -6219,7 +6275,47 @@
                                             u = (0, h.useRef)(!1),
                                             c = (0, h.useRef)(!1),
                                             p = (0, h.useRef)(void 0),
-                                            f = (0, h.useRef)(void 0)
+                                            f = (0, h.useRef)(void 0),
+                                            [timelineHovered, setTimelineHovered] = (0, h.useState)(!1)
+                                        let chapterBoundaries = Array.from(
+                                                new Set(
+                                                    tA
+                                                        .flatMap((t) => [t.start, t.end])
+                                                        .filter((t) => Number.isFinite(t) && t > 0 && t < i)
+                                                        .map((t) => Number(t.toFixed(3)))
+                                                )
+                                            ).sort((t, i) => t - i),
+                                            createChapterMask = (t, i) => {
+                                                if (!Number.isFinite(i) || i <= 0) return
+                                                let a = t.filter((t) => Number.isFinite(t) && t > 0 && t < i)
+                                                if (0 === a.length) return
+                                                let r = ['#000 0%']
+                                                return (
+                                                    a.forEach((t) => {
+                                                        let a = (t / i) * 100
+                                                        r.push(
+                                                            `#000 calc(${a}% - var(--chapter-gap))`,
+                                                            `transparent calc(${a}% - var(--chapter-gap))`,
+                                                            `transparent calc(${a}% + var(--chapter-gap))`,
+                                                            `#000 calc(${a}% + var(--chapter-gap))`
+                                                        )
+                                                    }),
+                                                    r.push('#000 100%'),
+                                                    `linear-gradient(to right, ${r.join(', ')})`
+                                                )
+                                            },
+                                            chapterMask = createChapterMask(chapterBoundaries, i),
+                                            updateProgressChapterMask = (0, h.useCallback)(
+                                                (t) => {
+                                                    if (null === l.current) return
+                                                    let i = createChapterMask(
+                                                        chapterBoundaries.filter((i) => i < t),
+                                                        t
+                                                    )
+                                                    l.current.style.setProperty('--chapter-progress-mask', i || 'none')
+                                                },
+                                                [chapterBoundaries]
+                                            )
                                         ;((0, h.useImperativeHandle)(
                                             o,
                                             () => ({
@@ -6230,22 +6326,30 @@
                                                         l.current.style.setProperty('--timeline-progress-percent', `${r}%`)
                                                         let s = an(r, n.gradientStartPercent)
                                                         l.current.style.setProperty('--moz-progress-gradient-percent', `${s}%`)
+                                                        updateProgressChapterMask(t)
                                                         let o = Math.floor(t)
                                                         ;((l.current.ariaValueNow = o.toFixed(0)), (l.current.ariaValueText = a(o)))
                                                     }
                                                 }
                                             }),
-                                            [i, n.gradientStartPercent, a]
+                                            [i, n.gradientStartPercent, a, updateProgressChapterMask]
                                         ),
                                             (0, h.useEffect)(() => {
                                                 null !== l.current &&
                                                     n.gradientStartPercent >= 0 &&
                                                     n.gradientStartPercent <= 100 &&
                                                     l.current.style.setProperty('--gradient-start-percent', `${n.gradientStartPercent.toFixed(2)}%`)
-                                            }, [n]))
-                                        let g = (0, h.useCallback)((t) => {
-                                            t.target !== l.current || null === t.target || ((!0 === u.current || !0 === c.current) && (f.current = t.target.valueAsNumber))
-                                        }, [])
+                                            }, [n]),
+                                            (0, h.useEffect)(() => {
+                                                null !== l.current && updateProgressChapterMask(l.current.valueAsNumber)
+                                            }, [chapterMask, updateProgressChapterMask]))
+                                        let g = (0, h.useCallback)(
+                                            (t) => {
+                                                if (t.target !== l.current || null === t.target) return
+                                                ;((!0 !== u.current && !0 !== c.current) || (f.current = t.target.valueAsNumber), updateProgressChapterMask(t.target.valueAsNumber))
+                                            },
+                                            [updateProgressChapterMask]
+                                        )
                                         return (0, d.jsxs)('div', {
                                             className: 'timeline-container kat:flex kat:items-center kat:w-full kat:pt-20 kat:pb-20 kat:gap-10',
                                             children: [
@@ -6256,10 +6360,43 @@
                                                 (0, d.jsxs)('div', {
                                                     className: 'kat:relative kat:flex-1 kat:flex kat:items-center kat:w-full',
                                                     children: [
-                                                        (0, d.jsx)(ao, { anchorElementRef: l, duration: i, getThumbnailUri: r }),
+                                                        (0, d.jsx)('style', {
+                                                            children:
+                                                                '@property --chapter-gap { syntax: "<length>"; inherits: true; initial-value: 1.5px; }\n' +
+                                                                '.timeline-slider[data-segmented="true"] { transition: --chapter-gap 360ms cubic-bezier(0.16, 1.55, 0.32, 1); }\n' +
+                                                                '.timeline-slider[data-segmented="true"]::-webkit-slider-runnable-track { -webkit-mask-image: var(--chapter-mask); mask-image: var(--chapter-mask); -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-size: 100% 100%; mask-size: 100% 100%; }\n' +
+                                                                '.timeline-slider[data-segmented="true"]::-moz-range-track { mask-image: var(--chapter-mask); mask-repeat: no-repeat; mask-size: 100% 100%; }\n' +
+                                                                '.timeline-slider[data-segmented="true"]::-moz-range-progress { mask-image: var(--chapter-progress-mask, none); mask-repeat: no-repeat; mask-size: 100% 100%; }\n' +
+                                                                '.timeline-slider[data-scrubber="true"]::-webkit-slider-thumb { -webkit-appearance: none !important; appearance: none !important; width: 14px !important; height: 14px !important; border: 0 !important; border-radius: 50% !important; background: rgb(255, 100, 10) !important; box-shadow: 0 0 0 2px rgba(0,0,0,0.22), 0 2px 7px rgba(0,0,0,0.38) !important; opacity: 1 !important; cursor: pointer; transform: scale(1); transform-origin: center; transition: transform 220ms cubic-bezier(0.2, 1.45, 0.35, 1), box-shadow 180ms ease !important; }\n' +
+                                                                '.timeline-slider[data-scrubber="true"]::-moz-range-thumb { width: 14px !important; height: 14px !important; border: 0 !important; border-radius: 50% !important; background: rgb(255, 100, 10) !important; box-shadow: 0 0 0 2px rgba(0,0,0,0.22), 0 2px 7px rgba(0,0,0,0.38) !important; opacity: 1 !important; cursor: pointer; transform: scale(1); transform-origin: center; transition: transform 220ms cubic-bezier(0.2, 1.45, 0.35, 1), box-shadow 180ms ease !important; }\n' +
+                                                                '.timeline-slider[data-scrubber="true"]:hover::-webkit-slider-thumb { transform: scale(1.22); box-shadow: 0 0 0 3px rgba(255,100,10,0.18), 0 3px 10px rgba(0,0,0,0.45) !important; }\n' +
+                                                                '.timeline-slider[data-scrubber="true"]:hover::-moz-range-thumb { transform: scale(1.22); box-shadow: 0 0 0 3px rgba(255,100,10,0.18), 0 3px 10px rgba(0,0,0,0.45) !important; }\n' +
+                                                                '.timeline-slider[data-scrubber="true"]:active::-webkit-slider-thumb { transform: scale(1.42); box-shadow: 0 0 0 4px rgba(255,100,10,0.2), 0 4px 13px rgba(0,0,0,0.5) !important; }\n' +
+                                                                '.timeline-slider[data-scrubber="true"]:active::-moz-range-thumb { transform: scale(1.42); box-shadow: 0 0 0 4px rgba(255,100,10,0.2), 0 4px 13px rgba(0,0,0,0.5) !important; }\n' +
+                                                                '.timeline-slider[data-scrubber="true"]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 3px rgb(8,8,10), 0 0 0 5px rgb(249,249,250) !important; }\n' +
+                                                                '.timeline-slider[data-scrubber="true"]:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 3px rgb(8,8,10), 0 0 0 5px rgb(249,249,250) !important; }\n' +
+                                                                '@media (prefers-reduced-motion: reduce) { .timeline-slider[data-segmented="true"] { transition: none !important; } .timeline-slider[data-scrubber="true"]::-webkit-slider-thumb { transition: none !important; } .timeline-slider[data-scrubber="true"]::-moz-range-thumb { transition: none !important; } }'
+                                                        }),
+                                                        (0, d.jsx)(ao, {
+                                                            anchorElementRef: l,
+                                                            duration: i,
+                                                            getThumbnailUri: r,
+                                                            chapters: tA
+                                                        }),
                                                         (0, d.jsx)('input', {
                                                             ref: l,
                                                             className: 'timeline-slider kat:flex kat:w-full kat:appearance-none kat:pt-20 kat:pb-20',
+                                                            'data-segmented': chapterMask ? 'true' : void 0,
+                                                            'data-scrubber': 'true',
+                                                            style: {
+                                                                '--slider-thumb-base-size': '14px',
+                                                                ...(chapterMask
+                                                                    ? {
+                                                                          '--chapter-mask': chapterMask,
+                                                                          '--chapter-gap': timelineHovered ? '3px' : '1.5px'
+                                                                      }
+                                                                    : {})
+                                                            },
                                                             type: 'range',
                                                             'aria-label': t,
                                                             min: '0',
@@ -6268,6 +6405,12 @@
                                                             'aria-valuemax': i,
                                                             step: 0.25,
                                                             onChange: g,
+                                                            onMouseEnter: () => {
+                                                                setTimelineHovered(!0)
+                                                            },
+                                                            onMouseLeave: () => {
+                                                                setTimelineHovered(!1)
+                                                            },
                                                             onMouseDown: () => {
                                                                 u.current = !0
                                                             },
@@ -6320,6 +6463,7 @@
                                         [i, a] = (0, h.useState)(0),
                                         [v, m] = (0, h.useState)(tL(0)),
                                         [r, s] = (0, h.useState)(tL(0)),
+                                        [chapterSegments, setChapterSegments] = (0, h.useState)([]),
                                         { t: n } = iy(),
                                         o = (0, h.useRef)(null),
                                         l = (0, h.useCallback)(
@@ -6342,12 +6486,21 @@
                                                     ;(a(t), s(tL(t)))
                                                 })
                                             ),
+                                            i.push(t.chapterSegments$.subscribe(setChapterSegments)),
                                             () => {
                                                 i.forEach((t) => t.unsubscribe())
                                             }
                                         )
                                     }, [t])
-                                    let u = (0, h.useCallback)((t) => n('timeline.ariaValueText', { elapsed: tL(t), duration: r }), [r, n])
+                                    let u = (0, h.useCallback)((t) => n('timeline.ariaValueText', { elapsed: tL(t), duration: r }), [r, n]),
+                                        chapters = (0, h.useMemo)(
+                                            () =>
+                                                chapterSegments.map((t) => ({
+                                                    ...t,
+                                                    label: t.localizedLabel || n(`chapter.${t.type}`)
+                                                })),
+                                            [chapterSegments, n]
+                                        )
                                     return (0, d.jsx)(ad, {
                                         ref: o,
                                         duration: i,
@@ -6356,6 +6509,7 @@
                                         seekTo: l,
                                         getThumbnailUri: t.getThumbnailUri,
                                         getAriaValueText: u,
+                                        chapters,
                                         ariaLabel: n('timeline.ariaLabel')
                                     })
                                 },
