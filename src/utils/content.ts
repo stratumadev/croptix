@@ -13,6 +13,24 @@ s.src = browser.runtime.getURL('config_init.js')
 s.dataset.baseUrl = browser.runtime.getURL('')
 ;(document.head || document.documentElement).appendChild(s)
 
+function is_mobile_or_tablet() {
+    const user_agent_data = (navigator as Navigator & { userAgentData?: { mobile?: boolean } }).userAgentData
+
+    if (user_agent_data?.mobile) return true
+
+    const mobile_user_agent = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|Tablet/i.test(navigator.userAgent)
+    const ipad_desktop_mode = navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1
+
+    return mobile_user_agent || ipad_desktop_mode
+}
+
+if (is_mobile_or_tablet()) {
+    const script = document.createElement('script')
+    script.src = browser.runtime.getURL('mobile-fix.js')
+    ;(document.head || document.documentElement).appendChild(script)
+    script.remove()
+}
+
 // Throttle utility - limits function execution to once per interval
 function throttle<T extends (...args: unknown[]) => void>(fn: T, ms: number): T {
     let lastCall = 0

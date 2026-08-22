@@ -29,6 +29,6 @@
         "debug:android": "web-ext run -t firefox-android --source-dir=dist --adb-device emulator-5554 --firefox-apk org.mozilla.firefox",
         "build:manifestv2": "bun run src/utils/manifestgenv2.ts",
         "build:manifestv3": "bun run src/utils/manifestgenv3.ts",
-        "build:bundle": "bun build src/utils/content.ts --outdir dist --minify && bun build src/utils/katamari.js --outdir dist && bun build src/utils/config_init.js --outdir dist --minify && bun build subtitle-octopus/subtitles-octopus-worker.js --outdir dist/subtitle-octopus --minify --target=browser"
+        "build:bundle": "bun build src/utils/content.ts --outdir dist --minify && bun build src/utils/katamari.js --outdir dist && bun build src/utils/mobile-fix.js --outdir dist && bun build src/utils/config_init.js --outdir dist --minify && bun build subtitle-octopus/subtitles-octopus-worker.js --outdir dist/subtitle-octopus --minify --target=browser"
     }
 }
