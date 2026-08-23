@@ -3567,26 +3567,20 @@
                                     let a = 0,
                                         r = null,
                                         s = null,
-                                        n = null,
                                         o = t.playheadUpdate$.subscribe((t) => {
-                                            ;((a = t.playheadData.timelineTime), null !== r && null === s && Math.abs(a - r) > 2 && (r = null))
+                                            a = t.playheadData.timelineTime
                                         })
                                     return {
                                         seek: (t) => {
                                             ;((r = Math.max(0, (null === r ? a : r) + t)),
                                                 s && clearTimeout(s),
-                                                n && clearTimeout(n),
+                                                i.seek(r),
                                                 (s = setTimeout(() => {
-                                                    ;(null !== r &&
-                                                        (i.seek(r),
-                                                        (n = setTimeout(() => {
-                                                            r = null
-                                                        }, 1e3))),
-                                                        (s = null))
-                                                }, 200)))
+                                                    ;((r = null), (s = null))
+                                                }, 1e3)))
                                         },
                                         dispose: () => {
-                                            ;((s &&= (clearTimeout(s), null)), (n &&= (clearTimeout(n), null)), o.unsubscribe())
+                                            ;((s &&= (clearTimeout(s), null)), o.unsubscribe())
                                         }
                                     }
                                 },
@@ -5842,19 +5836,22 @@
                                     [tK.FrameForward]: ['>', '.'],
                                     [tK.FrameBackward]: ['<', ',']
                                 },
+                                iHeldArrowSeekIntervalMs = 250,
                                 i1 = ({ shortcut: t, handleShortcut: i, target: a = 'both' }) => {
                                     let { keyboardShortcutTarget: r } = im(),
                                         s = ig(),
                                         n = i0[t],
+                                        isArrowSeekShortcut = t === tK.JumpForward || t === tK.JumpBackward,
+                                        lastArrowSeekAt = (0, h.useRef)(0),
                                         o = (0, h.useCallback)(
                                             (t) => {
-                                                !0 === t.defaultPrevented ||
-                                                    !0 === t.metaKey ||
-                                                    !0 === t.ctrlKey ||
-                                                    !0 === t.altKey ||
-                                                    (n.includes(t.key) && (i(), t.preventDefault(), t.stopPropagation(), t.stopImmediatePropagation?.()))
+                                                if (!0 === t.defaultPrevented || !0 === t.metaKey || !0 === t.ctrlKey || !0 === t.altKey || !n.includes(t.key)) return
+                                                let a = performance.now()
+                                                ;(!isArrowSeekShortcut || !t.repeat || a - lastArrowSeekAt.current >= iHeldArrowSeekIntervalMs) &&
+                                                    ((lastArrowSeekAt.current = a), i(t))
+                                                ;(t.preventDefault(), t.stopPropagation(), t.stopImmediatePropagation?.())
                                             },
-                                            [n, i]
+                                            [n, i, isArrowSeekShortcut]
                                         )
                                     ;((0, h.useEffect)(() => {
                                         if ('containerOnly' === a)
@@ -6301,6 +6298,7 @@
                                             c = (0, h.useRef)(!1),
                                             p = (0, h.useRef)(void 0),
                                             f = (0, h.useRef)(void 0),
+                                            keyboardSeekStepAt = (0, h.useRef)(0),
                                             [timelineHovered, setTimelineHovered] = (0, h.useState)(!1)
                                         let chapterBoundaries = Array.from(
                                                 new Set(
@@ -6479,20 +6477,32 @@
                                                                     (p.current = setTimeout(() => {
                                                                         ;((c.current = !1), s && void 0 !== f.current && (s(f.current), (f.current = void 0)))
                                                                     }, n.keyboardDebounceTimeoutMs)))
-                                                                let i = !1
+                                                                let i = !1,
+                                                                    a = performance.now(),
+                                                                    r = !t.repeat || a - keyboardSeekStepAt.current >= iHeldArrowSeekIntervalMs
                                                                 switch (t.key) {
                                                                     case 'ArrowLeft':
                                                                     case 'ArrowDown':
-                                                                        ;(l.current.stepDown(), (f.current = l.current.valueAsNumber), (i = !0))
+                                                                        ;((i = !0),
+                                                                            r &&
+                                                                                ((keyboardSeekStepAt.current = a),
+                                                                                (l.current.valueAsNumber = Math.max(0, l.current.valueAsNumber - 5)),
+                                                                                (f.current = l.current.valueAsNumber)))
                                                                         break
                                                                     case 'ArrowRight':
                                                                     case 'ArrowUp':
-                                                                        ;(l.current.stepUp(), (f.current = l.current.valueAsNumber), (i = !0))
+                                                                        ;((i = !0),
+                                                                            r &&
+                                                                                ((keyboardSeekStepAt.current = a),
+                                                                                (l.current.valueAsNumber = Math.min(Number(l.current.max), l.current.valueAsNumber + 5)),
+                                                                                (f.current = l.current.valueAsNumber)))
                                                                 }
                                                                 i &&
                                                                     (t.preventDefault(),
-                                                                    updateTimelinePaint(l.current.valueAsNumber),
-                                                                    updateProgressChapterMask(l.current.valueAsNumber))
+                                                                    r &&
+                                                                        (updateTimelinePaint(l.current.valueAsNumber),
+                                                                        updateProgressChapterMask(l.current.valueAsNumber),
+                                                                        s && void 0 !== f.current && (s(f.current), (f.current = void 0))))
                                                             }
                                                         })
                                                     ]
@@ -6868,12 +6878,13 @@
                                 },
                                 aL = ({ isForward: t }) => {
                                     let { jumpForward: i, jumpBackward: a } = aP(),
-                                        { t: r } = iy()
-                                    i1(t ? { shortcut: tK.JumpForward, handleShortcut: i } : { shortcut: tK.JumpBackward, handleShortcut: a })
-                                    let s = (0, h.useCallback)(() => {
-                                            t ? i() : a()
-                                        }, [t, a, i]),
+                                        { bump: showControls } = aa(),
+                                        { t: r } = iy(),
+                                        s = (0, h.useCallback)(() => {
+                                            ;(t ? i() : a(), showControls())
+                                        }, [t, a, i, showControls]),
                                         n = r(t ? 'jump.forward.ariaLabel' : 'jump.backward.ariaLabel')
+                                    i1(t ? { shortcut: tK.JumpForward, handleShortcut: s } : { shortcut: tK.JumpBackward, handleShortcut: s })
                                     return (0, d.jsx)(aS, {
                                         icon: (0, d.jsx)(t7, { isForward: t }),
                                         ariaLabel: n,
@@ -8833,9 +8844,10 @@
                                 },
                                 a5 = ({ isRnaActive: t }) => {
                                     let { isVisible: i } = aa(),
+                                        { isPlaying: playbackIsPlaying } = aT(),
                                         { isAnyMenuOpen: a } = iL(),
                                         r = i || a,
-                                        s = i || a
+                                        s = i || a || playbackIsPlaying === !1
                                     return { topVisible: r, bottomVisible: s, rnaVisible: t, topGradientVisible: r || s || t }
                                 },
                                 a6 = ({ icon: t, ariaLabel: i, onClick: a, testId: r = 'next-episode-button' }) =>
@@ -9403,6 +9415,7 @@
                                     let {
                                             viewModelContainer: { timelineScrubberVM: t, jumpButtonsVM: i, playPauseButtonVM: a, trackSelectionVM: r }
                                         } = im(),
+                                        { bump: showControls } = aa(),
                                         [s, n] = (0, h.useState)(0),
                                         [o, l] = (0, h.useState)(!1),
                                         [u, c] = (0, h.useState)([]),
@@ -9416,32 +9429,32 @@
                                             ;(i.unsubscribe(), s.unsubscribe(), o.unsubscribe(), d.unsubscribe())
                                         }
                                     }, [t, a, r])
-                                    ;(i1({ shortcut: tK.JumpBackward, handleShortcut: () => i.jumpBackward() }),
-                                        i1({ shortcut: tK.JumpForward, handleShortcut: () => i.jumpForward() }),
-                                        i1({ shortcut: tK.JumpBackward10, handleShortcut: () => i.jumpBackward10() }),
-                                        i1({ shortcut: tK.JumpForward10, handleShortcut: () => i.jumpForward10() }),
+                                    ;(i1({ shortcut: tK.JumpBackward, handleShortcut: () => (i.jumpBackward(), showControls()) }),
+                                        i1({ shortcut: tK.JumpForward, handleShortcut: () => (i.jumpForward(), showControls()) }),
+                                        i1({ shortcut: tK.JumpBackward10, handleShortcut: () => (i.jumpBackward10(), showControls()) }),
+                                        i1({ shortcut: tK.JumpForward10, handleShortcut: () => (i.jumpForward10(), showControls()) }),
                                         i1({
                                             shortcut: tK.FrameBackward,
                                             handleShortcut: () => {
-                                                o && i.frameBackward()
+                                                ;(o && i.frameBackward(), showControls())
                                             }
                                         }),
                                         i1({
                                             shortcut: tK.FrameForward,
                                             handleShortcut: () => {
-                                                o && i.frameForward()
+                                                ;(o && i.frameForward(), showControls())
                                             }
                                         }),
-                                        i1({ shortcut: tK.RestartEpisode, handleShortcut: () => t.setPosition(0) }),
-                                        i1({ shortcut: tK.SeekPercent1, handleShortcut: () => t.setPosition(s * 0.1) }),
-                                        i1({ shortcut: tK.SeekPercent2, handleShortcut: () => t.setPosition(s * 0.2) }),
-                                        i1({ shortcut: tK.SeekPercent3, handleShortcut: () => t.setPosition(s * 0.3) }),
-                                        i1({ shortcut: tK.SeekPercent4, handleShortcut: () => t.setPosition(s * 0.4) }),
-                                        i1({ shortcut: tK.SeekPercent5, handleShortcut: () => t.setPosition(s * 0.5) }),
-                                        i1({ shortcut: tK.SeekPercent6, handleShortcut: () => t.setPosition(s * 0.6) }),
-                                        i1({ shortcut: tK.SeekPercent7, handleShortcut: () => t.setPosition(s * 0.7) }),
-                                        i1({ shortcut: tK.SeekPercent8, handleShortcut: () => t.setPosition(s * 0.8) }),
-                                        i1({ shortcut: tK.SeekPercent9, handleShortcut: () => t.setPosition(s * 0.9) }),
+                                        i1({ shortcut: tK.RestartEpisode, handleShortcut: () => (t.setPosition(0), showControls()) }),
+                                        i1({ shortcut: tK.SeekPercent1, handleShortcut: () => (t.setPosition(s * 0.1), showControls()) }),
+                                        i1({ shortcut: tK.SeekPercent2, handleShortcut: () => (t.setPosition(s * 0.2), showControls()) }),
+                                        i1({ shortcut: tK.SeekPercent3, handleShortcut: () => (t.setPosition(s * 0.3), showControls()) }),
+                                        i1({ shortcut: tK.SeekPercent4, handleShortcut: () => (t.setPosition(s * 0.4), showControls()) }),
+                                        i1({ shortcut: tK.SeekPercent5, handleShortcut: () => (t.setPosition(s * 0.5), showControls()) }),
+                                        i1({ shortcut: tK.SeekPercent6, handleShortcut: () => (t.setPosition(s * 0.6), showControls()) }),
+                                        i1({ shortcut: tK.SeekPercent7, handleShortcut: () => (t.setPosition(s * 0.7), showControls()) }),
+                                        i1({ shortcut: tK.SeekPercent8, handleShortcut: () => (t.setPosition(s * 0.8), showControls()) }),
+                                        i1({ shortcut: tK.SeekPercent9, handleShortcut: () => (t.setPosition(s * 0.9), showControls()) }),
                                         i1({
                                             shortcut: tK.ToggleSubs,
                                             handleShortcut: () => {
