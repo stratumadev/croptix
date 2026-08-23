@@ -21,7 +21,7 @@
         "pretty": "bun run prettier src --write",
         "build-for-amo": "bun run build:amo",
         "build:amo": "bun run clean && bun run pretty && bun build:manifestv3 && bun run build:bundle && bun run build:ext",
-        "build:v2": "bun run clean && bun run pretty && bun build:manifestv2 && bun run build:bundle && bun build src/utils/katamari_fix_loader.ts --outdir dist --minify && bun run build:ext",
+        "build:v2": "bun run clean && bun run pretty && bun build:manifestv2 && bun run build:bundle && bun build src/utils/katamari_fix_loader.ts src/utils/crunchyroll_loader.ts --outdir dist --minify && bun run build:ext",
         "build:v3": "bun run clean && bun run pretty && bun build:manifestv3 && bun run build:bundle && bun run build:crx",
         "clean": "rm -rf dist && rm -rf build",
         "build:ext": "web-ext build --source-dir=dist --artifacts-dir=build",
@@ -29,6 +29,6 @@
         "debug:android": "web-ext run -t firefox-android --source-dir=dist --adb-device emulator-5554 --firefox-apk org.mozilla.firefox",
         "build:manifestv2": "bun run src/utils/manifestgenv2.ts",
         "build:manifestv3": "bun run src/utils/manifestgenv3.ts",
-        "build:bundle": "bun build src/utils/content.ts --outdir dist --minify && bun build src/utils/katamari.js --outdir dist && bun build src/utils/mobile-fix.js --outdir dist && bun build src/utils/config_init.js --outdir dist --minify && bun build subtitle-octopus/subtitles-octopus-worker.js --outdir dist/subtitle-octopus --minify --target=browser"
+        "build:bundle": "bun build src/utils/content.ts --outdir dist --minify && bun build src/utils/crunchyroll.js --outdir dist --minify && bun build src/utils/katamari.js --outdir dist && bun build src/utils/mobile-fix.js --outdir dist && bun build src/utils/config_init.js --outdir dist --minify && bun build subtitle-octopus/subtitles-octopus-worker.js --outdir dist/subtitle-octopus --minify --target=browser"
     }
 }
