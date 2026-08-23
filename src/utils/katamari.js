@@ -6089,8 +6089,8 @@
                                             [y]
                                         ),
                                         b = (0, h.useCallback)(() => {
-                                            _()
-                                        }, [_])
+                                            _(r)
+                                        }, [_, r])
                                     ;((0, h.useEffect)(() => {
                                         if (!a) return (o(!0), v(), v)
                                         if (!i)
@@ -6179,6 +6179,7 @@
                                         [c, p] = (0, h.useState)('--:--'),
                                         [f, g] = (0, h.useState)(!1),
                                         [chapterLabel, setChapterLabel] = (0, h.useState)(''),
+                                        [chapterLabelVisible, setChapterLabelVisible] = (0, h.useState)(!1),
                                         v = (0, h.useCallback)(() => {
                                             u(!1)
                                         }, []),
@@ -6193,7 +6194,7 @@
                                             }
                                         }, []),
                                         _ = (0, h.useCallback)(() => {
-                                            ;(g(!1), setChapterLabel(''), null !== t.current && t.current.style.setProperty('--timeline-hover-percentage', 'initial'))
+                                            ;(g(!1), setChapterLabelVisible(!1), null !== t.current && t.current.style.setProperty('--timeline-hover-percentage', 'initial'))
                                         }, []),
                                         b = (0, h.useCallback)(
                                             (l) => {
@@ -6208,7 +6209,8 @@
                                                 let g = i * f
                                                 p(tL(g))
                                                 let m = tA.find((t) => g >= t.start && g < t.end)
-                                                setChapterLabel(m?.label || '')
+                                                let chapter = m?.label || ''
+                                                ;(chapter && setChapterLabel(chapter), setChapterLabelVisible(!!chapter))
                                                 let v = a ? a(g) : void 0
                                                 v && s.current && (s.current.src = v)
                                             },
@@ -6255,9 +6257,9 @@
                                                         fontSize: '13px',
                                                         fontWeight: 700,
                                                         lineHeight: '18px',
-                                                        opacity: chapterLabel ? 1 : 0,
+                                                        opacity: chapterLabelVisible ? 1 : 0,
                                                         textOverflow: 'ellipsis',
-                                                        transform: l ? `translate(-50%, ${chapterLabel ? '0' : '5px'})` : `translateY(${chapterLabel ? '0' : '5px'})`,
+                                                        transform: l ? `translate(-50%, ${chapterLabelVisible ? '0' : '5px'})` : `translateY(${chapterLabelVisible ? '0' : '5px'})`,
                                                         transition: 'opacity 160ms ease, transform 260ms cubic-bezier(0.16, 1.35, 0.32, 1)',
                                                         whiteSpace: 'nowrap'
                                                     },
