@@ -27,6 +27,7 @@
                 }
 
                 if (fn_str.includes('@crunchyroll/katamari-desktop-player')) {
+                    const importIds = [...fn_str.matchAll(/[a-zA-Z0-9_$]+\s*=\s*[a-zA-Z0-9_$]+\s*\(\s*(\d+)\s*\)/g)].slice(0, 5).map((match) => Number(match[1]))
                     const [shakaE, shakaB] =
                         engineImportRegex('ShakaMediaEngine') ||
                         ex(/\?\s*await\s*[a-zA-Z0-9_$]+\.e\((\d+)\)\.then\([a-zA-Z0-9_$]+\.bind\([a-zA-Z0-9_$]+,\s*(\d+)\)\)\.then\(\(\{\s*ShakaMediaEngine/)
@@ -38,8 +39,12 @@
                         console.warn('[CrOptix] Katamari Patch skipped: media engine chunk ids not found')
                         continue
                     }
+                    if (importIds.length !== 5) {
+                        console.warn('[CrOptix] Katamari Patch skipped: static import ids not found')
+                        continue
+                    }
 
-                    modules[module_id] = (function (SHAKA_E, SHAKA_B, BIT_E, BIT_B) {
+                    modules[module_id] = (function (SHAKA_E, SHAKA_B, BIT_E, BIT_B, IMPORT_IDS) {
                         return function (t, i, a) {
                             let r
                             a.d(i, {
@@ -56,11 +61,11 @@
                             var s,
                                 n,
                                 o,
-                                l = a(85651),
-                                d = a(57437),
-                                u = a(54887),
-                                c = a(34040),
-                                h = a(2265),
+                                l = a(IMPORT_IDS[0]),
+                                d = a(IMPORT_IDS[1]),
+                                u = a(IMPORT_IDS[2]),
+                                c = a(IMPORT_IDS[3]),
+                                h = a(IMPORT_IDS[4]),
                                 p = Object.create,
                                 f = Object.defineProperty,
                                 g = Object.getOwnPropertyDescriptor,
@@ -17015,7 +17020,7 @@
                                     }
                                 }
                         }
-                    })(shakaE, shakaB, bitE, bitB)
+                    })(shakaE, shakaB, bitE, bitB, importIds)
                 }
             }
         } catch (err) {

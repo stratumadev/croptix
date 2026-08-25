@@ -106,7 +106,7 @@ function start_observe_crunchyroll() {
     }, 100)
 
     crunchyroll_observer = new MutationObserver(handle_crunchyroll_mutation)
-    crunchyroll_observer.observe(document.body, {
+    crunchyroll_observer.observe(document.documentElement, {
         childList: true,
         subtree: true
     })
