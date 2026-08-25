@@ -500,8 +500,9 @@
                                     'quality.moderate.description': 'Use less data by streaming at a standard quality.',
                                     'quality.dataSaver': 'Data Saver',
                                     'quality.dataSaver.description': 'Uses the least amount of data. Good for slower connections and data limits.',
-                                    'jump.forward.ariaLabel': 'Jump forward 10 seconds',
-                                    'jump.backward.ariaLabel': 'Jump backward 10 seconds',
+                                    'jump.forward.ariaLabel': 'Jump forward {{seconds}} seconds',
+                                    'jump.backward.ariaLabel': 'Jump backward {{seconds}} seconds',
+                                    skipButtons: 'Skip Buttons',
                                     'buffering.ariaLabel': 'Loading',
                                     'nextEpisode.ariaLabel': 'Next Episode',
                                     'controls.announcement.autohide':
@@ -4890,14 +4891,25 @@
                                             fill: 'currentColor'
                                         })
                                     }),
-                                t7 = ({ isForward: t, size: i = 44, className: a = '', ...r }) =>
-                                    (0, d.jsx)(t ? t5 : t6, {
-                                        width: i,
-                                        height: i,
+                                t7 = ({ isForward: t, seconds: i, size: a = 24, className: r = '', arrowRef: s, ...n }) =>
+                                    (0, d.jsxs)('span', {
+                                        className: 'kat:relative kat:flex kat:items-center kat:justify-center',
+                                        style: { width: a, height: a },
                                         'aria-hidden': 'true',
-                                        className: a,
                                         'data-testid': t ? 'jump-forward-icon' : 'jump-backward-icon',
-                                        ...r
+                                        ...n,
+                                        children: [
+                                            (0, d.jsx)('span', {
+                                                ref: s,
+                                                className: 'kat:absolute kat:inset-0 kat:flex',
+                                                children: (0, d.jsx)(t ? t5 : t6, { width: a, height: a, className: r })
+                                            }),
+                                            (0, d.jsx)('span', {
+                                                className: 'kat:relative kat:pointer-events-none kat:select-none',
+                                                style: { fontSize: '7px', fontWeight: 700, lineHeight: 1 },
+                                                children: i
+                                            })
+                                        ]
                                     }),
                                 t8 = (t) =>
                                     (0, d.jsxs)('svg', {
@@ -5517,11 +5529,31 @@
                                         }
                                     )
                                 },
+                                iSkipButtons = () => {
+                                    let readSetting = () => {
+                                            let t = Number(localStorage.getItem('croptix.skipButtonsSeconds') ?? 10)
+                                            return 0 === t || 5 === t || 10 === t ? t : 10
+                                        },
+                                        [t, i] = (0, h.useState)(readSetting)
+                                    return (
+                                        (0, h.useEffect)(() => {
+                                            let t = () => i(readSetting())
+                                            return (window.addEventListener('croptix_skip_buttons_changed', t), () => window.removeEventListener('croptix_skip_buttons_changed', t))
+                                        }, []),
+                                        {
+                                            skipButtonSeconds: t,
+                                            setSkipButtonSeconds: (0, h.useCallback)((t) => {
+                                                ;(localStorage.setItem('croptix.skipButtonsSeconds', String(t)), window.dispatchEvent(new Event('croptix_skip_buttons_changed')))
+                                            }, [])
+                                        }
+                                    )
+                                },
                                 iJ = () => {
                                     let { isActive: t, toggle: i, close: a } = iI(),
                                         { t: r } = iy(),
                                         { isAutoplayNextEnabled: s, toggleAutoplayNext: n, selectedQualityBucket: o, resolutionQualities: q, setPlaybackQualityBucket: u } = iW(),
                                         { availableRates: c, selectedRate: p, selectPlaybackSpeed: f } = iO(),
+                                        { skipButtonSeconds, setSkipButtonSeconds } = iSkipButtons(),
                                         {
                                             viewModelContainer: { trackSelectionVM: g }
                                         } = im(),
@@ -5589,9 +5621,12 @@
                                             className:
                                                 'kat:flex kat:items-center kat:gap-4 kat:cursor-pointer kat:ps-20 kat:pe-20 kat:pt-13 kat:pb-13 kat:hover:bg-neutral-600 kat:border-b kat:border-neutral-600',
                                             onClick: () => {
-                                                m('main')
+                                                m('skipButtons' === v ? 'playback' : 'main')
                                             },
-                                            children: (0, d.jsx)('span', { className: 'kat:text-sm kat:font-bold kat:text-white', children: '< ' + r('settings') })
+                                            children: (0, d.jsx)('span', {
+                                                className: 'kat:text-sm kat:font-bold kat:text-white',
+                                                children: '< ' + r('skipButtons' === v ? 'playbackOptions' : 'settings')
+                                            })
                                         }),
                                         F = q,
                                         B = () => {
@@ -5697,6 +5732,30 @@
                                                             })
                                                         ]
                                                     })
+                                                case 'skipButtons':
+                                                    return (0, d.jsxs)('div', {
+                                                        className: 'kat:flex kat:flex-col',
+                                                        style: { width: '320px' },
+                                                        children: [
+                                                            M,
+                                                            (0, d.jsx)('div', {
+                                                                className: 'kat:py-5',
+                                                                children: [0, 5, 10].map((t) =>
+                                                                    (0, d.jsx)(
+                                                                        ix,
+                                                                        {
+                                                                            label: 0 === t ? r('disabled') : `${t} seconds`,
+                                                                            selected: skipButtonSeconds === t,
+                                                                            onSelect: () => {
+                                                                                ;(setSkipButtonSeconds(t), m('playback'))
+                                                                            }
+                                                                        },
+                                                                        t
+                                                                    )
+                                                                )
+                                                            })
+                                                        ]
+                                                    })
                                                 case 'playback':
                                                     return (0, d.jsxs)('div', {
                                                         className: 'kat:flex kat:flex-col kat:py-5',
@@ -5705,7 +5764,12 @@
                                                             M,
                                                             (0, d.jsx)(iq, { label: r('autoplayNext'), checked: s ?? !1, onChange: n }),
                                                             (0, d.jsx)(iq, { label: r('skipEvents'), checked: y, onChange: L }),
-                                                            (0, d.jsx)(iq, { label: r('autoSkipIntroOutro'), checked: N, onChange: O })
+                                                            (0, d.jsx)(iq, { label: r('autoSkipIntroOutro'), checked: N, onChange: O }),
+                                                            (0, d.jsx)(D, {
+                                                                label: r('skipButtons'),
+                                                                value: 0 === skipButtonSeconds ? r('disabled') : `${skipButtonSeconds} seconds`,
+                                                                onClick: () => m('skipButtons')
+                                                            })
                                                         ]
                                                     })
                                                 default:
@@ -6872,6 +6936,12 @@
                                             }, [t]),
                                             jumpBackward: (0, h.useCallback)(() => {
                                                 t.jumpBackward()
+                                            }, [t]),
+                                            jumpForward10: (0, h.useCallback)(() => {
+                                                t.jumpForward10()
+                                            }, [t]),
+                                            jumpBackward10: (0, h.useCallback)(() => {
+                                                t.jumpBackward10()
                                             }, [t])
                                         }
                                     )
@@ -6883,24 +6953,30 @@
                                     let r = a(t ? 'pause' : 'play')
                                     return (0, d.jsx)(aE, { icon: (0, d.jsx)(t ? ia : il, { size: 20 }), onToggle: i, ariaLabel: r })
                                 },
-                                aL = ({ isForward: t }) => {
-                                    let { jumpForward: i, jumpBackward: a } = aP(),
+                                aL = ({ isForward, seconds }) => {
+                                    let { jumpForward, jumpBackward, jumpForward10, jumpBackward10 } = aP(),
                                         { bump: showControls } = aa(),
-                                        { t: r } = iy(),
-                                        s = (0, h.useCallback)(() => {
-                                            ;(t ? i() : a(), showControls())
-                                        }, [t, a, i, showControls]),
-                                        n = r(t ? 'jump.forward.ariaLabel' : 'jump.backward.ariaLabel')
-                                    i1(t ? { shortcut: tK.JumpForward, handleShortcut: s } : { shortcut: tK.JumpBackward, handleShortcut: s })
+                                        { t } = iy(),
+                                        arrowRef = (0, h.useRef)(null),
+                                        onJump = (0, h.useCallback)(() => {
+                                            if (5 === seconds) isForward ? jumpForward() : jumpBackward()
+                                            else isForward ? jumpForward10() : jumpBackward10()
+                                            showControls()
+                                            arrowRef.current?.animate?.([{ transform: 'rotate(0deg)' }, { transform: `rotate(${isForward ? 360 : -360}deg)` }], {
+                                                duration: 300,
+                                                easing: 'ease-out'
+                                            })
+                                        }, [isForward, seconds, jumpForward, jumpBackward, jumpForward10, jumpBackward10, showControls]),
+                                        ariaLabel = t(isForward ? 'jump.forward.ariaLabel' : 'jump.backward.ariaLabel', { seconds })
                                     return (0, d.jsx)(aS, {
-                                        icon: (0, d.jsx)(t7, { isForward: t }),
-                                        ariaLabel: n,
-                                        onJump: s,
-                                        testId: t ? 'jump-forward-button' : 'jump-backward-button'
+                                        icon: (0, d.jsx)(t7, { isForward, seconds, arrowRef }),
+                                        ariaLabel,
+                                        onJump,
+                                        testId: isForward ? 'jump-forward-button' : 'jump-backward-button'
                                     })
                                 },
-                                aI = () => (0, d.jsx)(aL, { isForward: !0 }),
-                                aR = () => (0, d.jsx)(aL, { isForward: !1 }),
+                                aI = (t) => (0, d.jsx)(aL, { isForward: !0, ...t }),
+                                aR = (t) => (0, d.jsx)(aL, { isForward: !1, ...t }),
                                 aD = () => {
                                     let {
                                             viewModelContainer: { volumeVM: t }
@@ -9638,6 +9714,7 @@
                                         { isAnyMenuOpen: s, closeAllMenus: n } = iL(),
                                         { isActive: o } = aq(),
                                         { topVisible: l, bottomVisible: u, rnaVisible: c, topGradientVisible: p } = a5({ isRnaActive: o }),
+                                        { skipButtonSeconds } = iSkipButtons(),
                                         f = (0, h.useRef)(!1),
                                         g = (0, h.useRef)(!1),
                                         [statsVisible, setStatsVisible] = (0, h.useState)(!1),
@@ -9714,7 +9791,13 @@
                                                                     (0, d.jsxs)('div', {
                                                                         'data-testid': 'bottom-left-controls-stack',
                                                                         className: 'kat:flex kat:items-end',
-                                                                        children: [(0, d.jsx)(aA, {}), (0, d.jsx)(a8, {}), (0, d.jsx)(aH, {})]
+                                                                        children: [
+                                                                            (0, d.jsx)(aA, {}),
+                                                                            (0, d.jsx)(a8, {}),
+                                                                            (0, d.jsx)(aH, {}),
+                                                                            skipButtonSeconds > 0 && (0, d.jsx)(aR, { seconds: skipButtonSeconds }),
+                                                                            skipButtonSeconds > 0 && (0, d.jsx)(aI, { seconds: skipButtonSeconds })
+                                                                        ]
                                                                     }),
                                                                     (0, d.jsx)('div', { className: 'kat:flex kat:items-center kat:self-stretch kat:grow kat:pl-20 kat:gap-4' }),
                                                                     (0, d.jsxs)('div', {
