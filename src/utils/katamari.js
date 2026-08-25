@@ -8851,11 +8851,9 @@
                                 },
                                 a5 = ({ isRnaActive: t }) => {
                                     let { isVisible: i } = aa(),
-                                        { isPlaying: playbackIsPlaying } = aT(),
                                         { isAnyMenuOpen: a } = iL(),
-                                        r = i || a,
-                                        s = i || a || playbackIsPlaying === !1
-                                    return { topVisible: r, bottomVisible: s, rnaVisible: t, topGradientVisible: r || s || t }
+                                        r = i || a
+                                    return { topVisible: r, bottomVisible: r, rnaVisible: t, topGradientVisible: r || t }
                                 },
                                 a6 = ({ icon: t, ariaLabel: i, onClick: a, testId: r = 'next-episode-button' }) =>
                                     (0, d.jsx)(iY, { Icon: t, label: i, onClick: a, 'data-testid': r }),
