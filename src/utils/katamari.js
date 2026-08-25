@@ -503,6 +503,9 @@
                                     'jump.forward.ariaLabel': 'Jump forward {{seconds}} seconds',
                                     'jump.backward.ariaLabel': 'Jump backward {{seconds}} seconds',
                                     skipButtons: 'Skip Buttons',
+                                    timeDisplay: 'Time Display',
+                                    totalTime: 'Total',
+                                    remainingTime: 'Remaining',
                                     'buffering.ariaLabel': 'Loading',
                                     'nextEpisode.ariaLabel': 'Next Episode',
                                     'controls.announcement.autohide':
@@ -5548,12 +5551,32 @@
                                         }
                                     )
                                 },
+                                iTimeDisplay = () => {
+                                    let readSetting = () => {
+                                            let t = localStorage.getItem('croptix.timeDisplay')
+                                            return 'remaining' === t ? t : 'total'
+                                        },
+                                        [t, i] = (0, h.useState)(readSetting)
+                                    return (
+                                        (0, h.useEffect)(() => {
+                                            let t = () => i(readSetting())
+                                            return (window.addEventListener('croptix_time_display_changed', t), () => window.removeEventListener('croptix_time_display_changed', t))
+                                        }, []),
+                                        {
+                                            timeDisplay: t,
+                                            setTimeDisplay: (0, h.useCallback)((t) => {
+                                                ;(localStorage.setItem('croptix.timeDisplay', t), window.dispatchEvent(new Event('croptix_time_display_changed')))
+                                            }, [])
+                                        }
+                                    )
+                                },
                                 iJ = () => {
                                     let { isActive: t, toggle: i, close: a } = iI(),
                                         { t: r } = iy(),
                                         { isAutoplayNextEnabled: s, toggleAutoplayNext: n, selectedQualityBucket: o, resolutionQualities: q, setPlaybackQualityBucket: u } = iW(),
                                         { availableRates: c, selectedRate: p, selectPlaybackSpeed: f } = iO(),
                                         { skipButtonSeconds, setSkipButtonSeconds } = iSkipButtons(),
+                                        { timeDisplay, setTimeDisplay } = iTimeDisplay(),
                                         {
                                             viewModelContainer: { trackSelectionVM: g }
                                         } = im(),
@@ -5621,11 +5644,11 @@
                                             className:
                                                 'kat:flex kat:items-center kat:gap-4 kat:cursor-pointer kat:ps-20 kat:pe-20 kat:pt-13 kat:pb-13 kat:hover:bg-neutral-600 kat:border-b kat:border-neutral-600',
                                             onClick: () => {
-                                                m('skipButtons' === v ? 'playback' : 'main')
+                                                m('skipButtons' === v || 'timeDisplay' === v ? 'playback' : 'main')
                                             },
                                             children: (0, d.jsx)('span', {
                                                 className: 'kat:text-sm kat:font-bold kat:text-white',
-                                                children: '< ' + r('skipButtons' === v ? 'playbackOptions' : 'settings')
+                                                children: '< ' + r('skipButtons' === v || 'timeDisplay' === v ? 'playbackOptions' : 'settings')
                                             })
                                         }),
                                         F = q,
@@ -5756,6 +5779,30 @@
                                                             })
                                                         ]
                                                     })
+                                                case 'timeDisplay':
+                                                    return (0, d.jsxs)('div', {
+                                                        className: 'kat:flex kat:flex-col',
+                                                        style: { width: '320px' },
+                                                        children: [
+                                                            M,
+                                                            (0, d.jsx)('div', {
+                                                                className: 'kat:py-5',
+                                                                children: ['total', 'remaining'].map((t) =>
+                                                                    (0, d.jsx)(
+                                                                        ix,
+                                                                        {
+                                                                            label: r('remaining' === t ? 'remainingTime' : 'totalTime'),
+                                                                            selected: timeDisplay === t,
+                                                                            onSelect: () => {
+                                                                                ;(setTimeDisplay(t), m('playback'))
+                                                                            }
+                                                                        },
+                                                                        t
+                                                                    )
+                                                                )
+                                                            })
+                                                        ]
+                                                    })
                                                 case 'playback':
                                                     return (0, d.jsxs)('div', {
                                                         className: 'kat:flex kat:flex-col kat:py-5',
@@ -5769,6 +5816,11 @@
                                                                 label: r('skipButtons'),
                                                                 value: 0 === skipButtonSeconds ? r('disabled') : `${skipButtonSeconds} seconds`,
                                                                 onClick: () => m('skipButtons')
+                                                            }),
+                                                            (0, d.jsx)(D, {
+                                                                label: r('timeDisplay'),
+                                                                value: r('remaining' === timeDisplay ? 'remainingTime' : 'totalTime'),
+                                                                onClick: () => m('timeDisplay')
                                                             })
                                                         ]
                                                     })
@@ -6592,9 +6644,10 @@
                                             viewModelContainer: { timelineScrubberVM: t }
                                         } = im(),
                                         [i, a] = (0, h.useState)(0),
-                                        [v, m] = (0, h.useState)(tL(0)),
+                                        [v, m] = (0, h.useState)(0),
                                         [r, s] = (0, h.useState)(tL(0)),
                                         [chapterSegments, setChapterSegments] = (0, h.useState)([]),
+                                        { timeDisplay } = iTimeDisplay(),
                                         { t: n } = iy(),
                                         o = (0, h.useRef)(null),
                                         l = (0, h.useCallback)(
@@ -6608,7 +6661,7 @@
                                         return (
                                             i.push(
                                                 t.currentPlayhead$.subscribe((t) => {
-                                                    m(tL(t))
+                                                    m(t)
                                                     o.current?.updatePosition(t)
                                                 })
                                             ),
@@ -6635,8 +6688,8 @@
                                     return (0, d.jsx)(ad, {
                                         ref: o,
                                         duration: i,
-                                        elapsedTime: v,
-                                        totalTime: r,
+                                        elapsedTime: tL(v),
+                                        totalTime: 'remaining' === timeDisplay ? `-${tL(Math.max(0, i - v))}` : r,
                                         seekTo: l,
                                         getThumbnailUri: t.getThumbnailUri,
                                         getBufferedEnd: t.getBufferedEnd,
