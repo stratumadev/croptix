@@ -9592,12 +9592,12 @@
                                         i1({
                                             shortcut: tK.ToggleSubs,
                                             handleShortcut: () => {
-                                                if (p && 'none' !== p.language) {
-                                                    let t = u.find((t) => 'none' === t.language)
-                                                    t && r.setTextTrack(t)
-                                                } else {
-                                                    let t = u.find((t) => 'none' !== t.language)
-                                                    t && r.setTextTrack(t)
+                                                let t = document.querySelectorAll('.libassjs-canvas-parent, .croptix-vtt-cue-overlay, .shaka-text-container')
+                                                if (t.length > 0) {
+                                                    let isHidden = t[0].style.display === 'none'
+                                                    t.forEach((el) => {
+                                                        el.style.display = isHidden ? '' : 'none'
+                                                    })
                                                 }
                                             }
                                         }))
