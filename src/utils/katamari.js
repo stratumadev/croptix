@@ -3371,6 +3371,22 @@
                                     let t = window.__croptixPlaybackRateState
                                     return (t || (t = window.__croptixPlaybackRateState = { rate: 1, video: null, cleanup: null, observer: null, retryHandles: [] }), t)
                                 },
+                                tPlaybackRateStorageKey = 'croptix.playbackRate.v1',
+                                tClampPlaybackRate = (t) => Math.min(16, Math.max(0.0625, t)),
+                                tReadSavedPlaybackRate = () => {
+                                    try {
+                                        let t = parseFloat(localStorage.getItem(tPlaybackRateStorageKey) || '')
+                                        return Number.isFinite(t) && t > 0 ? tClampPlaybackRate(t) : 1
+                                    } catch (t) {
+                                        return 1
+                                    }
+                                },
+                                tWriteSavedPlaybackRate = (t) => {
+                                    if (!Number.isFinite(t)) return
+                                    try {
+                                        localStorage.setItem(tPlaybackRateStorageKey, String(tClampPlaybackRate(t)))
+                                    } catch (t) {}
+                                },
                                 tFindNativePlaybackVideo = () => document.querySelector('video'),
                                 tApplyNativePlaybackRate = (t, i) => {
                                     let a = i || tFindNativePlaybackVideo()
@@ -3418,9 +3434,16 @@
                                             a.retryHandles.push(setTimeout(r, t))
                                         }))
                                 },
+                                tInitPlaybackRateFromStorage = (() => {
+                                    if (window.top !== window) return
+                                    if (window.__croptixSpeedInitBound) return
+                                    window.__croptixSpeedInitBound = true
+                                    tBindNativePlaybackRate(tReadSavedPlaybackRate())
+                                })(),
                                 tf = (t, i) => (a) => {
                                     i.has(a) &&
                                         (tBindNativePlaybackRate(a),
+                                        tWriteSavedPlaybackRate(a),
                                         (() => {
                                             try {
                                                 t.setPlaybackRate(a)
