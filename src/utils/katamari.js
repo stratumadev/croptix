@@ -9097,7 +9097,15 @@
                                             onVideoClick && t.removeEventListener('click', onVideoClick)
                                             t.controls = hadControls
                                             videoContainer.appendChild(t)
-                                            overlays.forEach((el) => videoContainer.appendChild(el))
+                                            // Re-query instead of reusing the `overlays` snapshot captured at
+                                            // PiP-entry time above: switching subtitle language/track while
+                                            // still in PiP disposes that old overlay/canvas and creates a
+                                            // fresh one (aDisposeOctopus / aClearCueOverlay remove the old
+                                            // element from the DOM entirely). Reusing the stale snapshot here
+                                            // would resurrect an already-disposed overlay with frozen, stale
+                                            // content while abandoning the actually-current one inside the
+                                            // closing PiP window.
+                                            wrapper.querySelectorAll('.croptix-vtt-cue-overlay, .libassjs-canvas-parent').forEach((el) => videoContainer.appendChild(el))
                                             t.play?.().catch(() => {})
                                         }
                                         pipWindow.addEventListener('pagehide', restore, { once: true })
@@ -9290,9 +9298,19 @@
                                     let r = [t?.language, t?.srclang, t?.label].map(aTextLang).filter(Boolean)
                                     return r.some((t) => t === a || t.split('-')[0] === a.split('-')[0])
                                 },
+                                aFindActiveVideo = () => {
+                                    let t = document.querySelector('video')
+                                    if (t) return t
+                                    // Once in Document PiP, the video lives in the PiP window's own
+                                    // document — every subtitle code path below needs to find it there
+                                    // too, or subtitles turned on / switched while already in PiP would
+                                    // silently fail to attach (the main document has no video anymore).
+                                    let p = window.documentPictureInPicture?.window
+                                    return p ? p.document.querySelector('video') : null
+                                },
                                 aApplyNativeTextTracks = (t, i = 'native') => {
                                     try {
-                                        let a = document.querySelector('video'),
+                                        let a = aFindActiveVideo(),
                                             r = 0,
                                             s = 0,
                                             n = []
@@ -9309,7 +9327,7 @@
                                 },
                                 aNativeTextVisible = (t) => {
                                     try {
-                                        let i = document.querySelector('video')
+                                        let i = aFindActiveVideo()
                                         if (!i?.textTracks) return !1
                                         for (let a = 0; a < i.textTracks.length; a++) {
                                             let r = i.textTracks[a]
@@ -9363,7 +9381,7 @@
                                         }, 3e4)
                                 },
                                 aEnsureCueOverlay = (t, i) => {
-                                    let a = document.querySelector('video')
+                                    let a = aFindActiveVideo()
                                     if (!a || !t) return !1
                                     i.current?.trackKey !== `${t.language || ''}|${t.displayName || ''}` && aClearCueOverlay(i)
                                     if (!i.current) {
@@ -9450,7 +9468,7 @@
                                     )
                                 },
                                 aEnsureManualVttTrack = async (t, i) => {
-                                    let a = document.querySelector('video'),
+                                    let a = aFindActiveVideo(),
                                         r = t?.externalTextUrl?.toString?.()
                                     if (!a || !r) return !1
                                     if (i.current?.sourceUrl === r) return (aApplyNativeTextTracks(t, 'manual-vtt-existing'), !0)
@@ -9558,7 +9576,7 @@
                                                 r.current && 'function' == typeof r.current.resize && r.current.resize()
                                             }
                                             window.addEventListener('resize', t)
-                                            let i = document.querySelector('video'),
+                                            let i = aFindActiveVideo(),
                                                 a = null
                                             return (
                                                 i?.parentElement && 'u' > typeof ResizeObserver && ((a = new ResizeObserver(t)), a.observe(i.parentElement)),
@@ -9617,7 +9635,7 @@
                                                         let d = t._player?.playerOrchestrator?.tracksOrchestrator?._currentVideoModel,
                                                             u = await aFixSubs(o, d, i)
                                                         if (a || p !== pToken.current) return
-                                                        let c = document.querySelector('video')
+                                                        let c = aFindActiveVideo()
                                                         if (!c || p !== pToken.current) return
                                                         aSetNativeTextTracks(null, q)
                                                         if (c.textTracks) for (let t = 0; t < c.textTracks.length; t++) c.textTracks[t].mode = 'hidden'
