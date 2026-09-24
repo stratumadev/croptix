@@ -9047,6 +9047,144 @@
                                             : null
                                     )
                                 },
+                                tToggleDocumentPip = async (t) => {
+                                    if (window.documentPictureInPicture.window) {
+                                        window.documentPictureInPicture.window.close()
+                                        return
+                                    }
+
+                                    // requestWindow() is async, and documentPictureInPicture.window stays
+                                    // null until it resolves — a rapid double-click on the PiP button would
+                                    // otherwise slip past the check above and fire requestWindow() twice
+                                    // concurrently, moving the same <video> node between two windows.
+                                    if (window.__croptixPipInFlight) return
+                                    window.__croptixPipInFlight = true
+
+                                    try {
+                                        let videoContainer = t.parentElement
+                                        if (!videoContainer) return
+
+                                        // Both subtitle renderers already attach as siblings of <video>
+                                        // inside this same container: the VTT cue div (aEnsureCueOverlay)
+                                        // and the SubtitlesOctopus canvas wrapper (subtitle-octopus's
+                                        // createCanvas). Neither depends on external CSS — both are fully
+                                        // inline-styled (VTT) or canvas-drawn (octopus/libass via WASM) —
+                                        // so moving the raw nodes is enough to carry the subtitles over.
+                                        let overlays = Array.from(videoContainer.querySelectorAll('.croptix-vtt-cue-overlay, .libassjs-canvas-parent'))
+
+                                        let pipWindow
+                                        try {
+                                            pipWindow = await window.documentPictureInPicture.requestWindow({
+                                                width: t.videoWidth || 640,
+                                                height: t.videoHeight || 360
+                                            })
+                                        } catch (t) {
+                                            console.warn('[CrOptix][PiP] Failed to open Document Picture-in-Picture window.', t)
+                                            return
+                                        }
+
+                                        let wrapper = pipWindow.document.createElement('div')
+                                        Object.assign(wrapper.style, { position: 'relative', width: '100%', height: '100%', background: '#000' })
+                                        // The default white UA background can peek through at the edges
+                                        // while the window is being resized, since the wrapper div isn't
+                                        // guaranteed to repaint in perfect lockstep with the native resize —
+                                        // painting black at the html/body level too closes that gap.
+                                        Object.assign(pipWindow.document.documentElement.style, { margin: '0', background: '#000' })
+                                        Object.assign(pipWindow.document.body.style, { margin: '0', background: '#000', overflow: 'hidden' })
+                                        pipWindow.document.body.appendChild(wrapper)
+
+                                        // Explicit sizing so the video fills the PiP window correctly — we
+                                        // don't copy Crunchyroll's own CSS in here (unneeded for subtitles,
+                                        // see above, and a needless synchronous cost on every toggle), so
+                                        // this is the only sizing the video gets in its new context.
+                                        Object.assign(t.style, { width: '100%', height: '100%', objectFit: t.style.objectFit || 'contain' })
+
+                                        // We only move the raw <video>, not Crunchyroll's custom control
+                                        // bar, so there'd be no way to play/pause/seek/adjust volume in the
+                                        // PiP window otherwise. Native controls give us all of that for
+                                        // free — Chrome already binds Left/Right (seek), Up/Down (volume)
+                                        // and Space (play/pause) to a focused <video controls> element.
+                                        let hadControls = t.controls
+                                        t.controls = true
+
+                                        wrapper.appendChild(t)
+                                        overlays.forEach((el) => wrapper.appendChild(el))
+
+                                        // Register the way back IMMEDIATELY after the actual DOM move, before
+                                        // any of the enhancements below — so even if one of those throws
+                                        // unexpectedly, the video is still guaranteed a path back to the page
+                                        // instead of getting stranded in a PiP window with no restore wired up.
+                                        let onVideoClick, onPipResize
+                                        let restore = () => {
+                                            onPipResize && pipWindow.removeEventListener('resize', onPipResize)
+                                            onVideoClick && t.removeEventListener('click', onVideoClick)
+                                            t.controls = hadControls
+                                            videoContainer.appendChild(t)
+                                            // Re-query instead of reusing the `overlays` snapshot captured at
+                                            // PiP-entry time above: switching subtitle language/track while
+                                            // still in PiP disposes that old overlay/canvas and creates a
+                                            // fresh one (aDisposeOctopus / aClearCueOverlay remove the old
+                                            // element from the DOM entirely). Reusing the stale snapshot here
+                                            // would resurrect an already-disposed overlay with frozen, stale
+                                            // content while abandoning the actually-current one inside the
+                                            // closing PiP window.
+                                            wrapper.querySelectorAll('.croptix-vtt-cue-overlay, .libassjs-canvas-parent').forEach((el) => videoContainer.appendChild(el))
+                                            t.play?.().catch(() => {})
+                                        }
+                                        pipWindow.addEventListener('pagehide', restore, { once: true })
+
+                                        // Everything from here down is a nice-to-have enhancement, not
+                                        // required for basic PiP to work — grouped in one try/catch so a
+                                        // failure here can never leave the video stuck without the restore
+                                        // path registered just above.
+                                        try {
+                                            // Click-to-toggle isn't native <video controls> behavior (that's
+                                            // custom UX Crunchyroll's own player builds) so we add it
+                                            // ourselves. Re-focusing on every click also works around a known
+                                            // Chromium quirk where clicking a specific control button (e.g.
+                                            // fullscreen) can steal keyboard focus from the video shortcuts.
+                                            onVideoClick = () => {
+                                                t.focus()
+                                                t.paused ? t.play().catch(() => {}) : t.pause()
+                                            }
+                                            t.addEventListener('click', onVideoClick)
+                                            t.focus()
+
+                                            // Free resizing lets the user drag the window into a taller/wider
+                                            // shape than the video itself, leaving black letterboxing bars
+                                            // inside — like YouTube's mini-player, we correct the window's
+                                            // own shape back to the video's aspect ratio as the user drags.
+                                            // Document PiP windows support resizeTo()/resizeBy() precisely
+                                            // for this, gated on it happening within the window's own resize
+                                            // handler (a user-drag-driven event) rather than called cold.
+                                            let ratio = t.videoWidth && t.videoHeight ? t.videoWidth / t.videoHeight : 16 / 9
+                                            let lastAppliedW = null,
+                                                lastAppliedH = null
+                                            onPipResize = () => {
+                                                let w = pipWindow.innerWidth,
+                                                    h = pipWindow.innerHeight
+                                                // Skip the follow-up resize event the browser fires as an echo
+                                                // of our own resizeTo() call below — only react to sizes we
+                                                // didn't just set ourselves, so back-to-back genuine drags
+                                                // never get dropped by a stale re-entrancy flag.
+                                                if (w === lastAppliedW && h === lastAppliedH) return
+                                                let correctedH = Math.round(w / ratio)
+                                                if (Math.abs(correctedH - h) > 2) {
+                                                    lastAppliedW = w
+                                                    lastAppliedH = correctedH
+                                                    try {
+                                                        pipWindow.resizeTo(w, correctedH)
+                                                    } catch (t) {}
+                                                }
+                                            }
+                                            pipWindow.addEventListener('resize', onPipResize)
+                                        } catch (t) {
+                                            console.warn('[CrOptix][PiP] A non-critical enhancement failed to set up; PiP itself still works.', t)
+                                        }
+                                    } finally {
+                                        window.__croptixPipInFlight = false
+                                    }
+                                },
                                 aPiP = () => {
                                     let [t, i] = (0, h.useState)(!1),
                                         a = 'u' > typeof document && document.pictureInPictureEnabled
@@ -9071,15 +9209,21 @@
                                     }, [a])
                                     let r = (0, h.useCallback)(() => {
                                         let t = document.querySelector('video')
-                                        t &&
-                                            (t.hasAttribute('disablePictureInPicture') && t.removeAttribute('disablePictureInPicture'),
-                                            document.pictureInPictureElement
-                                                ? document.exitPictureInPicture().catch((t) => {
-                                                      console.warn(t)
-                                                  })
-                                                : t.requestPictureInPicture().catch((t) => {
-                                                      console.warn(t)
-                                                  }))
+                                        if (!t) return
+                                        t.hasAttribute('disablePictureInPicture') && t.removeAttribute('disablePictureInPicture')
+
+                                        if ('documentPictureInPicture' in window) {
+                                            tToggleDocumentPip(t).catch((t) => console.warn('[CrOptix][PiP]', t))
+                                            return
+                                        }
+
+                                        document.pictureInPictureElement
+                                            ? document.exitPictureInPicture().catch((t) => {
+                                                  console.warn(t)
+                                              })
+                                            : t.requestPictureInPicture().catch((t) => {
+                                                  console.warn(t)
+                                              })
                                     }, [])
                                     if (!a) return null
                                     let s = (0, d.jsxs)('svg', {
@@ -9177,9 +9321,19 @@
                                     let r = [t?.language, t?.srclang, t?.label].map(aTextLang).filter(Boolean)
                                     return r.some((t) => t === a || t.split('-')[0] === a.split('-')[0])
                                 },
+                                aFindActiveVideo = () => {
+                                    let t = document.querySelector('video')
+                                    if (t) return t
+                                    // Once in Document PiP, the video lives in the PiP window's own
+                                    // document — every subtitle code path below needs to find it there
+                                    // too, or subtitles turned on / switched while already in PiP would
+                                    // silently fail to attach (the main document has no video anymore).
+                                    let p = window.documentPictureInPicture?.window
+                                    return p ? p.document.querySelector('video') : null
+                                },
                                 aApplyNativeTextTracks = (t, i = 'native') => {
                                     try {
-                                        let a = document.querySelector('video'),
+                                        let a = aFindActiveVideo(),
                                             r = 0,
                                             s = 0,
                                             n = []
@@ -9196,7 +9350,7 @@
                                 },
                                 aNativeTextVisible = (t) => {
                                     try {
-                                        let i = document.querySelector('video')
+                                        let i = aFindActiveVideo()
                                         if (!i?.textTracks) return !1
                                         for (let a = 0; a < i.textTracks.length; a++) {
                                             let r = i.textTracks[a]
@@ -9250,7 +9404,7 @@
                                         }, 3e4)
                                 },
                                 aEnsureCueOverlay = (t, i) => {
-                                    let a = document.querySelector('video')
+                                    let a = aFindActiveVideo()
                                     if (!a || !t) return !1
                                     i.current?.trackKey !== `${t.language || ''}|${t.displayName || ''}` && aClearCueOverlay(i)
                                     if (!i.current) {
@@ -9337,7 +9491,7 @@
                                     )
                                 },
                                 aEnsureManualVttTrack = async (t, i) => {
-                                    let a = document.querySelector('video'),
+                                    let a = aFindActiveVideo(),
                                         r = t?.externalTextUrl?.toString?.()
                                     if (!a || !r) return !1
                                     if (i.current?.sourceUrl === r) return (aApplyNativeTextTracks(t, 'manual-vtt-existing'), !0)
@@ -9445,7 +9599,7 @@
                                                 r.current && 'function' == typeof r.current.resize && r.current.resize()
                                             }
                                             window.addEventListener('resize', t)
-                                            let i = document.querySelector('video'),
+                                            let i = aFindActiveVideo(),
                                                 a = null
                                             return (
                                                 i?.parentElement && 'u' > typeof ResizeObserver && ((a = new ResizeObserver(t)), a.observe(i.parentElement)),
@@ -9504,7 +9658,7 @@
                                                         let d = t._player?.playerOrchestrator?.tracksOrchestrator?._currentVideoModel,
                                                             u = await aFixSubs(o, d, i)
                                                         if (a || p !== pToken.current) return
-                                                        let c = document.querySelector('video')
+                                                        let c = aFindActiveVideo()
                                                         if (!c || p !== pToken.current) return
                                                         aSetNativeTextTracks(null, q)
                                                         if (c.textTracks) for (let t = 0; t < c.textTracks.length; t++) c.textTracks[t].mode = 'hidden'
