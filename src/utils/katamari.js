@@ -1,4 +1,88 @@
 ;(() => {
+    const coreExports029 = {
+        Ft: 'zt',
+        xt: 'Tt',
+        bt: 'wt',
+        gt: 'bt',
+        Ot: 'Mt',
+        kt: 'Nt',
+        Et: 'At',
+        ht: 'yt',
+        Nt: 'Lt',
+        Mt: 'It',
+        _t: 'xt',
+        yt: 'Ct',
+        vt: 'St',
+        mt: 'vt',
+        St: 'Et',
+        Dt: 'jt',
+        At: 'Pt',
+        Ct: 'Dt',
+        Tt: 'kt',
+        jt: 'Ft',
+        Rt: 'Ht',
+        pt: '_t',
+        ft: 'gt',
+        et: 'it',
+        D: 'j',
+        r: 'r',
+        wt: 'Ot',
+        x: 'T',
+        c: 'l',
+        dt: 'ht',
+        lt: 'pt',
+        w: 'O',
+        rt: 'st',
+        f: 'p',
+        It: 'Bt',
+        $: 'rt',
+        l: 'u',
+        S: 'E',
+        X: 'et',
+        Z: 'tt',
+        Lt: 'Vt',
+        zt: 'Ut',
+        u: 'd',
+        ot: 'ut',
+        at: 'lt',
+        it: 'ct',
+        E: 'A',
+        n: 'n',
+        Bt: 'Wt',
+        Ht: 'Kt',
+        C: 'D',
+        ut: 'mt',
+        ct: 'ft',
+        b: 'w',
+        V: 'G',
+        K: 'X',
+        W: 'J',
+        st: 'dt',
+        J: 'Q',
+        G: 'Y',
+        U: 'q',
+        q: 'Z',
+        H: 'K',
+        j: 'F',
+        N: 'L',
+        A: 'P',
+        M: 'I',
+        P: 'R',
+        F: 'z',
+        L: 'V',
+        R: 'H',
+        T: 'k',
+        I: 'B',
+        Q: 'nt',
+        tt: 'at',
+        nt: 'ot',
+        B: 'W',
+        z: 'U',
+        k: 'N',
+        Pt: 'Rt',
+        t: 't'
+    }
+
     function patch_webpack_chunk(chunk_data) {
         try {
             const modules = chunk_data[1]
@@ -27,6 +111,14 @@
                 }
 
                 if (fn_str.includes('@crunchyroll/katamari-desktop-player')) {
+                    const playerVersion = fn_str.match(/_katamariPlayerVersion\s*=\s*['"]([^'"]+)['"]/)?.[1]
+                    const loggerExport = fn_str.match(/\.([A-Za-z_$][\w$]*)\.setLogLevel\s*\(/)?.[1]
+                    const coreExportMap = loggerExport === 'Ft' ? null : playerVersion === '0.29.0' && loggerExport === 'zt' ? coreExports029 : undefined
+                    if (coreExportMap === undefined) {
+                        console.warn('[CrOptix] Katamari Patch skipped: unsupported core export layout', playerVersion)
+                        continue
+                    }
+
                     const importIds = [...fn_str.matchAll(/[a-zA-Z0-9_$]+\s*=\s*[a-zA-Z0-9_$]+\s*\(\s*(\d+)\s*\)/g)].slice(0, 5).map((match) => Number(match[1]))
                     const [shakaE, shakaB] =
                         engineImportRegex('ShakaMediaEngine') ||
@@ -44,8 +136,17 @@
                         continue
                     }
 
-                    modules[module_id] = (function (SHAKA_E, SHAKA_B, BIT_E, BIT_B, IMPORT_IDS) {
+                    modules[module_id] = (function (SHAKA_E, SHAKA_B, BIT_E, BIT_B, IMPORT_IDS, CORE_EXPORTS, ORIGINAL_FACTORY) {
                         return function (t, i, a) {
+                            const importedCore = a(IMPORT_IDS[0])
+                            if (
+                                (CORE_EXPORTS && Object.values(CORE_EXPORTS).some((key) => importedCore[key] === undefined)) ||
+                                typeof importedCore[CORE_EXPORTS?.Ft || 'Ft']?.setLogLevel !== 'function'
+                            ) {
+                                console.warn('[CrOptix] Katamari Patch skipped: incompatible core exports')
+                                return ORIGINAL_FACTORY(t, i, a)
+                            }
+                            const core = CORE_EXPORTS ? Object.fromEntries(Object.entries(CORE_EXPORTS).map(([key, currentKey]) => [key, importedCore[currentKey]])) : importedCore
                             let r
                             a.d(i, {
                                 n: function () {
@@ -61,7 +162,7 @@
                             var s,
                                 n,
                                 o,
-                                l = a(IMPORT_IDS[0]),
+                                l = core,
                                 d = a(IMPORT_IDS[1]),
                                 u = a(IMPORT_IDS[2]),
                                 c = a(IMPORT_IDS[3]),
@@ -17177,7 +17278,7 @@
                                     }
                                 }
                         }
-                    })(shakaE, shakaB, bitE, bitB, importIds)
+                    })(shakaE, shakaB, bitE, bitB, importIds, coreExportMap, fn)
                 }
             }
         } catch (err) {
