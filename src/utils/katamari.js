@@ -119,6 +119,7 @@
                         continue
                     }
 
+                    const playerExport = fn_str.match(/\.d\(\s*[A-Za-z_$][\w$]*\s*,\s*\{\s*([A-Za-z_$][\w$]*)\s*:/)?.[1] || 'ps'
                     const importIds = [...fn_str.matchAll(/[a-zA-Z0-9_$]+\s*=\s*[a-zA-Z0-9_$]+\s*\(\s*(\d+)\s*\)/g)].slice(0, 5).map((match) => Number(match[1]))
                     const [shakaE, shakaB] =
                         engineImportRegex('ShakaMediaEngine') ||
@@ -136,7 +137,7 @@
                         continue
                     }
 
-                    modules[module_id] = (function (SHAKA_E, SHAKA_B, BIT_E, BIT_B, IMPORT_IDS, CORE_EXPORTS, ORIGINAL_FACTORY) {
+                    modules[module_id] = (function (SHAKA_E, SHAKA_B, BIT_E, BIT_B, IMPORT_IDS, CORE_EXPORTS, PLAYER_EXPORT, ORIGINAL_FACTORY) {
                         return function (t, i, a) {
                             const importedCore = a(IMPORT_IDS[0])
                             if (
@@ -149,14 +150,8 @@
                             const core = CORE_EXPORTS ? Object.fromEntries(Object.entries(CORE_EXPORTS).map(([key, currentKey]) => [key, importedCore[currentKey]])) : importedCore
                             let r
                             a.d(i, {
-                                n: function () {
-                                    return C
-                                },
-                                ps: function () {
+                                [PLAYER_EXPORT]: function () {
                                     return le
-                                },
-                                t: function () {
-                                    return _
                                 }
                             })
                             var s,
@@ -17278,7 +17273,7 @@
                                     }
                                 }
                         }
-                    })(shakaE, shakaB, bitE, bitB, importIds, coreExportMap, fn)
+                    })(shakaE, shakaB, bitE, bitB, importIds, coreExportMap, playerExport, fn)
                 }
             }
         } catch (err) {
