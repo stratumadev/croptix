@@ -17155,7 +17155,7 @@
                                         const build = this._croptixBuildContext
                                         l.Ft.setLogLevel(this.currentLogLevel)
                                         let r = await this._configResolver.resolve()
-                                        r.mediaEngineConfig = { ...(r.mediaEngineConfig || {}), mediaEngineType: l.k.SHAKA }
+                                        // r.mediaEngineConfig = { ...(r.mediaEngineConfig || {}), mediaEngineType: l.k.SHAKA }
                                         let s = r.mediaEngineConfig.mediaEngineType
                                         ;(this._mediaResolver.setFeatureFlags(r.featureFlags),
                                             this._apiServicesContainer.provideApiConfig(r),
@@ -17173,7 +17173,7 @@
                                                           .e(BIT_E)
                                                           .then(a.bind(a, BIT_B))
                                                           .then(({ BitmovinMediaEngine: t }) => {
-                                                              let i = new t(d, this._tokenProvider)
+                                                              let i = new t(d, this._tokenProvider, r.mediaEngineConfig)
                                                               return (n.push(i.textTrackRenderer), i)
                                                           })
                                         if (build) build.mediaEngine = c
