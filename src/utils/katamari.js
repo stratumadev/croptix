@@ -1,87 +1,88 @@
 ;(() => {
-    const coreExports029 = {
-        Ft: 'zt',
-        xt: 'Tt',
-        bt: 'wt',
-        gt: 'bt',
-        Ot: 'Mt',
-        kt: 'Nt',
-        Et: 'At',
-        ht: 'yt',
-        Nt: 'Lt',
-        Mt: 'It',
-        _t: 'xt',
-        yt: 'Ct',
-        vt: 'St',
-        mt: 'vt',
-        St: 'Et',
-        Dt: 'jt',
-        At: 'Pt',
-        Ct: 'Dt',
-        Tt: 'kt',
-        jt: 'Ft',
-        Rt: 'Ht',
-        pt: '_t',
-        ft: 'gt',
-        et: 'it',
-        D: 'j',
-        r: 'r',
-        wt: 'Ot',
-        x: 'T',
-        c: 'l',
-        dt: 'ht',
-        lt: 'pt',
-        w: 'O',
-        rt: 'st',
-        f: 'p',
-        It: 'Bt',
-        $: 'rt',
-        l: 'u',
-        S: 'E',
-        X: 'et',
-        Z: 'tt',
-        Lt: 'Vt',
-        zt: 'Ut',
-        u: 'd',
-        ot: 'ut',
-        at: 'lt',
-        it: 'ct',
-        E: 'A',
-        n: 'n',
-        Bt: 'Wt',
-        Ht: 'Kt',
-        C: 'D',
-        ut: 'mt',
-        ct: 'ft',
-        b: 'w',
-        V: 'G',
-        K: 'X',
-        W: 'J',
-        st: 'dt',
-        J: 'Q',
-        G: 'Y',
-        U: 'q',
-        q: 'Z',
-        H: 'K',
-        j: 'F',
-        N: 'L',
-        A: 'P',
-        M: 'I',
-        P: 'R',
-        F: 'z',
-        L: 'V',
-        R: 'H',
-        T: 'k',
-        I: 'B',
-        Q: 'nt',
-        tt: 'at',
-        nt: 'ot',
-        B: 'W',
-        z: 'U',
-        k: 'N',
-        Pt: 'Rt',
-        t: 't'
+    const coreExportPatterns = {
+        Ft: '(?:^|[^\\w$])CORE\\s*\\.\\s*(ID)\\s*\\.\\s*setLogLevel\\b\\s*\\(',
+        xt: 'var\\s*ID\\s*=\\s*\\[\\s*\\.\\.\\.\\s*ID\\s*\\]\\s*,\\s*ID\\s*=\\s*\\(\\s*0\\s*,\\s*CORE\\s*\\.\\s*(ID)\\s*\\)\\s*\\(\\s*ID\\s*\\)\\s*,\\s*ID\\s*=\\s*\\(\\s*0\\s*,\\s*CORE\\s*\\.\\s*ID\\s*\\)\\s*\\(\\s*ID\\s*,\\s*1\\s*/\\s*0\\s*\\)\\s*;',
+        bt: 'var\\s*ID\\s*=\\s*\\[\\s*\\.\\.\\.\\s*ID\\s*\\]\\s*,\\s*ID\\s*=\\s*\\(\\s*0\\s*,\\s*CORE\\s*\\.\\s*(ID)\\s*\\)\\s*\\(\\s*ID\\s*\\)\\s*;',
+        gt: '\\(\\s*0\\s*,\\s*CORE\\s*\\.\\s*(ID)\\s*\\)\\s*\\(\\s*\\[\\s*\\]\\s*,\\s*ID\\s*\\)',
+        Ot: 'new\\s+CORE\\.(ID)\\s*\\(\\s*\\(',
+        kt: 'ID\\s*\\.\\s*every\\s*\\(\\s*CORE\\s*\\.\\s*(ID)\\s*\\)',
+        Et: '\\(\\s*0\\s*,\\s*CORE\\s*\\.\\s*(ID)\\s*\\)\\s*\\(\\s*ID\\s*,\\s*function\\s*\\(\\s*ID\\s*\\)\\s*\\{\\s*var\\s*ID\\s*=\\s*ID\\s*\\+\\+\\s*;',
+        ht: '\\(\\s*0\\s*,\\s*CORE\\s*\\.\\s*(ID)\\s*\\)\\s*\\(\\s*\\(\\s*\\)\\s*=>\\s*this\\s*\\.\\s*_availableRates\\s*\\)',
+        Nt: '\\(\\s*0\\s*,\\s*CORE\\s*\\.\\s*(ID)\\s*\\)\\s*\\(\\s*\\[\\s*\\]\\s*,\\s*\\(\\s*0\\s*,\\s*CORE\\s*\\.\\s*ID\\s*\\)\\s*\\(\\s*ID\\s*\\)\\s*\\)',
+        Mt: '\\(\\s*0\\s*,\\s*CORE\\s*\\.\\s*ID\\s*\\)\\s*\\(\\s*\\[\\s*\\]\\s*,\\s*\\(\\s*0\\s*,\\s*CORE\\s*\\.\\s*(ID)\\s*\\)\\s*\\(\\s*ID\\s*\\)\\s*\\)',
+        _t: '\\(\\s*0\\s*,\\s*CORE\\s*\\.\\s*(ID)\\s*\\)\\s*\\(\\s*ID\\s*,\\s*ID\\s*,\\s*ID\\s*\\)',
+        yt: '\\(\\s*0\\s*,\\s*CORE\\s*\\.\\s*(ID)\\s*\\)\\s*\\(\\s*ID\\s*,\\s*1\\s*/\\s*0\\s*\\)',
+        vt: '\\(\\s*0\\s*,\\s*CORE\\s*\\.\\s*(ID)\\s*\\)\\s*\\(\\s*ID\\s*\\[\\s*0\\s*\\]\\s*\\)',
+        mt: '\\(\\s*0\\s*,\\s*CORE\\s*\\.\\s*(ID)\\s*\\)\\s*\\(\\s*ID\\s*\\)\\s*\\(\\s*\\(\\s*0\\s*,\\s*CORE\\s*\\.\\s*ID\\s*\\)\\s*\\(\\s*ID\\s*,\\s*ID\\s*\\)\\s*\\)',
+        St: 'ID\\s*\\.\\s*length\\s*\\?\\s*1\\s*===\\s*ID\\s*\\.\\s*length\\s*\\?\\s*\\(\\s*0\\s*,\\s*CORE\\s*\\.\\s*ID\\s*\\)\\s*\\(\\s*ID\\s*\\[\\s*0\\s*\\]\\s*\\)\\s*:\\s*\\(\\s*0\\s*,\\s*CORE\\s*\\.\\s*ID\\s*\\)\\s*\\(\\s*ID\\s*\\)\\s*\\(\\s*\\(\\s*0\\s*,\\s*CORE\\s*\\.\\s*ID\\s*\\)\\s*\\(\\s*ID\\s*,\\s*ID\\s*\\)\\s*\\)\\s*:\\s*CORE\\s*\\.\\s*(ID)',
+        Dt: '\\(\\s*0\\s*,\\s*CORE\\s*\\.\\s*(ID)\\s*\\)\\s*\\(\\s*\\(\\s*ID\\s*=\\s*arguments\\s*\\.\\s*length\\s*>=\\s*2\\s*,',
+        At: 'new\\s*CORE\\s*\\.\\s*(ID)\\s*\\(\\s*\\{\\s*next\\s*:\\s*function\\s*\\(\\s*\\)\\s*\\{\\s*ID\\s*\\.\\s*unsubscribe\\s*\\(\\s*\\)\\s*,\\s*ID\\s*\\(\\s*\\)\\s*\\}\\s*\\}\\s*\\)',
+        Ct: 'new\\s*CORE\\s*\\.\\s*(ID)\\s*\\(\\s*1\\s*\\)',
+        Tt: '\\{\\s*return\\s*new\\s*CORE\\s*\\.\\s*(ID)\\s*\\}',
+        jt: '\\(\\s*0\\s*,\\s*CORE\\s*\\.\\s*ID\\s*\\)\\s*\\(\\s*ID\\s*,\\s*function\\s*\\(\\s*ID\\s*\\)\\s*\\{\\s*ID\\s*\\[\\s*ID\\s*\\]\\s*=\\s*ID\\s*,\\s*!\\s*ID\\s*&&\\s*!\\s*ID\\s*\\[\\s*ID\\s*\\]\\s*&&\\s*\\(\\s*ID\\s*\\[\\s*ID\\s*\\]\\s*=\\s*!\\s*0\\s*,\\s*\\(\\s*ID\\s*=\\s*ID\\s*\\.\\s*every\\s*\\(\\s*CORE\\s*\\.\\s*ID\\s*\\)\\s*\\)\\s*&&\\s*\\(\\s*ID\\s*=\\s*null\\s*\\)\\s*\\)\\s*\\}\\s*,\\s*CORE\\s*\\.\\s*(ID)\\s*\\)',
+        Rt: 'case\\s+CORE\\s*\\.\\s*(ID)\\s*\\.\\s*STARTUP\\b\\s*:',
+        pt: '\\(\\s*0\\s*,\\s*CORE\\s*\\.\\s*(ID)\\s*\\)\\s*\\(\\s*\\)',
+        ft: '\\(\\s*0\\s*,\\s*CORE\\s*\\.\\s*(ID)\\s*\\)\\s*\\(\\s*0\\s*\\)',
+        et: '(?:^|[^\\w$])CORE\\s*\\.\\s*(ID)\\s*\\.\\s*STREAM_LIMIT_REACHED\\b',
+        D: '_currentPlaybackRate\\s*=\\s*CORE\\s*\\.\\s*(ID)\\s*\\.\\s*NORMAL_SPEED\\b',
+        r: '(?:^|[^\\w$])CORE\\s*\\.\\s*(ID)\\s*\\.\\s*PLAYING\\b\\s*\\|\\|\\s*ID\\s*===\\s*CORE\\s*\\.\\s*\\1\\s*\\.\\s*PAUSED\\b',
+        wt: 'new\\s*CORE\\s*\\.\\s*(ID)\\s*\\(\\s*!\\s*1\\s*\\)',
+        x: '(?:^|[^\\w$])CORE\\s*\\.\\s*(ID)\\s*\\.\\s*CLOSED_CAPTION\\b',
+        c: '\\(\\s*0\\s*,\\s*CORE\\s*\\.\\s*(ID)\\s*\\)\\s*\\(\\s*this\\s*\\.\\s*_currentActiveAnnotation\\s*\\.\\s*end\\s*,\\s*this\\s*\\.\\s*_stitchedElements\\s*\\)',
+        dt: '\\(\\s*0\\s*,\\s*CORE\\s*\\.\\s*(ID)\\s*\\)\\s*\\(\\s*ID\\s*=>\\s*\\{\\s*this\\s*\\.\\s*_currentDuration\\s*=\\s*ID\\s*\\}\\s*\\)',
+        lt: '(?:^|[^\\w$])CORE\\s*\\.\\s*(ID)\\s*\\.\\s*AUDIO_DESCRIPTION\\b',
+        w: '(?:^|[^\\w$])CORE\\s*\\.\\s*(ID)\\s*\\.\\s*BR_TV\\b',
+        rt: '(?:^|[^\\w$])CORE\\s*\\.\\s*(ID)\\s*\\.\\s*FAIRPLAY\\b',
+        f: 'bucket\\s*:\\s*CORE\\s*\\.\\s*(ID)\\s*\\.\\s*DATA_SAVER\\b',
+        It: '\\.\\s*reason\\s*===\\s*CORE\\s*\\.\\s*(ID)\\s*\\.\\s*SEEK\\b',
+        $: 'ID\\s*instanceof\\s*CORE\\s*\\.\\s*(ID)\\s*&&\\s*ID\\s*\\.\\s*partialVideoModel',
+        l: 'if\\s*\\(\\s*!\\s*\\(\\s*0\\s*,\\s*CORE\\s*\\.\\s*(ID)\\s*\\)\\s*\\(\\s*ID\\s*\\)\\s*\\)\\s*throw\\s*this\\s*\\.\\s*_getConsolidatedVideoModelError\\s*\\(\\s*ID\\s*,\\s*ID\\s*\\)\\s*;',
+        S: '\\.\\s*subscriptionStatus\\s*===\\s*CORE\\s*\\.\\s*(ID)\\s*\\.\\s*ANONYMOUS\\b',
+        X: 'new\\s+CORE\\s*\\.\\s*(ID)\\s*\\(\\s*\\x60Server error during keep-alive:',
+        Z: 'CORE\\s*\\.\\s*ID\\s*\\.\\s*error\\s*\\(\\s*["\']Failed to resolve:["\']\\s*,\\s*ID\\s*\\)\\s*,\\s*ID\\s*instanceof\\s*CORE\\s*\\.\\s*(ID)',
+        Lt: 'unloadPlayer\\s*\\(\\s*CORE\\s*\\.\\s*(ID)\\s*\\.\\s*SYSTEM\\b\\s*,',
+        zt: '(?:^|[^\\w$])CORE\\s*\\.\\s*(ID)\\s*\\.\\s*PAUSE_TIMEOUT\\b',
+        u: 'switch\\s*\\(\\s*\\(\\s*0\\s*,\\s*CORE\\s*\\.\\s*(ID)\\s*\\)\\s*\\(\\s*ID\\s*\\)\\s*\\)\\s*\\{\\s*case\\s*CORE\\s*\\.\\s*ID\\s*\\.\\s*MUSIC_CONCERT',
+        ot: '\\bmusicConcert\\s*:\\s*CORE\\s*\\.\\s*(ID)\\s*\\.\\s*MUSIC_CONCERT\\b',
+        at: '\\bdeviceType\\s*:\\s*CORE\\s*\\.\\s*(ID)\\s*\\.\\s*WEB\\b',
+        it: '\\bdeviceSubType\\s*:\\s*CORE\\s*\\.\\s*(ID)\\s*\\.\\s*FALLBACK\\b',
+        E: '\\bplaybackSource\\s*:\\s*CORE\\s*\\.\\s*(ID)\\s*\\.\\s*NETWORK\\b',
+        n: 'new\\s+CORE\\s*\\.\\s*(ID)\\s*\\(\\s*\\{\\s*mediaEngine\\s*:',
+        Bt: '(?:^|[^\\w$])CORE\\s*\\.\\s*(ID)\\s*\\.\\s*TIMED_OUT\\b',
+        Ht: '(?:^|[^\\w$])CORE\\s*\\.\\s*(ID)\\s*\\.\\s*autoplayNext\\b',
+        C: '\\bpromo\\s*:\\s*CORE\\s*\\.\\s*(ID)\\s*\\.\\s*PROMO\\b\\s*,\\s*logo\\s*:',
+        ut: '\\bintro\\s*:\\s*CORE\\s*\\.\\s*(ID)\\s*\\.\\s*INTRO\\b',
+        ct: '\\bexternal\\s*:\\s*CORE\\s*\\.\\s*(ID)\\s*\\.\\s*SEPARATE_MASTER\\b',
+        b: '["\']burned-in["\']\\s*:\\s*CORE\\s*\\.\\s*(ID)\\s*\\.\\s*BURNED_IN\\b',
+        V: '\\(\\s*0\\s*,\\s*CORE\\s*\\.\\s*(ID)\\s*\\)\\s*\\(\\s*ID\\s*,\\s*["\']id["\']\\s*\\)',
+        K: '\\(\\s*0\\s*,\\s*CORE\\s*\\.\\s*(ID)\\s*\\)\\s*\\(\\s*ID\\s*\\.\\s*id\\s*\\)',
+        W: '\\(\\s*0\\s*,\\s*CORE\\s*\\.\\s*(ID)\\s*\\)\\s*\\(\\s*ID\\s*\\.\\s*drm\\s*\\)',
+        st: 'case\\s*["\']premium_only["\']\\s*:\\s*ID\\s*=\\s*CORE\\s*\\.\\s*(ID)\\s*\\.\\s*PREMIUM_ONLY\\b',
+        J: 'new\\s*CORE\\s*\\.\\s*(ID)\\s*\\(\\s*["\']Empty CMS data["\']\\s*,\\s*CORE\\s*\\.\\s*ID\\s*\\.\\s*METADATA_LOAD\\s*\\)',
+        G: '\\(\\s*0\\s*,\\s*CORE\\s*\\.\\s*(ID)\\s*\\)\\s*\\(\\s*ID\\s*\\.\\s*data\\s*\\)',
+        U: '\\(\\s*0\\s*,\\s*CORE\\s*\\.\\s*(ID)\\s*\\)\\s*\\(\\s*ID\\s*\\.\\s*end\\s*\\)',
+        q: '\\(\\s*0\\s*,\\s*CORE\\s*\\.\\s*(ID)\\s*\\)\\s*\\(\\s*ID\\s*\\.\\s*subtitle_locales\\s*\\)',
+        H: '\\(\\s*0\\s*,\\s*CORE\\s*\\.\\s*(ID)\\s*\\)\\s*\\(\\s*ID\\s*\\.\\s*track\\s*\\)',
+        j: '\\bA10\\s*:\\s*CORE\\s*\\.\\s*(ID)\\s*\\.\\s*TEN\\b',
+        N: '\\b13\\s*:\\s*CORE\\s*\\.\\s*(ID)\\s*\\.\\s*THIRTEEN\\b',
+        A: '["\']MA 15\\+["\']\\s*:\\s*CORE\\s*\\.\\s*(ID)\\s*\\.\\s*MA_15_PLUS\\b',
+        M: '["\']U/A 7\\+["\']\\s*:\\s*CORE\\s*\\.\\s*(ID)\\s*\\.\\s*UA_7_PLUS\\b',
+        P: '\\b19\\s*:\\s*CORE\\s*\\.\\s*(ID)\\s*\\.\\s*NINETEEN\\b',
+        F: '\\b12\\s*:\\s*CORE\\s*\\.\\s*(ID)\\s*\\.\\s*TWELVE_PLUS\\b',
+        L: 'if\\s*\\(\\s*\\(\\s*0\\s*,\\s*CORE\\s*\\.\\s*(ID)\\s*\\)\\s*\\(\\s*ID\\s*\\)\\s*\\)\\s*\\{\\s*let\\s*ID\\s*=\\s*\\(\\s*0\\s*,\\s*CORE\\s*\\.\\s*ID\\s*\\)\\s*\\(\\s*ID\\s*\\)\\s*;\\s*if\\s*\\(\\s*ID\\s*\\)\\s*throw\\s*ID\\s*\\}',
+        R: 'let\\s*ID\\s*=\\s*\\(\\s*0\\s*,\\s*CORE\\s*\\.\\s*(ID)\\s*\\)\\s*\\(\\s*ID\\s*\\)\\s*;',
+        T: '\\bon_demand\\s*:\\s*CORE\\s*\\.\\s*(ID)\\s*\\.\\s*ON_DEMAND\\b',
+        I: '\\.includes\\(\\s*["\']\\.mpd["\']\\s*\\)\\s*\\)\\s*return\\s+CORE\\s*\\.\\s*(ID)\\s*\\.\\s*DASH\\b',
+        Q: '!\\s*ID\\s*&&\\s*ID\\s*instanceof\\s*CORE\\s*\\.\\s*(ID)',
+        tt: '(?:^|[^\\w$])CORE\\s*\\.\\s*(ID)\\s*\\.\\s*DEVELOPMENT\\b',
+        nt: '\\blevel\\s*:\\s*CORE\\s*\\.\\s*(ID)\\s*\\.\\s*L3\\b',
+        B: 'ID\\s*=\\s*\\(\\s*0\\s*,\\s*CORE\\s*\\.\\s*(ID)\\s*\\)\\s*\\(\\s*ID\\s*,\\s*ID\\s*\\)',
+        z: 'this\\s*\\.\\s*getOsConfig\\s*\\(\\s*\\)\\s*\\)\\s*,\\s*\\(\\s*0\\s*,\\s*CORE\\s*\\.\\s*(ID)\\s*\\)\\s*\\(\\s*ID\\s*\\)',
+        k: '\\bmediaEngineType\\s*:\\s*CORE\\s*\\.\\s*(ID)\\s*\\.\\s*BITMOVIN\\b',
+        Pt: '\\bcurrentLogLevel\\s*=\\s*CORE\\s*\\.\\s*(ID)\\s*\\.\\s*NONE\\b',
+        t: 'new\\s*CORE\\s*\\.\\s*(ID)\\s*\\(\\s*this\\s*\\.\\s*_tokenProvider\\s*\\)'
     }
+    let patchFailed = false
 
     function patch_webpack_chunk(chunk_data) {
         try {
@@ -111,16 +112,25 @@
                 }
 
                 if (fn_str.includes('@crunchyroll/katamari-desktop-player')) {
-                    const playerVersion = fn_str.match(/_katamariPlayerVersion\s*=\s*['"]([^'"]+)['"]/)?.[1]
-                    const loggerExport = fn_str.match(/\.([A-Za-z_$][\w$]*)\.setLogLevel\s*\(/)?.[1]
-                    const coreExportMap = loggerExport === 'Ft' ? null : playerVersion === '0.29.0' && loggerExport === 'zt' ? coreExports029 : undefined
-                    if (coreExportMap === undefined) {
-                        console.warn('[CrOptix] Katamari Patch skipped: unsupported core export layout', playerVersion)
+                    if (patchFailed) continue
+                    const playerExport = fn_str.match(/\.d\(\s*[A-Za-z_$][\w$]*\s*,\s*\{\s*([A-Za-z_$][\w$]*)\s*:/)?.[1] || 'ps'
+                    const staticImports = [...fn_str.matchAll(/([A-Za-z_$][\w$]*)\s*=\s*[A-Za-z_$][\w$]*\s*\(\s*(\d+)\s*\)/g)].slice(0, 5)
+                    const importIds = staticImports.map((match) => Number(match[2]))
+                    if (importIds.length !== 5) {
+                        console.warn('[CrOptix] Katamari Patch skipped: static import ids not found')
                         continue
                     }
-
-                    const playerExport = fn_str.match(/\.d\(\s*[A-Za-z_$][\w$]*\s*,\s*\{\s*([A-Za-z_$][\w$]*)\s*:/)?.[1] || 'ps'
-                    const importIds = [...fn_str.matchAll(/[a-zA-Z0-9_$]+\s*=\s*[a-zA-Z0-9_$]+\s*\(\s*(\d+)\s*\)/g)].slice(0, 5).map((match) => Number(match[1]))
+                    const ident = String.raw`[A-Za-z_$][\w$]*`
+                    const coreName = String.raw`(?<![\w$])` + staticImports[0][1].replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+                    const coreExportMap = {}
+                    for (const [key, pattern] of Object.entries(coreExportPatterns)) {
+                        const regex = new RegExp(
+                            pattern.replace(/\bID\b/g, ident).replace(/\bCORE\b/g, () => coreName),
+                            'g'
+                        )
+                        const names = new Set(Array.from(fn_str.matchAll(regex), (match) => match[1]))
+                        if (names.size === 1) coreExportMap[key] = names.values().next().value
+                    }
                     const [shakaE, shakaB] =
                         engineImportRegex('ShakaMediaEngine') ||
                         ex(/\?\s*await\s*[a-zA-Z0-9_$]+\.e\((\d+)\)\.then\([a-zA-Z0-9_$]+\.bind\([a-zA-Z0-9_$]+,\s*(\d+)\)\)\.then\(\(\{\s*ShakaMediaEngine/)
@@ -132,22 +142,10 @@
                         console.warn('[CrOptix] Katamari Patch skipped: media engine chunk ids not found')
                         continue
                     }
-                    if (importIds.length !== 5) {
-                        console.warn('[CrOptix] Katamari Patch skipped: static import ids not found')
-                        continue
-                    }
-
-                    modules[module_id] = (function (SHAKA_E, SHAKA_B, BIT_E, BIT_B, IMPORT_IDS, CORE_EXPORTS, PLAYER_EXPORT, ORIGINAL_FACTORY) {
+                    const patchedFactory = (function (SHAKA_E, SHAKA_B, BIT_E, BIT_B, IMPORT_IDS, CORE_EXPORTS, PLAYER_EXPORT) {
                         return function (t, i, a) {
                             const importedCore = a(IMPORT_IDS[0])
-                            if (
-                                (CORE_EXPORTS && Object.values(CORE_EXPORTS).some((key) => importedCore[key] === undefined)) ||
-                                typeof importedCore[CORE_EXPORTS?.Ft || 'Ft']?.setLogLevel !== 'function'
-                            ) {
-                                console.warn('[CrOptix] Katamari Patch skipped: incompatible core exports')
-                                return ORIGINAL_FACTORY(t, i, a)
-                            }
-                            const core = CORE_EXPORTS ? Object.fromEntries(Object.entries(CORE_EXPORTS).map(([key, currentKey]) => [key, importedCore[currentKey]])) : importedCore
+                            const core = Object.fromEntries(Object.entries(CORE_EXPORTS).map(([key, currentKey]) => [key, importedCore[currentKey]]))
                             let r
                             a.d(i, {
                                 [PLAYER_EXPORT]: function () {
@@ -3796,6 +3794,9 @@
                                             (this._textTrackStorageKey = 'croptix.textTrack.v1'),
                                             (this._availableTextTracks = []),
                                             (this._activeTextTrack = void 0),
+                                            (this._textTracksReady = !1),
+                                            (this._textTrackRestoreTimer = void 0),
+                                            (this._isDisposed = !1),
                                             (this._subscriptions = []),
                                             (this._selectedTextTrackInput$ = new l.wt(void 0)),
                                             (this.availableAudioTracks$ = t.availableAudioTracksChanged$.pipe(
@@ -3818,11 +3819,23 @@
                                                 M({ bufferSize: 1, refCount: !0 })
                                             )))
                                         this._subscriptions.push(
+                                            t.mediaResolving$.subscribe(() => {
+                                                this._textTracksReady = !1
+                                                this._availableTextTracks = []
+                                                clearTimeout(this._textTrackRestoreTimer)
+                                                this._textTrackRestoreTimer = void 0
+                                            }),
+                                            t.mediaLoaded$.subscribe(() => {
+                                                this._textTracksReady = !0
+                                                this._applySavedTextTrack()
+                                            })
+                                        )
+                                        this._subscriptions.push(
                                             t.availableTextTracksChanged$.subscribe(({ availableTextTracks: t }) => {
                                                 ;((this._availableTextTracks = t || []),
                                                     (this._activeTextTrack = void 0),
                                                     this._selectedTextTrackInput$.next(void 0),
-                                                    setTimeout(() => this._applySavedTextTrack(), 0))
+                                                    this._applySavedTextTrack())
                                             })
                                         )
                                         this._subscriptions.push(
@@ -3886,12 +3899,22 @@
                                         )
                                     }
                                     _applySavedTextTrack() {
-                                        let t = this._findSavedTextTrack()
-                                        t &&
-                                            this._trackKey(t) !== this._trackKey(this._activeTextTrack) &&
-                                            (this._selectedTextTrackInput$.next(t), (this._activeTextTrack = t), this._player.setTextTrack(t))
+                                        clearTimeout(this._textTrackRestoreTimer)
+                                        this._textTrackRestoreTimer = void 0
+                                        if (!this._textTracksReady || this._isDisposed) return
+                                        this._textTrackRestoreTimer = setTimeout(() => {
+                                            this._textTrackRestoreTimer = void 0
+                                            if (!this._textTracksReady || this._isDisposed) return
+                                            let t = this._findSavedTextTrack()
+                                            t &&
+                                                this._trackKey(t) !== this._trackKey(this._activeTextTrack) &&
+                                                (this._selectedTextTrackInput$.next(t), (this._activeTextTrack = t), this._player.setTextTrack(t))
+                                        }, 0)
                                     }
                                     setAudioTrack(t) {
+                                        this._textTracksReady = !1
+                                        clearTimeout(this._textTrackRestoreTimer)
+                                        this._textTrackRestoreTimer = void 0
                                         this._player.setAudioTrack(t)
                                     }
                                     setTextTrack(t) {
@@ -3902,7 +3925,12 @@
                                             this._player.setTextTrack(t))
                                     }
                                     dispose() {
+                                        this._isDisposed = !0
+                                        clearTimeout(this._textTrackRestoreTimer)
+                                        this._textTrackRestoreTimer = void 0
                                         this._subscriptions.forEach((t) => t.unsubscribe())
+                                        this._subscriptions = []
+                                        this._selectedTextTrackInput$.complete()
                                     }
                                 },
                                 tP = (t) =>
@@ -3973,11 +4001,7 @@
                                             (this._currentMuted = !1),
                                             (this._player = i),
                                             (this._volumeInput$ = new l.Tt()),
-                                            (this._audioBoost = null),
-                                            (this.volumePercent$ = I(tP(t).pipe((0, l.ht)((t) => (this._currentVolume > 100 ? this._currentVolume : t))), this._volumeInput$).pipe(
-                                                (0, l.pt)(),
-                                                M({ bufferSize: 1, refCount: !0 })
-                                            )),
+                                            (this.volumePercent$ = I(tP(t), this._volumeInput$).pipe((0, l.pt)(), M({ bufferSize: 1, refCount: !0 }))),
                                             (this.isMuted$ = tA(t)),
                                             (this._volumeSubscription = this.volumePercent$.subscribe((t) => {
                                                 this._currentVolume = t
@@ -3986,39 +4010,9 @@
                                                 this._currentMuted = t
                                             })))
                                     }
-                                    _ensureAudioBoost() {
-                                        if (this._audioBoost?.video === document.querySelector('video')) return this._audioBoost
-                                        try {
-                                            let t = document.querySelector('video')
-                                            if (!t) return null
-                                            if (t._croptixAudioBoost) return (this._audioBoost = t._croptixAudioBoost)
-                                            let i = new (window.AudioContext || window.webkitAudioContext)(),
-                                                a = i.createMediaElementSource(t),
-                                                r = i.createGain()
-                                            ;(a.connect(r),
-                                                r.connect(i.destination),
-                                                (t._croptixAudioBoost = { context: i, source: a, gain: r, video: t }),
-                                                (this._audioBoost = t._croptixAudioBoost))
-                                            return this._audioBoost
-                                        } catch (t) {
-                                            return (console.warn('[CrOptix][Volume] Failed to initialize audio boost.', t), null)
-                                        }
-                                    }
-                                    _setAudioBoost(t) {
-                                        let i = t > 100 ? t / 100 : 1,
-                                            a = this._ensureAudioBoost()
-                                        if (!a) return
-                                        try {
-                                            a.context.state === 'suspended' && a.context.resume?.()
-                                            a.gain.gain.value = i
-                                        } catch (t) {
-                                            console.warn('[CrOptix][Volume] Failed to apply audio boost.', t)
-                                        }
-                                    }
-                                    setVolumePercent(t, i = !1) {
-                                        let a = Math.max(0, Math.min(i ? 200 : 100, t)),
-                                            r = Math.min(100, a)
-                                        ;(this._currentMuted && this._player.setMute(!1), this._player.setVolume(r), this._setAudioBoost(a), this._volumeInput$.next(a))
+                                    setVolumePercent(t) {
+                                        let i = Math.max(0, Math.min(100, t))
+                                        ;(this._currentMuted && this._player.setMute(!1), this._player.setVolume(i), this._volumeInput$.next(i))
                                     }
                                     incrementVolume() {
                                         if (this._currentMuted) {
@@ -4026,15 +4020,7 @@
                                             return
                                         }
                                         let t = Math.min(100, this._currentVolume + 5)
-                                        this.setVolumePercent(t, !1)
-                                    }
-                                    incrementBoostVolume() {
-                                        if (this._currentMuted) {
-                                            this._player.setMute(!1)
-                                            return
-                                        }
-                                        let t = Math.min(200, Math.max(100, this._currentVolume) + 5)
-                                        this.setVolumePercent(t, !0)
+                                        this.setVolumePercent(t)
                                     }
                                     decrementVolume() {
                                         if (this._currentMuted) {
@@ -4042,7 +4028,7 @@
                                             return
                                         }
                                         let t = Math.max(0, this._currentVolume - 5)
-                                        this.setVolumePercent(t, this._currentVolume > 100)
+                                        this.setVolumePercent(t)
                                     }
                                     toggleMute() {
                                         this._player.setMute(!this._currentMuted)
@@ -7174,16 +7160,13 @@
                                                 t.toggleMute()
                                             }, [t]),
                                             setVolumePercent: (0, h.useCallback)(
-                                                (i, a = !1) => {
-                                                    t.setVolumePercent(i, a)
+                                                (i) => {
+                                                    t.setVolumePercent(i)
                                                 },
                                                 [t]
                                             ),
                                             incrementVolume: (0, h.useCallback)(() => {
                                                 t.incrementVolume()
-                                            }, [t]),
-                                            incrementBoostVolume: (0, h.useCallback)(() => {
-                                                t.incrementBoostVolume()
                                             }, [t]),
                                             decrementVolume: (0, h.useCallback)(() => {
                                                 t.decrementVolume()
@@ -7191,141 +7174,95 @@
                                         }
                                     )
                                 },
-                                aM = ({ value: t, max: i = 100, onChange: a, className: r, style: s, ...n }) =>
+                                aM = ({ value: t, onChange: a, className: r, style: s, ...n }) =>
                                     (0, d.jsx)('input', {
+                                        ...n,
                                         type: 'range',
                                         min: 0,
-                                        max: i,
+                                        max: 100,
                                         step: 1,
                                         value: t,
                                         onChange: (0, h.useCallback)(
                                             (t) => {
-                                                a(Number(t.target.value), t.nativeEvent?.shiftKey || Number(t.target.value) > 100)
+                                                a(Number(t.target.value))
                                             },
                                             [a]
                                         ),
                                         'data-testid': 'volume-slider',
                                         className: (0, tG.default)('volume-slider', 'kat:m-0', 'kat:cursor-pointer', 'kat:appearance-none', 'kat:bg-transparent', 'kat:p-0', r),
-                                        style: { '--volume-percent': `${Math.min(100, t)}%`, ...s },
-                                        ...n
+                                        style: { '--volume-percent': `${Math.min(100, t)}%`, ...s }
                                     }),
                                 aN = { low: 33, medium: 66 },
                                 aj = (t, i = aN) => (void 0 === t || 0 === t ? 'off' : t <= i.low ? 'low' : t <= i.medium ? 'medium' : 'high'),
                                 aO = ['Enter', ' '],
-                                aV = (0, h.forwardRef)(
-                                    (
-                                        {
-                                            volumePercent: t,
-                                            isMuted: i,
-                                            label: a,
-                                            onIconClick: r,
-                                            onVolumeChange: s,
-                                            onBoostIncrement: n,
-                                            onVolumeDecrement: o,
-                                            className: l,
-                                            ...u
-                                        },
-                                        c
-                                    ) => {
-                                        let [p, f] = (0, h.useState)(!1),
-                                            g = Math.max(0, Math.min(p || t > 100 ? 200 : 100, t)),
-                                            v = aj(Math.min(100, g)),
-                                            m = g > 100,
-                                            y = (0, tG.default)(
-                                                'volume-container',
-                                                'kat:flex kat:flex-col kat:items-center kat:cursor-pointer kat:hover:pt-8 kat:hover:bg-neutral-700 kat:hover:rounded-xl kat:focus-visible:pt-8 kat:focus-visible:bg-neutral-700 kat:focus-visible:rounded-xl',
-                                                l
-                                            ),
-                                            _ = (0, h.useCallback)(
-                                                (t) => {
-                                                    aO.includes(t.key) && (t.preventDefault(), r())
-                                                },
-                                                [r]
-                                            ),
-                                            b = (0, h.useCallback)(
-                                                (t) => {
-                                                    if (!t.shiftKey) return
-                                                    ;(t.preventDefault(), f(!0), t.deltaY < 0 ? n?.() : o?.())
-                                                },
-                                                [n, o]
-                                            ),
-                                            w = (0, h.useCallback)(
-                                                (t, i) => {
-                                                    ;(i && f(!0), s(t, i))
-                                                },
-                                                [s]
-                                            )
-                                        return (0, d.jsxs)('div', {
-                                            ref: c,
-                                            className: y,
-                                            'data-testid': 'volume-slider-container',
-                                            role: 'slider',
-                                            tabIndex: 0,
-                                            'aria-label': a,
-                                            onWheel: b,
-                                            onPointerDown: (t) => {
-                                                t.shiftKey && f(!0)
+                                aV = (0, h.forwardRef)(({ volumePercent: t, isMuted: i, label: a, onIconClick: r, onVolumeChange: s, className: l, ...u }, c) => {
+                                    let g = Math.max(0, Math.min(100, t)),
+                                        v = aj(g),
+                                        y = (0, tG.default)(
+                                            'volume-container',
+                                            'kat:flex kat:flex-col kat:items-center kat:cursor-pointer kat:hover:pt-8 kat:hover:bg-neutral-700 kat:hover:rounded-xl kat:focus-visible:pt-8 kat:focus-visible:bg-neutral-700 kat:focus-visible:rounded-xl',
+                                            l
+                                        ),
+                                        _ = (0, h.useCallback)(
+                                            (t) => {
+                                                aO.includes(t.key) && (t.preventDefault(), r())
                                             },
-                                            onMouseLeave: () => {
-                                                g <= 100 && f(!1)
+                                            [r]
+                                        )
+                                    return (0, d.jsxs)('div', {
+                                        ref: c,
+                                        className: y,
+                                        'data-testid': 'volume-slider-container',
+                                        role: 'slider',
+                                        tabIndex: 0,
+                                        'aria-label': a,
+                                        onClick: (0, h.useCallback)(
+                                            (t) => {
+                                                ;(t.target.closest('svg') && r(), t.preventDefault())
                                             },
-                                            onClick: (0, h.useCallback)(
-                                                (t) => {
-                                                    ;(t.target.closest('svg') && r(), t.preventDefault())
-                                                },
-                                                [r]
-                                            ),
-                                            onKeyDown: _,
-                                            ...u,
-                                            children: [
-                                                (0, d.jsxs)('div', {
-                                                    'aria-hidden': 'true',
-                                                    className: 'volume-slider-content',
-                                                    children: [
-                                                        (0, d.jsx)(aM, {
-                                                            value: g,
-                                                            max: p || m ? 200 : 100,
-                                                            onChange: w,
-                                                            'aria-hidden': 'true',
-                                                            tabIndex: -1,
-                                                            className: 'kat:h-100'
-                                                        }),
-                                                        (0, d.jsx)('span', {
-                                                            className:
-                                                                'kat:text-white kat:text-sm kat:font-medium kat:select-none kat:mt-5 kat:w-full kat:tabular-nums kat:text-center',
-                                                            'data-testid': 'volume-slider-percentage',
-                                                            children: m ? `${Math.round(g)} BOOST` : Math.round(g)
-                                                        })
-                                                    ]
-                                                }),
-                                                (0, d.jsx)(ih, {
-                                                    className: (0, tG.default)(
-                                                        'volume-icon',
-                                                        'kat:h-44 kat:w-44 kat:@lg:h-64 kat:@lg:w-64 kat:flex kat:items-center kat:justify-center kat:rounded-full kat:border-transparent kat:border-4 kat:p-6 kat:hover:bg-neutral-700 kat:transition-opacity kat:duration-200 kat:ease-linear kat:hover:opacity-100 kat:focus:opacity-100 kat:active:fill-white kat:active:text-white kat:focus:border-neutral-50 kat:focus:border-solid kat:cursor-pointer kat:text-white kat:fill-white kat:opacity-100 kat:hover:text-white kat:focus-visible:text-white'
-                                                    ),
-                                                    isMuted: i,
-                                                    volumeTier: v
-                                                })
-                                            ]
-                                        })
-                                    }
-                                )
+                                            [r]
+                                        ),
+                                        onKeyDown: _,
+                                        ...u,
+                                        children: [
+                                            (0, d.jsxs)('div', {
+                                                'aria-hidden': 'true',
+                                                className: 'volume-slider-content',
+                                                children: [
+                                                    (0, d.jsx)(aM, {
+                                                        value: g,
+                                                        onChange: s,
+                                                        'aria-hidden': 'true',
+                                                        tabIndex: -1,
+                                                        className: 'kat:h-100'
+                                                    }),
+                                                    (0, d.jsx)('span', {
+                                                        className:
+                                                            'kat:text-white kat:text-sm kat:font-medium kat:select-none kat:mt-5 kat:w-full kat:tabular-nums kat:text-center',
+                                                        'data-testid': 'volume-slider-percentage',
+                                                        children: Math.round(g)
+                                                    })
+                                                ]
+                                            }),
+                                            (0, d.jsx)(ih, {
+                                                className: (0, tG.default)(
+                                                    'volume-icon',
+                                                    'kat:h-44 kat:w-44 kat:@lg:h-64 kat:@lg:w-64 kat:flex kat:items-center kat:justify-center kat:rounded-full kat:border-transparent kat:border-4 kat:p-6 kat:hover:bg-neutral-700 kat:transition-opacity kat:duration-200 kat:ease-linear kat:hover:opacity-100 kat:focus:opacity-100 kat:active:fill-white kat:active:text-white kat:focus:border-neutral-50 kat:focus:border-solid kat:cursor-pointer kat:text-white kat:fill-white kat:opacity-100 kat:hover:text-white kat:focus-visible:text-white'
+                                                ),
+                                                isMuted: i,
+                                                volumeTier: v
+                                            })
+                                        ]
+                                    })
+                                })
                             aV.displayName = 'VolumeSliderContainer'
                             var aH = () => {
-                                    let {
-                                            toggleMute: t,
-                                            isMuted: i,
-                                            volumePercent: a,
-                                            incrementVolume: r,
-                                            incrementBoostVolume: s,
-                                            decrementVolume: n,
-                                            setVolumePercent: o
-                                        } = aD(),
+                                    let { toggleMute: t, isMuted: i, volumePercent: a, incrementVolume: r, decrementVolume: n, setVolumePercent: o } = aD(),
                                         { t: l } = iy()
                                     ;(i1({ shortcut: tK.Mute, handleShortcut: t }),
                                         i1({ shortcut: tK.VolUp, handleShortcut: r, target: 'containerOnly' }),
                                         i1({ shortcut: tK.VolDown, handleShortcut: n, target: 'containerOnly' }))
-                                    let u = a ?? 0,
+                                    let u = Math.max(0, Math.min(100, a ?? 0)),
                                         c = i ? l('muted') : `${u}%`
                                     return (0, d.jsx)(aV, {
                                         className: 'kat:relative',
@@ -7334,10 +7271,8 @@
                                         onIconClick: t,
                                         label: l('volume'),
                                         onVolumeChange: o,
-                                        onBoostIncrement: s,
-                                        onVolumeDecrement: n,
                                         'aria-valuemin': 0,
-                                        'aria-valuemax': u > 100 ? 200 : 100,
+                                        'aria-valuemax': 100,
                                         'aria-valuenow': u,
                                         'aria-valuetext': c
                                     })
@@ -15583,8 +15518,8 @@
                                     setPlaybackRate(t) {
                                         this._katamariPlayer.setPlaybackRate(t)
                                     }
-                                    async dispose() {
-                                        ;(this._desktopUIBuilder.dispose(), this._viewModels.dispose(), await this._katamariPlayer.dispose())
+                                    async dispose(t) {
+                                        ;(this._desktopUIBuilder.dispose(), this._viewModels.dispose(), await this._katamariPlayer.dispose(t))
                                     }
                                 }
                             function ox(t) {
@@ -17217,6 +17152,7 @@
                                         ;(l.Ft.setLogLevel(t), (this.currentLogLevel = t))
                                     }
                                     async build(t, i) {
+                                        const build = this._croptixBuildContext
                                         l.Ft.setLogLevel(this.currentLogLevel)
                                         let r = await this._configResolver.resolve()
                                         r.mediaEngineConfig = { ...(r.mediaEngineConfig || {}), mediaEngineType: l.k.SHAKA }
@@ -17226,7 +17162,7 @@
                                             this._posterResolver.setApiConfig(r.apiConfig.imgSrv))
                                         let n = [],
                                             o = (await this._profileProvider.getUserProfile()).captionStyling,
-                                            { mediaEngineLayer: d, controlsLayer: u } = this._createPlayerLayers(t),
+                                            { mediaEngineLayer: d, controlsLayer: u } = this._createPlayerLayers(t, build),
                                             c =
                                                 s === l.k.SHAKA
                                                     ? await a
@@ -17240,6 +17176,7 @@
                                                               let i = new t(d, this._tokenProvider)
                                                               return (n.push(i.textTrackRenderer), i)
                                                           })
+                                        if (build) build.mediaEngine = c
                                         return (
                                             void 0 !== o && n.forEach((t) => t.setCustomStyling(o)),
                                             Promise.resolve(
@@ -17264,16 +17201,89 @@
                                             )
                                         )
                                     }
-                                    _createPlayerLayers(t) {
+                                    _createPlayerLayers(t, build) {
                                         let i = (t) => {
                                             let i = document.createElement('div')
-                                            return ((i.style = 'width: 100%; height: 100%; position: absolute; top: 0; left: 0;'), t.appendChild(i), i)
+                                            i.style = 'width: 100%; height: 100%; position: absolute; top: 0; left: 0;'
+                                            t.appendChild(i)
+                                            if (build) build.layers.push(i)
+                                            return i
                                         }
                                         return { mediaEngineLayer: i(t), controlsLayer: i(t) }
                                     }
                                 }
                         }
-                    })(shakaE, shakaB, bitE, bitB, importIds, coreExportMap, playerExport, fn)
+                    })(shakaE, shakaB, bitE, bitB, importIds, coreExportMap, playerExport)
+
+                    modules[module_id] = function (t, i, a) {
+                        if (patchFailed) return fn(t, i, a)
+                        try {
+                            const patchedModule = { exports: {} }
+                            patchedFactory(patchedModule, patchedModule.exports, a)
+                            const Builder = patchedModule.exports[playerExport]
+                            let OriginalBuilder
+                            const fallback = (error, args) => {
+                                if (error && !patchFailed) console.warn('[CrOptix] Katamari patch disabled after a player error. Using the original player.', error)
+                                patchFailed = true
+                                if (!OriginalBuilder) {
+                                    const originalModule = { exports: {} }
+                                    fn(originalModule, originalModule.exports, a)
+                                    OriginalBuilder = originalModule.exports[playerExport]
+                                }
+                                return new OriginalBuilder(...args)
+                            }
+                            class PlayerBuilder extends Builder {
+                                constructor(...args) {
+                                    if (patchFailed) return fallback(null, args)
+                                    try {
+                                        super(...args)
+                                    } catch (error) {
+                                        return fallback(error, args)
+                                    }
+                                    this._croptixArgs = args
+                                }
+                                setLogLevel(level) {
+                                    this.currentLogLevel = level
+                                    if (patchFailed && !this._croptixOriginalBuilder) this._croptixOriginalBuilder = fallback(null, this._croptixArgs)
+                                    if (this._croptixOriginalBuilder) return this._croptixOriginalBuilder.setLogLevel(level)
+                                    try {
+                                        return super.setLogLevel(level)
+                                    } catch (error) {
+                                        this._croptixOriginalBuilder = fallback(error, this._croptixArgs)
+                                        return this._croptixOriginalBuilder.setLogLevel(level)
+                                    }
+                                }
+                                async build(...args) {
+                                    if (this._croptixOriginalBuilder || patchFailed) {
+                                        this._croptixOriginalBuilder ||= fallback(null, this._croptixArgs)
+                                        this._croptixOriginalBuilder.setLogLevel(this.currentLogLevel)
+                                        return this._croptixOriginalBuilder.build(...args)
+                                    }
+                                    const build = { layers: [], mediaEngine: null }
+                                    this._croptixBuildContext = build
+                                    try {
+                                        return await super.build(...args)
+                                    } catch (error) {
+                                        try {
+                                            if (typeof build.mediaEngine?.destroy === 'function') await build.mediaEngine.destroy()
+                                            else await build.mediaEngine?.dispose?.()
+                                        } catch {}
+                                        for (const child of build.layers) child.remove()
+                                        this._croptixOriginalBuilder = fallback(error, this._croptixArgs)
+                                        this._croptixOriginalBuilder.setLogLevel(this.currentLogLevel)
+                                        return this._croptixOriginalBuilder.build(...args)
+                                    } finally {
+                                        if (this._croptixBuildContext === build) this._croptixBuildContext = null
+                                    }
+                                }
+                            }
+                            a.d(i, { [playerExport]: () => PlayerBuilder })
+                        } catch (error) {
+                            patchFailed = true
+                            console.warn('[CrOptix] Katamari patch failed to initialize. Using the original player.', error)
+                            return fn(t, i, a)
+                        }
+                    }
                 }
             }
         } catch (err) {
