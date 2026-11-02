@@ -1,6 +1,7 @@
 ;(() => {
     const coreExportPatterns = {
         Ft: '(?:^|[^\\w$])CORE\\s*\\.\\s*(ID)\\s*\\.\\s*setLogLevel\\b\\s*\\(',
+        disposalReason: 'this\\s*\\.\\s*_disposalReason\\s*===\\s*CORE\\s*\\.\\s*(ID)\\s*\\.\\s*PAGE_UNLOAD\\b',
         xt: 'var\\s*ID\\s*=\\s*\\[\\s*\\.\\.\\.\\s*ID\\s*\\]\\s*,\\s*ID\\s*=\\s*\\(\\s*0\\s*,\\s*CORE\\s*\\.\\s*(ID)\\s*\\)\\s*\\(\\s*ID\\s*\\)\\s*,\\s*ID\\s*=\\s*\\(\\s*0\\s*,\\s*CORE\\s*\\.\\s*ID\\s*\\)\\s*\\(\\s*ID\\s*,\\s*1\\s*/\\s*0\\s*\\)\\s*;',
         bt: 'var\\s*ID\\s*=\\s*\\[\\s*\\.\\.\\.\\s*ID\\s*\\]\\s*,\\s*ID\\s*=\\s*\\(\\s*0\\s*,\\s*CORE\\s*\\.\\s*(ID)\\s*\\)\\s*\\(\\s*ID\\s*\\)\\s*;',
         gt: '\\(\\s*0\\s*,\\s*CORE\\s*\\.\\s*(ID)\\s*\\)\\s*\\(\\s*\\[\\s*\\]\\s*,\\s*ID\\s*\\)',
@@ -113,7 +114,9 @@
 
                 if (fn_str.includes('@crunchyroll/katamari-desktop-player')) {
                     if (patchFailed) continue
-                    const playerExport = fn_str.match(/\.d\(\s*[A-Za-z_$][\w$]*\s*,\s*\{\s*([A-Za-z_$][\w$]*)\s*:/)?.[1] || 'ps'
+                    const exportTable = fn_str.match(/\.d\(\s*[A-Za-z_$][\w$]*\s*,\s*\{([\s\S]*?)\}\s*\)/)?.[1] || ''
+                    const nativeExportNames = [...exportTable.matchAll(/(?:^|,)\s*([A-Za-z_$][\w$]*)\s*:/g)].map((match) => match[1])
+                    const playerExport = nativeExportNames[0] || 'ps'
                     const staticImports = [...fn_str.matchAll(/([A-Za-z_$][\w$]*)\s*=\s*[A-Za-z_$][\w$]*\s*\(\s*(\d+)\s*\)/g)].slice(0, 5)
                     const importIds = staticImports.map((match) => Number(match[2]))
                     if (importIds.length !== 5) {
@@ -570,6 +573,7 @@
                                     'skip.preview': 'Skip Preview',
                                     'skip.promo': 'Skip Promo',
                                     'skip.bumper': 'Skip Bumper',
+                                    'skip.generic': 'Skip',
                                     'chapter.intro': 'Opening',
                                     'chapter.recap': 'Recap',
                                     'chapter.credits': 'Ending / Credits',
@@ -4044,7 +4048,7 @@
                                             (this._subscriptions = []),
                                             (this._annotations = []),
                                             (this._stitchedElements = []),
-                                            (this._lastStreamTime = 0),
+                                            (this._lastStreamTime = void 0),
                                             (this._autoSkipStorageKey = 'croptix.autoSkipIntroOutro'),
                                             (this._autoSkippedEventIds = new Set()),
                                             (this._autoSkipEnabled = this._readAutoSkipEnabled()),
@@ -4053,7 +4057,7 @@
                                                 this._autoSkipEnabled && this._maybeAutoSkip(this._currentActiveAnnotation)
                                             }),
                                             (this._player = i),
-                                            (this.activeSkipEvent$ = this._activeSkipEvent$.asObservable().pipe((0, l.pt)((t, i) => t?.id === i?.id))),
+                                            (this.activeSkipEvent$ = this._activeSkipEvent$.asObservable()),
                                             (this.isAutoHideTimerExpired$ = this._isAutoHideTimerExpired$.asObservable()))
                                         window.addEventListener('croptix_auto_skip_intro_outro_changed', this._autoSkipSettingsListener)
                                         let a = t.videoModelUpdated$.subscribe((t) => {
@@ -4064,11 +4068,17 @@
                                             this._handlePlayheadUpdate(t.playheadData.streamTime)
                                         })
                                         this._subscriptions.push(r)
+                                        let s = t.mediaResolving$?.subscribe(() => {
+                                            this._lastStreamTime = void 0
+                                            this._handleVideoModelUpdate({})
+                                        })
+                                        s && this._subscriptions.push(s)
                                     }
                                     skip() {
                                         if (!this._currentActiveAnnotation) return
+                                        this._player.reportUserInteraction?.({ type: 'skip', annotation: this._currentActiveAnnotation })
                                         let t = (0, l.c)(this._currentActiveAnnotation.end, this._stitchedElements)
-                                        this._player.seek(t)
+                                        Number.isFinite(t) && this._player.seek(t)
                                     }
                                     dispose() {
                                         ;(this._clearAutoHideTimer(),
@@ -4080,6 +4090,7 @@
                                     _handleVideoModelUpdate(t) {
                                         this._autoSkippedEventIds.clear()
                                         if (!t.manifest?.annotations) {
+                                            this._currentActiveAnnotation = void 0
                                             ;((this._annotations = []), (this._stitchedElements = []), this._updateActiveSkipEvent(void 0))
                                             return
                                         }
@@ -4090,12 +4101,17 @@
                                     _handlePlayheadUpdate(t) {
                                         this._lastStreamTime = t
                                         let i = this._annotations.find((i) => t >= i.start && t < i.end)
-                                        i?.id !== this._currentActiveAnnotation?.id && ((this._currentActiveAnnotation = i), this._updateActiveSkipEvent(i))
+                                        i !== this._currentActiveAnnotation && ((this._currentActiveAnnotation = i), this._updateActiveSkipEvent(i))
                                     }
                                     _updateActiveSkipEvent(t) {
-                                        t?.id !== this._activeSkipEvent$.value?.id &&
+                                        ;(t?.id !== this._activeSkipEvent$.value?.id ||
+                                            t?.type !== this._activeSkipEvent$.value?.type ||
+                                            t?.subtype !== this._activeSkipEvent$.value?.subtype ||
+                                            t?.localizedLabel !== this._activeSkipEvent$.value?.localizedLabel) &&
                                             (t
-                                                ? (this._activeSkipEvent$.next({ id: t.id, type: t.type }), this._startAutoHideTimer(), this._maybeAutoSkip(t))
+                                                ? (this._activeSkipEvent$.next({ id: t.id, type: t.type, subtype: t.subtype, localizedLabel: t.localizedLabel }),
+                                                  this._startAutoHideTimer(),
+                                                  this._maybeAutoSkip(t))
                                                 : (this._activeSkipEvent$.next(void 0), this._clearAutoHideTimer(), this._isAutoHideTimerExpired$.next(!1)))
                                     }
                                     _readAutoSkipEnabled() {
@@ -4107,17 +4123,20 @@
                                     }
                                     _isAutoSkippableEvent(t) {
                                         let i = String(t?.type || '').toLowerCase()
+                                        if ('skip_event' === i) i = String(t.subtype || '').toLowerCase()
                                         return 'intro' === i || 'credits' === i || 'outro' === i
                                     }
                                     _maybeAutoSkip(t) {
                                         if (!this._autoSkipEnabled || !t || !this._isAutoSkippableEvent(t)) return
                                         let i = `${t.id ?? t.type}:${t.start}:${t.end}`
                                         if (this._autoSkippedEventIds.has(i)) return
-                                        this._autoSkippedEventIds.add(i)
                                         try {
-                                            let i = (0, l.c)(t.end, this._stitchedElements)
-                                            Number.isFinite(i) && this._player.seek(i)
+                                            let a = (0, l.c)(t.end, this._stitchedElements)
+                                            if (!Number.isFinite(a)) return
+                                            this._autoSkippedEventIds.add(i)
+                                            this._player.seek(a)
                                         } catch (t) {
+                                            this._autoSkippedEventIds.delete(i)
                                             console.warn('[CrOptix][AutoSkip] Failed to skip intro/outro event.', t)
                                         }
                                     }
@@ -4161,6 +4180,7 @@
                                             })),
                                             (this._videoModelSubscription = t.videoModelUpdated$.subscribe(() => {
                                                 ;((this._lastRequestedResolutionBucket = void 0),
+                                                    (this._pendingResolutionTrackId = void 0),
                                                     (this._lastAppliedResolutionBucket = void 0),
                                                     (this._savedResolutionAppliedForMedia = !1))
                                                 this._queueSavedResolutionApply()
@@ -4195,34 +4215,33 @@
                                         if (!t || this._boundShakaPlayer === t) return
                                         this._unbindShakaQualityEvents?.()
                                         this._boundShakaPlayer = t
+                                        this._shakaAbrHeightRestrictions = { minHeight: 0, maxHeight: Infinity }
                                         try {
+                                            let i = t.getConfiguration?.()?.abr?.restrictions
+                                            this._shakaAbrHeightRestrictions = { minHeight: i?.minHeight ?? 0, maxHeight: i?.maxHeight ?? Infinity }
                                             t.configure({ streaming: { bufferingGoal: 30 } })
                                         } catch (t) {
                                             this._errorQuality('Failed to set Shaka buffering goal.', t)
                                         }
                                         let i = this._readResolutionBucket(),
-                                            a = /^height:\d+$/.test(String(i)),
                                             r = (i) => {
+                                                if (this._applyingResolutionBucket) return
+                                                if ('streaming' === i?.type) {
+                                                    this._lastRequestedResolutionBucket = void 0
+                                                    this._pendingResolutionTrackId = void 0
+                                                    this._savedResolutionAppliedForMedia = !1
+                                                }
                                                 let t = this._readResolutionBucket()
-                                                if (/^height:\d+$/.test(String(t))) {
+                                                if ('auto' === t || /^height:\d+$/.test(String(t))) {
                                                     this._logQuality('Shaka quality event fired; applying fixed saved quality.', {
                                                         eventType: i?.type,
                                                         savedBucket: t,
                                                         renderedHeight: this._getRenderedHeight()
                                                     })
-                                                    ;((this._lastRequestedResolutionBucket = void 0), this.setResolutionBucket(t, !0, !0))
+                                                    this.setResolutionBucket(t, !0)
                                                 }
                                             },
                                             s = ['streaming', 'trackschanged', 'loaded', 'variantchanged', 'adaptation']
-                                        a &&
-                                            (() => {
-                                                try {
-                                                    t.configure({ abr: { enabled: !1 } })
-                                                    this._logQuality('Disabled Shaka ABR immediately after player discovery.', { savedBucket: i })
-                                                } catch (t) {
-                                                    this._errorQuality('Failed to disable Shaka ABR immediately after player discovery.', t)
-                                                }
-                                            })()
                                         if ('function' == typeof t.addEventListener) {
                                             s.forEach((i) => t.addEventListener(i, r))
                                             this._unbindShakaQualityEvents = () => {
@@ -4263,21 +4282,67 @@
                                     }
                                     _getAllowedVariantTracks(t) {
                                         try {
-                                            return t.getVariantTracks().filter((t) => t && t.height && t.width && !1 !== t.allowed)
+                                            let i = t.getVariantTracks(),
+                                                a = i.find((t) => t.active)
+                                            if (!a) {
+                                                let r = t.getConfiguration?.(),
+                                                    s = r?.preferredAudio?.find((t) => t.language) || {
+                                                        language: r?.preferredAudioLanguage,
+                                                        role: r?.preferredVariantRole,
+                                                        channelCount: r?.preferredAudioChannelCount
+                                                    },
+                                                    n = String(s.language || '').toLowerCase(),
+                                                    o = n ? i.filter((t) => String(t.language || '').toLowerCase() === n) : []
+                                                if (n && !o.length)
+                                                    o = i.filter(
+                                                        (t) =>
+                                                            String(t.language || '')
+                                                                .toLowerCase()
+                                                                .split('-')[0] === n.split('-')[0]
+                                                    )
+                                                if (o.length) {
+                                                    if (s.role) {
+                                                        let t = o.filter((t) => (t.audioRoles || t.roles || []).includes(s.role))
+                                                        t.length && (o = t)
+                                                    }
+                                                    if (s.channelCount > 0) {
+                                                        let t = o.filter((t) => t.channelsCount === s.channelCount)
+                                                        t.length && (o = t)
+                                                    }
+                                                    i = o
+                                                }
+                                            }
+                                            return i.filter(
+                                                (t) =>
+                                                    t &&
+                                                    t.height &&
+                                                    t.width &&
+                                                    !1 !== t.allowed &&
+                                                    (!a ||
+                                                        (null != a.audioId && t.audioId === a.audioId) ||
+                                                        (t.language === a.language &&
+                                                            t.audioCodec === a.audioCodec &&
+                                                            t.channelsCount === a.channelsCount &&
+                                                            (t.audioRoles || t.roles || []).length === (a.audioRoles || a.roles || []).length &&
+                                                            (t.audioRoles || t.roles || []).every((t) => (a.audioRoles || a.roles || []).includes(t))))
+                                            )
                                         } catch (t) {
                                             this._errorQuality('Failed to read Shaka variant tracks.', t)
                                             return []
                                         }
                                     }
                                     _selectVariantForHeight(t, i) {
-                                        let a = this._getAllowedVariantTracks(t)
-                                        if (!a.length) {
-                                            this._warnQuality('No allowed Shaka variant tracks available yet.', { targetHeight: i })
-                                            return null
-                                        }
+                                        let a = this._getAllowedVariantTracks(t),
+                                            o = a.find((t) => t.active)
+                                        if (!a.length) return { track: null, height: i, bucket: `height:${i}` }
                                         let r = [...new Set(a.map((t) => t.height).filter(Boolean))].sort((t, i) => t - i),
-                                            s = r.includes(i) ? i : (r.find((t) => t > i) ?? r[r.length - 1]),
-                                            n = a.filter((t) => t.height === s).sort((t, i) => (i.bandwidth || 0) - (t.bandwidth || 0))[0]
+                                            s = r.includes(i) ? i : (r.find((t) => t > i) ?? r[r.length - 1])
+                                        if (!o) return { track: null, height: s, bucket: `height:${s}` }
+                                        let n =
+                                            a.find((t) => t.height === s && t.active) ||
+                                            a
+                                                .filter((t) => t.height === s)
+                                                .sort((t, i) => Number(i.audioId === o.audioId) - Number(t.audioId === o.audioId) || (i.bandwidth || 0) - (t.bandwidth || 0))[0]
                                         this._logQuality('Resolved target height to Shaka track.', {
                                             requestedHeight: i,
                                             availableHeights: r,
@@ -4285,7 +4350,7 @@
                                             fallbackUsed: s !== i,
                                             selectedTrack: n ? { id: n.id, height: n.height, width: n.width, bandwidth: n.bandwidth, active: n.active, allowed: n.allowed } : null
                                         })
-                                        return n ? { track: n, bucket: `height:${s}` } : null
+                                        return n ? { track: n, height: s, bucket: `height:${s}` } : null
                                     }
                                     _formatBitrate(t) {
                                         return 'number' == typeof t && t > 0 ? ` • ${Math.round(t / 1e3)} kbps` : ''
@@ -4298,20 +4363,16 @@
                                             return null
                                         }
                                     }
-                                    _isRenderedBelowAppliedBucket() {
-                                        let t = this._heightFromResolutionBucket(this._lastAppliedResolutionBucket),
-                                            i = this._getRenderedHeight()
-                                        return !!(t && i && i < t)
-                                    }
                                     _queueSavedResolutionApply() {
                                         if (this._resolutionApplyTimer) clearInterval(this._resolutionApplyTimer)
+                                        this._getShakaPlayer()
                                         let t = 0
                                         this._logQuality('Starting Shaka quality discovery loop.', { savedBucket: this._readResolutionBucket() })
                                         this._resolutionApplyTimer = setInterval(() => {
                                             ;(t++,
                                                 this._getShakaPlayer(),
                                                 this._boundShakaPlayer && this.applySavedResolution(t),
-                                                (this._boundShakaPlayer || t >= 60) &&
+                                                (this._savedResolutionAppliedForMedia || t >= 60) &&
                                                     (this._logQuality('Stopping Shaka quality discovery loop.', {
                                                         attempts: t,
                                                         bound: !!this._boundShakaPlayer,
@@ -4359,83 +4420,45 @@
                                         )
                                     }
                                     applySavedResolution(t = 0) {
-                                        if (this._savedResolutionAppliedForMedia) {
-                                            let i = this._readResolutionBucket()
-                                            if ('auto' !== i && this._isRenderedBelowAppliedBucket()) {
-                                                this._warnQuality('Rendered video height is below fixed quality; re-applying selected Shaka track.', {
-                                                    attempt: t,
-                                                    savedBucket: i,
-                                                    appliedBucket: this._lastAppliedResolutionBucket,
-                                                    renderedHeight: this._getRenderedHeight()
-                                                })
-                                                ;((this._savedResolutionAppliedForMedia = !1), (this._lastRequestedResolutionBucket = void 0))
-                                                this.setResolutionBucket(i, !0, !0)
-                                                return
-                                            }
-                                            this._logQuality('Skipping saved quality apply; already applied for current media.', {
-                                                attempt: t,
-                                                requestedBucket: this._lastRequestedResolutionBucket,
-                                                appliedBucket: this._lastAppliedResolutionBucket,
-                                                renderedHeight: this._getRenderedHeight()
-                                            })
-                                            return
-                                        }
+                                        if (this._savedResolutionAppliedForMedia) return
                                         let i = this._readResolutionBucket()
                                         this._logQuality('Applying saved quality bucket.', { attempt: t, savedBucket: i, renderedHeight: this._getRenderedHeight() })
-                                        if (!i || 'auto' === i) {
-                                            i !== this._lastBucket && ((this._lastBucket = 'auto'), this._selectedBucket$.next('auto'))
-                                            this._savedResolutionAppliedForMedia = !0
-                                            return
-                                        }
                                         this.setResolutionBucket(i, !0)
-                                        if (this._lastRequestedResolutionBucket === i)
-                                            this._isRenderedBelowAppliedBucket()
-                                                ? this._warnQuality('Fixed quality was selected but rendered height is still lower; keeping apply loop alive.', {
-                                                      savedBucket: i,
-                                                      appliedBucket: this._lastAppliedResolutionBucket,
-                                                      renderedHeight: this._getRenderedHeight()
-                                                  })
-                                                : ((this._savedResolutionAppliedForMedia = !0),
-                                                  this._logQuality('Saved fixed quality is considered applied.', {
-                                                      savedBucket: i,
-                                                      appliedBucket: this._lastAppliedResolutionBucket,
-                                                      renderedHeight: this._getRenderedHeight()
-                                                  }))
                                     }
                                     setResolutionBucket(t, i = !1, a = !1) {
+                                        if (this._applyingResolutionBucket) return
                                         let r = this._getShakaPlayer()
                                         if ((this._writeResolutionBucket(t), t !== this._lastBucket && ((this._lastBucket = t), this._selectedBucket$.next(t)), !r))
                                             return void this._warnQuality('Cannot set quality; Shaka player was not found yet.', { bucket: t, silent: i })
-                                        if (!a && this._lastRequestedResolutionBucket === t) {
-                                            this._logQuality('Skipping quality set; requested bucket already applied/requested.', {
-                                                bucket: t,
-                                                appliedBucket: this._lastAppliedResolutionBucket,
-                                                renderedHeight: this._getRenderedHeight()
-                                            })
-                                            return
-                                        }
                                         if ('auto' === t) {
+                                            this._applyingResolutionBucket = !0
                                             try {
-                                                r.configure({ abr: { enabled: !0 } })
+                                                r.configure({ abr: { enabled: !0, restrictions: this._shakaAbrHeightRestrictions } })
+                                                this._savedResolutionAppliedForMedia = !0
+                                                ;((this._lastRequestedResolutionBucket = t), (this._lastAppliedResolutionBucket = t))
                                                 this._logQuality('Enabled Shaka ABR auto quality.', { bucket: t })
-                                            } catch (t) {}
-                                            ;((this._lastRequestedResolutionBucket = t), (this._lastAppliedResolutionBucket = t))
+                                            } catch (t) {
+                                                this._errorQuality('Failed to enable Shaka ABR auto quality.', t)
+                                            } finally {
+                                                this._applyingResolutionBucket = !1
+                                            }
                                             return
                                         }
                                         let s = this._heightFromResolutionBucket(t)
                                         if (!s) return void this._warnQuality('Invalid fixed quality bucket; expected height:<number>.', { bucket: t })
                                         let n = this._selectVariantForHeight(r, s)
                                         if (!n) return
+                                        this._applyingResolutionBucket = !0
                                         try {
-                                            r.configure({ abr: { enabled: !1 } })
+                                            r.configure({ abr: { enabled: !1, restrictions: { minHeight: n.height, maxHeight: n.height } } })
                                             this._logQuality('Disabled Shaka ABR for fixed quality.', { bucket: t, forced: a })
-                                        } catch (t) {
-                                            this._errorQuality('Failed to disable Shaka ABR before selecting fixed quality.', t)
-                                        }
-                                        try {
-                                            r.selectVariantTrack(n.track, !0, 0)
+                                            if (!n.track) return
+                                            if (!i || (!n.track.active && (a || this._lastRequestedResolutionBucket !== t || this._pendingResolutionTrackId !== n.track.id)))
+                                                r.selectVariantTrack(n.track, !i, 0)
                                             n.bucket !== this._lastBucket && ((this._lastBucket = n.bucket), this._selectedBucket$.next(n.bucket))
                                             ;((this._lastRequestedResolutionBucket = t), (this._lastAppliedResolutionBucket = n.bucket))
+                                            this._pendingResolutionTrackId = r.getVariantTracks().some((t) => t.active && t.id === n.track.id) ? void 0 : n.track.id
+                                            this._savedResolutionAppliedForMedia = !0
                                             this._logQuality('Selected fixed Shaka variant track.', {
                                                 requestedBucket: t,
                                                 appliedBucket: n.bucket,
@@ -4452,6 +4475,8 @@
                                             })
                                         } catch (t) {
                                             this._errorQuality('Failed to select fixed Shaka variant track.', { silent: i, error: t })
+                                        } finally {
+                                            this._applyingResolutionBucket = !1
                                         }
                                     }
                                     setPlaybackQualityBucket(t) {
@@ -4545,10 +4570,11 @@
                                                     let i = t.videoModel.manifest,
                                                         a = i.stitchedElements || []
                                                     return (i.annotations || [])
+                                                        .filter((t) => String(t.type).toLowerCase() !== 'warning')
                                                         .map((t) => {
                                                             let i = (0, l.c)(t.start, a),
                                                                 r = (0, l.c)(t.end, a),
-                                                                s = String(t.type || 'main').toLowerCase()
+                                                                s = String(t.subtype ?? t.type ?? 'main').toLowerCase()
                                                             return Number.isFinite(i) && Number.isFinite(r) && r > i
                                                                 ? {
                                                                       id: t.id || `${s}-${i}-${r}`,
@@ -6377,7 +6403,13 @@
                                             t && a()
                                         }, [t, a])
                                     i1({ shortcut: tK.SkipEvent, handleShortcut: o })
-                                    let l = (0, h.useMemo)(() => (t?.type ? s(`skip.${t.type}`) : ''), [t?.type, s])
+                                    let l = (0, h.useMemo)(() => {
+                                        if (!t) return ''
+                                        if (t.localizedLabel) return t.localizedLabel
+                                        let i = `skip.${t.subtype ?? t.type}`,
+                                            a = s(i)
+                                        return a === i ? s('skip.generic') : a
+                                    }, [t, s])
                                     return (
                                         (0, h.useEffect)(() => {
                                             l && (n.current = l)
@@ -9424,16 +9456,20 @@
                                         console.warn('[CrOptix][Subtitles] Failed to activate Shaka CC/VTT track.', t)
                                     }
                                 },
+                                aNativeTextRetry = 0,
                                 aSetNativeTextTracks = (t, i) => {
+                                    const retryId = ++aNativeTextRetry
                                     try {
+                                        const video = document.querySelector('video')
                                         let a = i?._findShakaPlayer?.()
                                         if (a && 'function' == typeof a.getTextTracks) {
                                             if (t) {
                                                 aActivateShakaTextTrack(a, t)
                                                 setTimeout(() => {
-                                                    let i = aFindShakaTextTrack(a, t),
+                                                    if (retryId !== aNativeTextRetry || document.querySelector('video') !== video || i?._findShakaPlayer?.() !== a) return
+                                                    let track = aFindShakaTextTrack(a, t),
                                                         r = a.getTextTracks?.().some((t) => t.active)
-                                                    ;(!r || (i && !i.active)) && aActivateShakaTextTrack(a, t, 'retry')
+                                                    ;(!r || (track && !track.active)) && aActivateShakaTextTrack(a, t, 'retry')
                                                     aApplyNativeTextTracks(t, 'shaka-retry')
                                                 }, 250)
                                             } else 'function' == typeof a.setTextTrackVisibility && a.setTextTrackVisibility(!1)
@@ -9454,6 +9490,7 @@
                                         c = (0, h.useRef)(null),
                                         pToken = (0, h.useRef)(0),
                                         n = (0, h.useCallback)((t = 'cleanup') => {
+                                            aNativeTextRetry++
                                             pToken.current += 1
                                             let i = r.current
                                             r.current = null
@@ -14336,6 +14373,7 @@
                                             (this._sessionConfig = void 0),
                                             (this._sessionTokenDeleted = !1),
                                             (this._sessionDeletionInProgress = !1),
+                                            (this._disposalReason = void 0),
                                             (this._currentPlayheadPosition = void 0),
                                             (this._keepAliveInterval = void 0),
                                             (this._retryCount = 0),
@@ -14417,8 +14455,9 @@
                                         if (!this._sessionTokenDeleted && !this._sessionDeletionInProgress && a && i) {
                                             this._sessionDeletionInProgress = !0
                                             try {
+                                                let r = t === 'plugin_disposed' && l.disposalReason?.PAGE_UNLOAD !== void 0 && this._disposalReason === l.disposalReason.PAGE_UNLOAD
                                                 ;(l.Ft.info(`KeepAlivePlugin: Deleting session for contentId: ${i}, reason: ${t}`, this._playerId),
-                                                    await this._playbackService.deletePlaybackSession({ contentId: i, playbackSessionId: a }),
+                                                    await this._playbackService.deletePlaybackSession({ contentId: i, playbackSessionId: a, keepalive: r }),
                                                     l.Ft.info(`KeepAlivePlugin: Successfully deleted session for contentId: ${i} due to: ${t}`, this._playerId),
                                                     i === this._contentId && a === this._sessionToken && (this._sessionTokenDeleted = !0))
                                             } catch (t) {
@@ -14603,10 +14642,12 @@
                                             (this._sessionDeletionInProgress = !1),
                                             (this._currentPlayheadPosition = void 0),
                                             (this._lastSuccessfulKeepAlive = void 0),
+                                            (this._disposalReason = void 0),
                                             this._resetRetryState())
                                     }
-                                    dispose() {
-                                        ;(l.Ft.info('KeepAlivePlugin: Disposing resources', this._playerId),
+                                    dispose(t) {
+                                        ;(l.Ft.info(`KeepAlivePlugin: Disposing resources, reason: ${t}`, this._playerId),
+                                            (this._disposalReason = t),
                                             this._deleteSessionAsync('plugin_disposed')
                                                 .then(() => {
                                                     this._cleanup()
@@ -14668,25 +14709,25 @@
                                 n2,
                                 n3,
                                 n5 = class extends n1 {
-                                    createPlaybackSession({ apiVersion: t = 'v3', audioRole: i, contentId: a, device: r, subDevice: s, tabId: n, ttl: o = '' }) {
+                                    createPlaybackSession({ apiVersion: t = 'v3', audioRole: i, contentId: a, device: r, locale, subDevice: s, tabId: n, ttl: o = '' }) {
                                         let d = (0, l.u)(a),
                                             u =
                                                 d === l.ot.MUSIC_VIDEO || d === l.ot.MUSIC_CONCERT
                                                     ? `/${t}/music/{contentId}/{device}/{subDevice}/play{ttl}`
                                                     : `/${t}/{contentId}/{device}/{subDevice}/play{ttl}`,
-                                            c = j(this.baseApiUrl, u, { path: { contentId: a, device: r, subDevice: s, ttl: o }, query: { audioRole: i } })
+                                            c = j(this.baseApiUrl, u, { path: { contentId: a, device: r, subDevice: s, ttl: o }, query: { audioRole: i, locale } })
                                         return this._httpEngine.request(c, {
                                             headers: { ...(n ? { 'x-cr-tab-id': n } : {}) },
                                             includeAuth: !0,
                                             errorCodePrefixForExtensionNumber: n2.PLAYBACK_SERVICE_PLAY
                                         })
                                     }
-                                    deletePlaybackSession(t) {
-                                        let i = j(this.baseApiUrl, '/v1/token/{contentId}/{playbackSessionId}', { path: t })
+                                    deletePlaybackSession({ contentId, playbackSessionId, keepalive = false }) {
+                                        let i = j(this.baseApiUrl, '/v1/token/{contentId}/{playbackSessionId}', { path: { contentId, playbackSessionId } })
                                         return this._httpEngine.request(i, {
                                             method: 'DELETE',
                                             includeAuth: !0,
-                                            keepalive: !0,
+                                            keepalive,
                                             errorCodePrefixForExtensionNumber: n2.PLAYBACK_SERVICE_DELETE_SESSION
                                         })
                                     }
@@ -15529,19 +15570,28 @@
                                 return { promo: l.C.PROMO, logo: l.C.LOGO, recap: l.C.RECAP, preview: l.C.PREVIEW, ad: l.C.AD, main: l.C.MAIN }[t]
                             }
                             function oS(t) {
-                                return { intro: l.ut.INTRO, recap: l.ut.RECAP, credits: l.ut.CREDITS, preview: l.ut.PREVIEW, promo: l.ut.PROMO, bumper: l.ut.BUMPER }[t]
+                                return {
+                                    intro: l.ut.INTRO,
+                                    recap: l.ut.RECAP,
+                                    credits: l.ut.CREDITS,
+                                    preview: l.ut.PREVIEW,
+                                    promo: l.ut.PROMO,
+                                    bumper: l.ut.BUMPER,
+                                    SKIP_EVENT: l.ut.SKIP_EVENT,
+                                    WARNING: l.ut.WARNING
+                                }[t]
                             }
                             function oT(t) {
                                 return { main: l.lt.MAIN, dub: l.lt.DUB, description: l.lt.AUDIO_DESCRIPTION }[t]
                             }
                             function oP(t) {
-                                return { embedded: l.ct.EMBEDDED, external: l.ct.SEPARATE_MASTER }[t]
+                                return { embedded: l.ct.EMBEDDED, external: l.ct.SEPARATE_MASTER, separate_master: l.ct.SEPARATE_MASTER }[t]
                             }
                             function oA(t) {
-                                return { caption: l.x.CLOSED_CAPTION, subtitle: l.x.SUBTITLE, sdh: l.x.SDH }[t]
+                                return { caption: l.x.CLOSED_CAPTION, closed_caption: l.x.CLOSED_CAPTION, subtitle: l.x.SUBTITLE, sdh: l.x.SDH }[t]
                             }
                             function oL(t) {
-                                return { embedded: l.b.EMBEDDED, external: l.b.EXTERNAL, 'burned-in': l.b.BURNED_IN }[t]
+                                return { embedded: l.b.EMBEDDED, external: l.b.EXTERNAL, 'burned-in': l.b.BURNED_IN, burned_in: l.b.BURNED_IN }[t]
                             }
                             function oI(t) {
                                 return /^\d+$/.test(t)
@@ -15914,9 +15964,14 @@
                                             s = this.appInfoProvider?.getPageInfo()?.tabId
                                         try {
                                             let n = await r.createPlaybackSession({
+                                                apiVersion: this.featureFlags?.useStitchedElementsFromPlayAPI === true ? 'v4' : 'v3',
                                                 audioRole: i?.prefersAudioDescription ? l.lt.AUDIO_DESCRIPTION : void 0,
                                                 contentId: t,
                                                 device: a.deviceType,
+                                                locale:
+                                                    this.featureFlags?.useStitchedElementsFromPlayAPI === true || this.featureFlags?.useAnnotationsFromPlayAPI === true
+                                                        ? i?.uiLanguage
+                                                        : void 0,
                                                 subDevice: a.deviceSubType,
                                                 tabId: s
                                             })
@@ -15956,33 +16011,40 @@
                                                                                     (0, l.U)(t.start) &&
                                                                                     (0, l.V)(t, 'end') &&
                                                                                     (0, l.U)(t.end) &&
-                                                                                    (0, l.V)(t, 'canSkip') &&
-                                                                                    (0, l.H)(t.canSkip) &&
+                                                                                    ((0, l.H)(t.skippable) || (0, l.H)(t.canSkip)) &&
                                                                                     (0, l.V)(t, 'type') &&
                                                                                     (0, l.K)(t.type) &&
                                                                                     void 0 !== oS(t.type)
-                                                                                )
+                                                                                ) {
+                                                                                    const localizedLabel = (0, l.K)(t.localizedMessage)
+                                                                                        ? t.localizedMessage
+                                                                                        : (0, l.K)(t.localizedLabel)
+                                                                                          ? t.localizedLabel
+                                                                                          : void 0
+                                                                                    const subtype = (0, l.K)(t.subtype) ? (oS(t.subtype) ?? t.subtype) : void 0
                                                                                     return {
                                                                                         id: t.id,
                                                                                         start: t.start,
                                                                                         end: t.end,
-                                                                                        canSkip: t.canSkip,
+                                                                                        canSkip: (0, l.H)(t.skippable) ? t.skippable : t.canSkip,
                                                                                         type: oS(t.type),
-                                                                                        ...((0, l.V)(t, 'localizedLabel') && (0, l.K)(t.localizedLabel)
-                                                                                            ? { localizedLabel: t.localizedLabel }
-                                                                                            : {})
+                                                                                        ...(subtype === void 0 ? {} : { subtype }),
+                                                                                        ...(localizedLabel === void 0 ? {} : { localizedLabel })
                                                                                     }
+                                                                                }
                                                                             })(t)
                                                                             i && n.push(i)
                                                                         }),
                                                                     n),
                                                                 u = (function (t, i, a) {
                                                                     let r = []
+                                                                    const audioLanguage = (0, l.V)(t, 'audioLocale') && (0, l.K)(t.audioLocale) ? t.audioLocale : void 0
+                                                                    const audioDescription = oT(t.audioRole) === l.lt.AUDIO_DESCRIPTION
                                                                     if (
                                                                         ((0, l.V)(t, 'stitchedElements') &&
                                                                             (0, l.G)(t.stitchedElements) &&
                                                                             t.stitchedElements.length > 0 &&
-                                                                            t.stitchedElements.forEach((t) => {
+                                                                            t.stitchedElements.forEach((element) => {
                                                                                 let s = (function (t, i, a) {
                                                                                     if (
                                                                                         (0, l.W)(t) &&
@@ -15999,8 +16061,6 @@
                                                                                         (0, l.H)(t.track) &&
                                                                                         (0, l.V)(t, 'timeline') &&
                                                                                         (0, l.H)(t.timeline) &&
-                                                                                        (0, l.V)(t, 'canSeek') &&
-                                                                                        (0, l.H)(t.canSeek) &&
                                                                                         (0, l.V)(t, 'textTracks') &&
                                                                                         (0, l.G)(t.textTracks) &&
                                                                                         (0, l.V)(t, 'audioTracks') &&
@@ -16020,15 +16080,16 @@
                                                                                                         (0, l.K)(t.format) &&
                                                                                                         void 0 !== oL(t.format) &&
                                                                                                         (0, l.V)(t, 'language') &&
-                                                                                                        (0, l.K)(t.language) &&
-                                                                                                        (0, l.V)(t, 'displayName') &&
-                                                                                                        (0, l.K)(t.displayName)
+                                                                                                        (0, l.K)(t.language)
                                                                                                     )
                                                                                                         return {
                                                                                                             role: oA(t.role),
                                                                                                             format: oL(t.format),
                                                                                                             language: t.language,
-                                                                                                            displayName: i.getTextTrackDisplayName(t.language),
+                                                                                                            displayName:
+                                                                                                                (0, l.V)(t, 'displayName') && (0, l.K)(t.displayName)
+                                                                                                                    ? t.displayName
+                                                                                                                    : i.getTextTrackDisplayName(t.language),
                                                                                                             ...((0, l.V)(t, 'videoUrl') && (0, l.K)(t.videoUrl)
                                                                                                                 ? { videoUrl: new URL(t.videoUrl) }
                                                                                                                 : {}),
@@ -16049,14 +16110,8 @@
                                                                                                         (0, l.V)(t, 'format') &&
                                                                                                         (0, l.K)(t.format) &&
                                                                                                         void 0 !== oP(t.format) &&
-                                                                                                        (0, l.V)(t, 'codec') &&
-                                                                                                        (0, l.K)(t.codec) &&
-                                                                                                        (0, l.V)(t, 'channelCount') &&
-                                                                                                        (0, l.U)(t.channelCount) &&
                                                                                                         (0, l.V)(t, 'language') &&
-                                                                                                        (0, l.K)(t.language) &&
-                                                                                                        (0, l.V)(t, 'displayName') &&
-                                                                                                        (0, l.K)(t.displayName)
+                                                                                                        (0, l.K)(t.language)
                                                                                                     ) {
                                                                                                         let r =
                                                                                                                 !!((0, l.V)(t, 'premiumOnly') && (0, l.H)(t.premiumOnly)) &&
@@ -16066,10 +16121,17 @@
                                                                                                         return {
                                                                                                             role: n,
                                                                                                             format: oP(t.format),
-                                                                                                            codec: t.codec,
-                                                                                                            channelCount: t.channelCount,
+                                                                                                            ...((0, l.V)(t, 'codec') && (0, l.K)(t.codec)
+                                                                                                                ? { codec: t.codec }
+                                                                                                                : {}),
+                                                                                                            ...((0, l.V)(t, 'channelCount') && (0, l.U)(t.channelCount)
+                                                                                                                ? { channelCount: t.channelCount }
+                                                                                                                : {}),
                                                                                                             language: t.language,
-                                                                                                            displayName: i.getAudioTrackDisplayName(t.language, n),
+                                                                                                            displayName:
+                                                                                                                (0, l.V)(t, 'displayName') && (0, l.K)(t.displayName)
+                                                                                                                    ? t.displayName
+                                                                                                                    : i.getAudioTrackDisplayName(t.language, n),
                                                                                                             ...((0, l.V)(t, 'url') && (0, l.K)(t.url)
                                                                                                                 ? { url: new URL(t.url) }
                                                                                                                 : {}),
@@ -16079,6 +16141,7 @@
                                                                                                             ...((0, l.V)(t, 'variant') && (0, l.K)(t.variant)
                                                                                                                 ? { variant: t.variant }
                                                                                                                 : {}),
+                                                                                                            ...((0, l.V)(t, 'guid') && (0, l.K)(t.guid) ? { guid: t.guid } : {}),
                                                                                                             canUse: s
                                                                                                         }
                                                                                                     }
@@ -16092,24 +16155,34 @@
                                                                                                 end: t.end,
                                                                                                 track: t.track,
                                                                                                 timeline: t.timeline,
-                                                                                                canSeek: t.canSeek,
+                                                                                                canSeek: !((0, l.V)(t, 'canSeek') && (0, l.H)(t.canSeek)) || t.canSeek,
                                                                                                 textTracks: r,
                                                                                                 audioTracks: s,
                                                                                                 defaultTextTrack: i.getDefaultTextTrack(
                                                                                                     r,
-                                                                                                    a.prefersCaptions,
-                                                                                                    a.preferredTextLanguage
+                                                                                                    a?.prefersCaptions,
+                                                                                                    a?.preferredTextLanguage
                                                                                                 ),
                                                                                                 defaultAudioTrack: i.getDefaultAudioTrack(
                                                                                                     s,
-                                                                                                    a.prefersAudioDescription,
-                                                                                                    a.preferredAudioLanguage
+                                                                                                    a?.prefersAudioDescription,
+                                                                                                    a?.preferredAudioLanguage
                                                                                                 )
                                                                                             }
                                                                                         )
                                                                                     }
-                                                                                })(t, i, a)
-                                                                                s && r.push(s)
+                                                                                })(element, i, a)
+                                                                                if (s) {
+                                                                                    const audioTrack =
+                                                                                        audioLanguage &&
+                                                                                        s.audioTracks.find(
+                                                                                            (t) =>
+                                                                                                t.language === audioLanguage &&
+                                                                                                (t.role === l.lt.AUDIO_DESCRIPTION) === audioDescription
+                                                                                        )
+                                                                                    if (audioTrack) s.defaultAudioTrack = audioTrack
+                                                                                    r.push(s)
+                                                                                }
                                                                             }),
                                                                         0 === r.length)
                                                                     ) {
@@ -16420,7 +16493,7 @@
                                                     this.getPlaybackSessionAndExtractData(t, i),
                                                     this.getDrms(),
                                                     this.getWatchHistory(t, i),
-                                                    this.getSkipEvents(t)
+                                                    this.featureFlags?.useAnnotationsFromPlayAPI === true ? Promise.resolve([]) : this.getSkipEvents(t)
                                                 ]),
                                                 [r, s, n, o, d] = a,
                                                 u = 'fulfilled' === r.status ? r.value : void 0,
@@ -16431,7 +16504,12 @@
                                                 g = {
                                                     id: t,
                                                     assetMetadata: u,
-                                                    manifest: c ? { ...c.manifest, annotations: [...(c?.manifest?.annotations || []), ...f] } : void 0,
+                                                    manifest: c
+                                                        ? {
+                                                              ...c.manifest,
+                                                              ...(this.featureFlags?.useAnnotationsFromPlayAPI === true ? {} : { annotations: f })
+                                                          }
+                                                        : void 0,
                                                     drms: h,
                                                     playerConfig: {},
                                                     watchHistory: p,
@@ -16794,7 +16872,7 @@
                                         skipEvents: { baseUrl: 'https://static.crunchyroll.com', basePathname: '/skip-events/production', errorCodePrefix: 'SKIP' },
                                         i18n: { baseUrl: 'https://static.crunchyroll.com', basePathname: '/i18n/cr-web-video-player', errorCodePrefix: 'I18N' },
                                         subscriptions: { errorCodePrefix: 'SUBS' },
-                                        remoteConfig: { baseUrl: 'https://www.crunchyroll.com/device-capabilities/config' },
+                                        remoteConfig: { baseUrl: 'https://www.crunchyroll.com/device-capabilities/config', resiliencyConfig: { maxRetries: 0 } },
                                         imgSrv: { baseUrl: 'https://imgsrv.crunchyroll.com' }
                                     },
                                     mediaEngineConfig: { mediaEngineType: 'bitmovin', drm: { drms: [{ type: 'widevine', level: 'l3' }] } },
@@ -16844,24 +16922,14 @@
                                     }
                                     async getEnvironmentConfig() {
                                         let t = this.configTargetingParameters.environment
-                                        if (t === l.tt.DEVELOPMENT)
-                                            try {
-                                                return (await a.e(535).then(a.bind(a, 40535))).default
-                                            } catch (t) {
-                                                l.Ft.warn('Failed to load development config, falling back to production config:', t)
-                                            }
-                                        else if (t === l.tt.STAGING)
-                                            try {
-                                                return (await a.e(7596).then(a.bind(a, 57596))).default
-                                            } catch (t) {
-                                                l.Ft.warn('Failed to load staging config, falling back to production config:', t)
-                                            }
+                                        if (t === l.tt.DEVELOPMENT) return o1
+                                        if (t === l.tt.STAGING) return o2
                                         return oK
                                     }
                                     getDeviceSubTypeConfig() {
                                         let t = this.configTargetingParameters.deviceType,
                                             i = this.configTargetingParameters.deviceSubType,
-                                            a = this.configTargetingParameters.brand.toLocaleLowerCase()
+                                            a = String(this.configTargetingParameters.brand || '').toLocaleLowerCase()
                                         switch (t) {
                                             case l.at.WEB:
                                                 return i in oZ ? oZ[i] : {}
@@ -16886,7 +16954,7 @@
                                         }
                                     }
                                     getOsConfig() {
-                                        let t = this.configTargetingParameters.os.toLocaleLowerCase()
+                                        let t = String(this.configTargetingParameters.os || '').toLocaleLowerCase()
                                         return t.includes('windows') ? oW : t.includes('macos') ? oJ : {}
                                     }
                                 },
@@ -16935,27 +17003,46 @@
                                     }
                                 },
                                 oX = class {
-                                    constructor(t, i, a, r, s, n) {
+                                    constructor(t, i, a, r, s, n, o) {
                                         ;((this._isDeveloperConfigEnabled = !1),
                                             (this._remoteConfigResolver = new oQ(t, i, a, r, n)),
                                             (this._defaultConfigResolver = new oY(r, s)),
+                                            (this._playerBootstrapper = typeof o?.getRemoteConfig === 'function' ? o : void 0),
                                             (this._isDeveloperConfigEnabled = s.getEnvironment() !== l.tt.PRODUCTION))
                                     }
                                     async resolve() {
                                         let t = await this._defaultConfigResolver.resolve(),
-                                            i = {}
-                                        !0 === t.featureFlags.remoteConfigResolver &&
-                                            t.apiConfig.remoteConfig &&
-                                            (this._remoteConfigResolver.setUrls(t.apiConfig.remoteConfig), (i = await this._remoteConfigResolver.resolve()))
-                                        let r = (0, l.B)(t, i)
+                                            i = {},
+                                            developerConfig = {}
                                         if (this._isDeveloperConfigEnabled)
                                             try {
-                                                let t = await a.e(2364).then(a.bind(a, 12364))
-                                                r = (0, l.B)(r, t.default)
+                                                const warningIndex = fn_str.indexOf('Failed to load developer config:')
+                                                // The developer config import immediately precedes its native error handler.
+                                                const imports = [
+                                                    ...(warningIndex < 0 ? '' : fn_str.slice(0, warningIndex)).matchAll(
+                                                        /(?<![\w$])([A-Za-z_$][\w$]*)\s*\.\s*e\s*\(\s*(\d+)\s*\)\s*\.\s*then\s*\(\s*\1\s*\.\s*bind\s*\(\s*\1\s*,\s*(\d+)\s*\)\s*\)/g
+                                                    )
+                                                ]
+                                                const currentImport = imports[imports.length - 1]
+                                                if (currentImport) {
+                                                    const config = await a.e(Number(currentImport[2])).then(a.bind(a, Number(currentImport[3])))
+                                                    developerConfig = config.developerConfig ?? config.default ?? {}
+                                                }
                                             } catch (t) {
                                                 l.Ft.warn('Failed to load developer config:', t)
                                             }
-                                        return r
+                                        if (this._playerBootstrapper)
+                                            try {
+                                                i = (await this._playerBootstrapper.getRemoteConfig()) ?? {}
+                                            } catch (t) {
+                                                l.Ft.warn('Failed to resolve remote config, falling back to default config. Error:', t)
+                                            }
+                                        else
+                                            (developerConfig.featureFlags?.remoteConfigResolver ?? t.featureFlags.remoteConfigResolver) === !0 &&
+                                                t.apiConfig.remoteConfig &&
+                                                (this._remoteConfigResolver.setUrls(t.apiConfig.remoteConfig), (i = await this._remoteConfigResolver.resolve()))
+                                        let r = (0, l.B)(t, i)
+                                        return this._isDeveloperConfigEnabled ? (0, l.B)(r, developerConfig) : r
                                     }
                                 },
                                 o0 = b({ config: () => o1, default: () => o1 }),
@@ -16992,11 +17079,11 @@
                                         skipEvents: { baseUrl: 'https://static.etp-staging.com', basePathname: '/crunchyroll/skip-events/staging', errorCodePrefix: 'SKIP' },
                                         i18n: { baseUrl: 'https://static.etp-staging.com', basePathname: '/i18n/cr-web-video-player', errorCodePrefix: 'I18N' },
                                         subscriptions: { errorCodePrefix: 'SUBS' },
-                                        remoteConfig: { baseUrl: 'https://stage.crunchyroll.com/device-capabilities/config' },
+                                        remoteConfig: { baseUrl: 'https://stage.crunchyroll.com/device-capabilities/config', resiliencyConfig: { maxRetries: 0 } },
                                         imgSrv: { baseUrl: 'https://imgsrv.stage.crunchyroll.com' }
                                     },
                                     mediaEngineConfig: { mediaEngineType: l.k.BITMOVIN, drm: { drms: [{ type: l.rt.WIDEVINE, level: l.nt.L3 }] } },
-                                    featureFlags: { remoteConfigResolver: !0, useContentDescriptorsWithSymbol: !0 },
+                                    featureFlags: { remoteConfigResolver: !1, useContentDescriptorsWithSymbol: !0 },
                                     experiments: { activeExperiments: {} },
                                     resiliencyConfig: { methods: ['GET'], maxRetries: 3, retryBackoffInterval: 1e3 }
                                 },
@@ -17013,7 +17100,7 @@
                                         skipEvents: { baseUrl: 'https://static.crunchyroll.com', basePathname: '/skip-events/production', errorCodePrefix: 'SKIP' },
                                         i18n: { baseUrl: 'https://static.crunchyroll.com', basePathname: '/i18n/cr-web-video-player', errorCodePrefix: 'I18N' },
                                         subscriptions: { errorCodePrefix: 'SUBS' },
-                                        remoteConfig: { baseUrl: 'https://www.crunchyroll.com/device-capabilities/config' },
+                                        remoteConfig: { baseUrl: 'https://www.crunchyroll.com/device-capabilities/config', resiliencyConfig: { maxRetries: 0 } },
                                         imgSrv: { baseUrl: 'https://imgsrv.crunchyroll.com' }
                                     },
                                     mediaEngineConfig: { mediaEngineType: l.k.BITMOVIN, drm: { drms: [{ type: l.rt.WIDEVINE, level: l.nt.L3 }] } },
@@ -17110,14 +17197,15 @@
                                 le = class {
                                     constructor(t, i) {
                                         ;((this._katamariPlayerName = 'desktop'),
-                                            (this._katamariPlayerVersion = '0.22.0'),
+                                            (this._katamariPlayerVersion = fn_str.match(/_katamariPlayerVersion\s*=\s*['"]([^'"]+)['"]/)?.[1] || '0.22.0'),
                                             (this.currentLogLevel = l.Pt.NONE),
                                             (this._tokenProvider = t.tokenProvider),
                                             (this._profileProvider = t.profileProvider),
                                             (this._deviceInfoProvider = t.deviceInfoProvider),
                                             (this._appInfoProvider = t.appInfoProvider),
                                             (this._localStorageProvider = t.localStorageProvider),
-                                            (this._nextEpisodeProvider = t.nextEpisodeProvider))
+                                            (this._nextEpisodeProvider = t.nextEpisodeProvider),
+                                            (this._playerBootstrapper = t.playerBootstrapper))
                                         let a = new l.t(this._tokenProvider)
                                         ;((this._apiServicesContainer = new oe({ httpEngine: a })),
                                             (this._trackSelectionResolver = new o$()),
@@ -17137,7 +17225,8 @@
                                                       this._profileProvider,
                                                       this._deviceInfoProvider,
                                                       this._tokenProvider,
-                                                      a
+                                                      a,
+                                                      this._playerBootstrapper
                                                   ))
                                                 : (this._configResolver = new oq({
                                                       katamariPlayerName: this._katamariPlayerName,
@@ -17173,7 +17262,7 @@
                                                           .e(BIT_E)
                                                           .then(a.bind(a, BIT_B))
                                                           .then(({ BitmovinMediaEngine: t }) => {
-                                                              let i = new t(d, this._tokenProvider)
+                                                              let i = new t(d, this._tokenProvider, r.mediaEngineConfig)
                                                               return (n.push(i.textTrackRenderer), i)
                                                           })
                                         if (build) build.mediaEngine = c
@@ -17222,14 +17311,21 @@
                             patchedFactory(patchedModule, patchedModule.exports, a)
                             const Builder = patchedModule.exports[playerExport]
                             let OriginalBuilder
+                            let originalExports
+
+                            const getOriginalExports = () => {
+                                if (!originalExports) {
+                                    const originalModule = { exports: {} }
+                                    fn(originalModule, originalModule.exports, a)
+                                    originalExports = originalModule.exports
+                                }
+                                return originalExports
+                            }
+
                             const fallback = (error, args) => {
                                 if (error && !patchFailed) console.warn('[CrOptix] Katamari patch disabled after a player error. Using the original player.', error)
                                 patchFailed = true
-                                if (!OriginalBuilder) {
-                                    const originalModule = { exports: {} }
-                                    fn(originalModule, originalModule.exports, a)
-                                    OriginalBuilder = originalModule.exports[playerExport]
-                                }
+                                OriginalBuilder ||= getOriginalExports()[playerExport]
                                 return new OriginalBuilder(...args)
                             }
                             class PlayerBuilder extends Builder {
@@ -17277,7 +17373,10 @@
                                     }
                                 }
                             }
-                            a.d(i, { [playerExport]: () => PlayerBuilder })
+                            a.d(i, {
+                                [playerExport]: () => PlayerBuilder,
+                                ...Object.fromEntries(nativeExportNames.filter((name) => name !== playerExport).map((name) => [name, () => getOriginalExports()[name]]))
+                            })
                         } catch (error) {
                             patchFailed = true
                             console.warn('[CrOptix] Katamari patch failed to initialize. Using the original player.', error)
