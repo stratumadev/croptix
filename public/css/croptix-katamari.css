@@ -3,3 +3,38 @@
     outline: none !important;
     box-shadow: none !important;
 }
+
+[data-croptix-shaka-captions] > .shaka-text-container {
+    position: absolute;
+    top: 5%;
+    right: 5%;
+    bottom: calc(5% + 10px);
+    left: 5%;
+    width: auto;
+    height: auto;
+    pointer-events: none;
+    line-height: normal;
+    font-family: var(--croptix-cc-font, sans-serif);
+    font-size: var(--croptix-cc-size, 20px);
+    font-variant: var(--croptix-cc-variant, normal);
+    color: var(--croptix-cc-color, white);
+    text-shadow: var(--croptix-cc-shadow);
+}
+
+[data-croptix-shaka-captions] > .shaka-text-container * {
+    font-family: inherit !important;
+    font-size: inherit !important;
+    font-variant: inherit !important;
+    line-height: normal !important;
+    color: inherit !important;
+    text-shadow: inherit !important;
+    background-color: transparent !important;
+}
+
+[data-croptix-shaka-captions] > .shaka-text-container > div {
+    background-color: var(--croptix-cc-window, transparent) !important;
+}
+
+[data-croptix-shaka-captions] > .shaka-text-container span:not(:has(span)) {
+    background-color: var(--croptix-cc-background, transparent) !important;
+}

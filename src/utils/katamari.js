@@ -2,6 +2,10 @@
     const coreExportPatterns = {
         Ft: '(?:^|[^\\w$])CORE\\s*\\.\\s*(ID)\\s*\\.\\s*setLogLevel\\b\\s*\\(',
         disposalReason: 'this\\s*\\.\\s*_disposalReason\\s*===\\s*CORE\\s*\\.\\s*(ID)\\s*\\.\\s*PAGE_UNLOAD\\b',
+        captionFont: '\\(\\s*0\\s*,\\s*CORE\\s*\\.\\s*(ID)\\s*\\)\\s*\\(\\s*ID\\s*\\.\\s*font\\s*\\)',
+        captionColor: '\\(\\s*0\\s*,\\s*CORE\\s*\\.\\s*(ID)\\s*\\)\\s*\\(\\s*ID\\s*\\.\\s*fontColor\\s*,\\s*ID\\s*\\.\\s*fontOpacity\\s*\\)',
+        captionSize: '\\(\\s*0\\s*,\\s*CORE\\s*\\.\\s*(ID)\\s*\\)\\s*\\(\\s*ID\\s*\\.\\s*fontSize\\s*\\)',
+        captionShadow: '\\(\\s*0\\s*,\\s*CORE\\s*\\.\\s*(ID)\\s*\\)\\s*\\(\\s*ID\\s*\\.\\s*edgeType\\s*,\\s*ID\\s*\\.\\s*edgeColor\\s*\\)',
         xt: 'var\\s*ID\\s*=\\s*\\[\\s*\\.\\.\\.\\s*ID\\s*\\]\\s*,\\s*ID\\s*=\\s*\\(\\s*0\\s*,\\s*CORE\\s*\\.\\s*(ID)\\s*\\)\\s*\\(\\s*ID\\s*\\)\\s*,\\s*ID\\s*=\\s*\\(\\s*0\\s*,\\s*CORE\\s*\\.\\s*ID\\s*\\)\\s*\\(\\s*ID\\s*,\\s*1\\s*/\\s*0\\s*\\)\\s*;',
         bt: 'var\\s*ID\\s*=\\s*\\[\\s*\\.\\.\\.\\s*ID\\s*\\]\\s*,\\s*ID\\s*=\\s*\\(\\s*0\\s*,\\s*CORE\\s*\\.\\s*(ID)\\s*\\)\\s*\\(\\s*ID\\s*\\)\\s*;',
         gt: '\\(\\s*0\\s*,\\s*CORE\\s*\\.\\s*(ID)\\s*\\)\\s*\\(\\s*\\[\\s*\\]\\s*,\\s*ID\\s*\\)',
@@ -9257,39 +9261,6 @@
                                         console.warn('[CrOptix][Subtitles] Failed to update native textTracks.', t)
                                     }
                                 },
-                                aNativeTextVisible = (t) => {
-                                    try {
-                                        let i = document.querySelector('video')
-                                        if (!i?.textTracks) return !1
-                                        for (let a = 0; a < i.textTracks.length; a++) {
-                                            let r = i.textTracks[a]
-                                            if ('disabled' !== r.mode && (!t || aTextMatches(r, t))) return !0
-                                        }
-                                    } catch (t) {}
-                                    return !1
-                                },
-                                aClearManualVttTrack = (t) => {
-                                    let i = t?.current
-                                    if (!i) return
-                                    try {
-                                        i.element?.parentNode && i.element.parentNode.removeChild(i.element)
-                                    } catch (t) {}
-                                    try {
-                                        i.url && i.revoke && URL.revokeObjectURL(i.url)
-                                    } catch (t) {}
-                                    t.current = null
-                                },
-                                aClearCueOverlay = (t) => {
-                                    let i = t?.current
-                                    if (!i) return
-                                    try {
-                                        i.cleanup?.()
-                                    } catch (t) {}
-                                    try {
-                                        i.element?.parentNode && i.element.parentNode.removeChild(i.element)
-                                    } catch (t) {}
-                                    t.current = null
-                                },
                                 aDisposeOctopus = (t, i = 'cleanup') => {
                                     if (!t) return
                                     try {
@@ -9312,144 +9283,18 @@
                                             } catch (t) {}
                                         }, 3e4)
                                 },
-                                aEnsureCueOverlay = (t, i) => {
-                                    let a = document.querySelector('video')
-                                    if (!a || !t) return !1
-                                    i.current?.trackKey !== `${t.language || ''}|${t.displayName || ''}` && aClearCueOverlay(i)
-                                    if (!i.current) {
-                                        let r = document.createElement('div')
-                                        ;((r.className = 'croptix-vtt-cue-overlay'),
-                                            Object.assign(r.style, {
-                                                position: 'absolute',
-                                                left: '5%',
-                                                right: '5%',
-                                                bottom: '8%',
-                                                zIndex: '2147483647',
-                                                pointerEvents: 'none',
-                                                textAlign: 'center',
-                                                color: '#fff',
-                                                fontSize: 'min(4.6vw, 34px)',
-                                                lineHeight: '1.25',
-                                                fontWeight: '700',
-                                                textShadow: 'rgb(0, 0, 0) 2px 2px 3px, rgb(0, 0, 0) -2px -2px 3px, rgb(0, 0, 0) 2px -2px 3px, rgb(0, 0, 0) -2px 2px 3px',
-                                                whiteSpace: 'pre-wrap'
-                                            }))
-                                        let s = a.parentElement || a
-                                        'static' === getComputedStyle(s).position && (s.style.position = 'relative')
-                                        s.appendChild(r)
-                                        i.current = { element: r, trackKey: `${t.language || ''}|${t.displayName || ''}`, listeners: [], cleanup: null }
-                                    }
-                                    let r = i.current,
-                                        s = () => {
-                                            let i = []
-                                            try {
-                                                if (a.textTracks)
-                                                    for (let r = 0; r < a.textTracks.length; r++) {
-                                                        let s = a.textTracks[r]
-                                                        if (!aTextMatches(s, t)) continue
-                                                        s.mode = 'hidden'
-                                                        if (s.activeCues)
-                                                            for (let t = 0; t < s.activeCues.length; t++) {
-                                                                let a = s.activeCues[t]
-                                                                i.push(
-                                                                    String(a.text || '')
-                                                                        .replace(/<[^>]+>/g, '')
-                                                                        .trim()
-                                                                )
-                                                            }
-                                                    }
-                                            } catch (t) {
-                                                console.warn('[CrOptix][Subtitles] Failed to read active VTT cues.', t)
-                                            }
-                                            r.element.textContent = i.filter(Boolean).join('\n')
-                                        },
-                                        n = () => {
-                                            r.listeners.forEach(({ track: t, handler: i }) => {
-                                                try {
-                                                    t.removeEventListener('cuechange', i)
-                                                } catch (t) {}
-                                            })
-                                            r.listeners = []
-                                            try {
-                                                if (a.textTracks)
-                                                    for (let i = 0; i < a.textTracks.length; i++) {
-                                                        let o = a.textTracks[i]
-                                                        if (aTextMatches(o, t)) {
-                                                            o.mode = 'hidden'
-                                                            o.addEventListener('cuechange', s)
-                                                            r.listeners.push({ track: o, handler: s })
-                                                        }
-                                                    }
-                                            } catch (t) {
-                                                console.warn('[CrOptix][Subtitles] Failed to attach VTT cue listeners.', t)
-                                            }
-                                            s()
-                                        },
-                                        o = [0, 250, 750, 1500].map((t) => setTimeout(n, t))
-                                    return (
-                                        (r.cleanup = () => {
-                                            o.forEach(clearTimeout)
-                                            r.listeners.forEach(({ track: t, handler: i }) => {
-                                                try {
-                                                    t.removeEventListener('cuechange', i)
-                                                } catch (t) {}
-                                            })
-                                            r.listeners = []
-                                        }),
-                                        !0
-                                    )
-                                },
-                                aEnsureManualVttTrack = async (t, i) => {
-                                    let a = document.querySelector('video'),
-                                        r = t?.externalTextUrl?.toString?.()
-                                    if (!a || !r) return !1
-                                    if (i.current?.sourceUrl === r) return (aApplyNativeTextTracks(t, 'manual-vtt-existing'), !0)
-                                    if (i.current?.failedSourceUrl === r) return !1
-                                    aClearManualVttTrack(i)
-                                    let s = r,
-                                        n = !1
-                                    try {
-                                        let t = await fetch(r, { credentials: 'omit' })
-                                        if (!t.ok) throw new Error(`HTTP ${t.status}`)
-                                        s = URL.createObjectURL(new Blob([await t.text()], { type: 'text/vtt' }))
-                                        n = !0
-                                    } catch (t) {
-                                        i.current = { failedSourceUrl: r }
-                                        return (
-                                            console.warn('[CrOptix][Subtitles] Failed to fetch VTT for manual native track; skipping DOM track to avoid CORS/security errors.', t),
-                                            !1
-                                        )
-                                    }
-                                    let o = document.createElement('track')
-                                    return (
-                                        (o.kind = 'captions'),
-                                        (o.srclang = t.language || ''),
-                                        (o.label = t.displayName || t.language || 'CC'),
-                                        (o.default = !0),
-                                        o.setAttribute('data-croptix-vtt', 'true'),
-                                        (o.src = s),
-                                        a.appendChild(o),
-                                        (i.current = { element: o, url: s, revoke: n, sourceUrl: r }),
-                                        o.addEventListener('load', () => aApplyNativeTextTracks(t, 'manual-vtt-load'), { once: !0 }),
-                                        setTimeout(() => aApplyNativeTextTracks(t, 'manual-vtt-create'), 0),
-                                        setTimeout(() => aApplyNativeTextTracks(t, 'manual-vtt-settle'), 250),
-                                        !0
-                                    )
-                                },
                                 aFindShakaTextTrack = (t, i) => {
-                                    let a = t?.getTextTracks?.() || []
-                                    return (
-                                        a.find((t) => aTextMatches(t, i) && t.active) ||
-                                        a.find((t) => aTextMatches(t, i) && ('caption' === t.kind || (Array.isArray(t.roles) && t.roles.includes('caption')))) ||
-                                        a.find((t) => aTextMatches(t, i) && Array.isArray(t.roles) && t.roles.length > 0) ||
-                                        a.find((t) => aTextMatches(t, i))
-                                    )
+                                    let a = (t?.getTextTracks?.() || []).filter((t) => aTextMatches(t, i))
+                                    if (i?.role === l.x.CLOSED_CAPTION)
+                                        a = a.filter((t) => 'caption' === t.kind || 'captions' === t.kind || t.roles?.some((t) => t.includes('caption')))
+                                    let r = a.filter((t) => [t.language, t.srclang].map(aTextLang).includes(aTextLang(i?.language)))
+                                    return r.find((t) => t.active) || r[0] || a.find((t) => t.active) || a[0]
                                 },
-                                aActivateShakaTextTrack = (t, i, a = 'initial') => {
+                                aActivateShakaTextTrack = (t, i, a) => {
                                     if (!t || !i) return
-                                    let r = aFindShakaTextTrack(t, i)
+                                    let r = a || aFindShakaTextTrack(t, i)
                                     try {
-                                        r && 'function' == typeof t.selectTextTrack && t.selectTextTrack(r)
+                                        r && !r.active && 'function' == typeof t.selectTextTrack && t.selectTextTrack(r)
                                         !r && 'function' == typeof t.selectTextLanguage && t.selectTextLanguage(i.language, i.role === l.x.CLOSED_CAPTION ? 'caption' : void 0)
                                         'function' == typeof t.setTextTrackVisibility && t.setTextTrackVisibility(!0)
                                     } catch (t) {
@@ -9457,22 +9302,179 @@
                                     }
                                 },
                                 aNativeTextRetry = 0,
-                                aSetNativeTextTracks = (t, i) => {
+                                aNativeTextCleanup = null,
+                                aShakaCaptionTracks = new WeakMap(),
+                                aShakaCaptionPresentation = new WeakMap(),
+                                aStyleShakaCaptions = (player, video, profileProvider, isCurrent) => {
+                                    const container = video?.parentElement
+                                    const factory = player.getConfiguration?.().textDisplayFactory
+                                    if (!container || !factory || !player.setVideoContainer || !player.configure) return
+                                    let state = aShakaCaptionPresentation.get(player)
+                                    if (!state) {
+                                        state = { factory, styling: {} }
+                                        aShakaCaptionPresentation.set(player, state)
+                                    }
+                                    container.setAttribute('data-croptix-shaka-captions', '')
+                                    const updateDisplay = () => {
+                                        if (!isCurrent()) return
+                                        const target = document.pictureInPictureElement === video ? null : container
+                                        if (state.target === target) return
+                                        player.setVideoContainer(target)
+                                        player.configure({ textDisplayFactory: state.factory.bind(null) })
+                                        state.target = target
+                                    }
+                                    const updateSize = () => {
+                                        if (!isCurrent()) return
+                                        const size = state.styling.fontSize
+                                        const scale = size === void 0 ? 100 : l.captionSize?.(size) || { small: 75, medium: 100, large: 150 }[size] || 100
+                                        container.style.setProperty('--croptix-cc-size', `${(Math.round(container.clientHeight * 0.05) * scale) / 100}px`)
+                                    }
+                                    const applyStyling = (styling = {}) => {
+                                        if (!isCurrent()) return
+                                        state.styling = styling
+                                        const fonts = {
+                                            casual: '"Comic Sans MS", cursive',
+                                            cursive: 'cursive',
+                                            monospaceSansSerif: 'monospace',
+                                            monospaceSerif: '"Courier New", monospace',
+                                            proportionalSansSerif: 'sans-serif',
+                                            proportionalSerif: 'serif',
+                                            smallCaps: 'sans-serif'
+                                        }
+                                        const color = (value, opacity, fallback) => {
+                                            if (value === void 0) return fallback
+                                            if (l.captionColor) return l.captionColor(value, opacity)
+                                            const colors = {
+                                                black: '0,0,0',
+                                                blue: '0,0,255',
+                                                cyan: '0,255,255',
+                                                green: '0,255,0',
+                                                magenta: '255,0,255',
+                                                red: '255,0,0',
+                                                white: '255,255,255',
+                                                yellow: '255,255,0'
+                                            }
+                                            return colors[value] ? `rgba(${colors[value]},${opacity === void 0 ? 1 : parseFloat(opacity) / 100})` : value
+                                        }
+                                        const edge = styling.edgeColor || 'black'
+                                        const shadow =
+                                            styling.edgeType === void 0
+                                                ? '1px 1px 1px black, 1px -1px 1px black, -1px 1px 1px black, -1px -1px 1px black'
+                                                : l.captionShadow?.(styling.edgeType, styling.edgeColor) ||
+                                                  {
+                                                      dropShadow: `2px 2px 2px ${edge}`,
+                                                      raised: `-1px -1px 0 ${edge}`,
+                                                      depressed: `1px 1px 0 ${edge}`,
+                                                      uniform: `1px 1px 0 ${edge}, -1px -1px 0 ${edge}, 1px -1px 0 ${edge}, -1px 1px 0 ${edge}`
+                                                  }[styling.edgeType] ||
+                                                  'none'
+                                        const values = {
+                                            font: styling.font === void 0 ? 'sans-serif' : l.captionFont?.(styling.font) || fonts[styling.font] || 'sans-serif',
+                                            variant: styling.font === 'smallCaps' ? 'small-caps' : 'normal',
+                                            color: color(styling.fontColor, styling.fontOpacity, 'white'),
+                                            background: color(styling.backgroundColor, styling.backgroundOpacity, 'transparent'),
+                                            window: color(styling.windowColor, styling.windowOpacity, 'transparent'),
+                                            shadow
+                                        }
+                                        for (const [name, value] of Object.entries(values)) container.style.setProperty(`--croptix-cc-${name}`, value)
+                                        updateSize()
+                                    }
+                                    applyStyling(state.styling)
+                                    updateDisplay()
+                                    Promise.resolve()
+                                        .then(() => profileProvider?.getUserProfile?.())
+                                        .then((profile) => applyStyling(profile?.captionStyling || {}))
+                                        .catch((error) => {
+                                            if (isCurrent()) console.warn('[CrOptix][Subtitles] Failed to apply caption preferences.', error)
+                                        })
+                                    video.addEventListener('enterpictureinpicture', updateDisplay)
+                                    video.addEventListener('leavepictureinpicture', updateDisplay)
+                                    window.addEventListener('resize', updateSize)
+                                    const resizeObserver = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(updateSize) : null
+                                    resizeObserver?.observe(container)
+                                    return () => {
+                                        video.removeEventListener('enterpictureinpicture', updateDisplay)
+                                        video.removeEventListener('leavepictureinpicture', updateDisplay)
+                                        window.removeEventListener('resize', updateSize)
+                                        resizeObserver?.disconnect()
+                                    }
+                                },
+                                aSetNativeTextTracks = (t, i, profileProvider) => {
                                     const retryId = ++aNativeTextRetry
+                                    aNativeTextCleanup?.()
+                                    aNativeTextCleanup = null
                                     try {
                                         const video = document.querySelector('video')
-                                        let a = i?._findShakaPlayer?.()
-                                        if (a && 'function' == typeof a.getTextTracks) {
-                                            if (t) {
-                                                aActivateShakaTextTrack(a, t)
-                                                setTimeout(() => {
-                                                    if (retryId !== aNativeTextRetry || document.querySelector('video') !== video || i?._findShakaPlayer?.() !== a) return
-                                                    let track = aFindShakaTextTrack(a, t),
-                                                        r = a.getTextTracks?.().some((t) => t.active)
-                                                    ;(!r || (track && !track.active)) && aActivateShakaTextTrack(a, t, 'retry')
-                                                    aApplyNativeTextTracks(t, 'shaka-retry')
-                                                }, 250)
-                                            } else 'function' == typeof a.setTextTrackVisibility && a.setTextTrackVisibility(!1)
+                                        const shaka = i?._findShakaPlayer?.()
+                                        if (shaka && 'function' == typeof shaka.getTextTracks) {
+                                            if (!t || 'none' === t.language) {
+                                                if ('function' == typeof shaka.setTextTrackVisibility) shaka.setTextTrackVisibility(!1)
+                                                else shaka.selectTextTrack?.(null)
+                                                aApplyNativeTextTracks(null, 'off')
+                                                return
+                                            }
+                                            let assetUri = shaka.getAssetUri?.() || null
+                                            const isCurrent = () =>
+                                                retryId === aNativeTextRetry &&
+                                                document.querySelector('video') === video &&
+                                                i?._findShakaPlayer?.() === shaka &&
+                                                (!assetUri || shaka.getAssetUri?.() === assetUri)
+                                            let presentationCleanup
+                                            const apply = async () => {
+                                                if (!video || !isCurrent() || video.readyState === 0) return
+                                                assetUri ||= shaka.getAssetUri?.() || null
+                                                if (!presentationCleanup) {
+                                                    try {
+                                                        presentationCleanup = aStyleShakaCaptions(shaka, video, profileProvider, isCurrent)
+                                                    } catch (error) {
+                                                        console.warn('[CrOptix][Subtitles] Failed to configure Shaka caption styling.', error)
+                                                    }
+                                                }
+                                                let track
+                                                const url = t.externalTextUrl?.toString?.()
+                                                if (url) {
+                                                    let cache = aShakaCaptionTracks.get(shaka)
+                                                    if (!cache || cache.assetUri !== assetUri) {
+                                                        cache = { assetUri, tracks: new Map() }
+                                                        aShakaCaptionTracks.set(shaka, cache)
+                                                    }
+                                                    const key = [url, t.language, t.role, t.videoUrl?.toString?.()].join('|')
+                                                    let entry = cache.tracks.get(key)
+                                                    if (entry?.track && !shaka.getTextTracks().some((t) => t.id === entry.track.id)) {
+                                                        cache.tracks.delete(key)
+                                                        entry = null
+                                                    }
+                                                    if (!entry) {
+                                                        entry = {
+                                                            promise: shaka.addTextTrackAsync(url, t.language, 'captions', 'text/vtt', void 0, t.displayName || t.language)
+                                                        }
+                                                        cache.tracks.set(key, entry)
+                                                    }
+                                                    try {
+                                                        track = entry.track ||= await entry.promise
+                                                    } catch (error) {
+                                                        if (cache.tracks.get(key) === entry) cache.tracks.delete(key)
+                                                        throw error
+                                                    }
+                                                }
+                                                if (!isCurrent()) return
+                                                if (track) track = shaka.getTextTracks().find((t) => t.id === track.id) || track
+                                                aActivateShakaTextTrack(shaka, t, track)
+                                            }
+                                            const retry = () =>
+                                                apply().catch((error) => {
+                                                    if (isCurrent()) console.warn('[CrOptix][Subtitles] Failed to load Shaka CC/VTT track.', error)
+                                                })
+                                            const timer = setTimeout(retry, 250)
+                                            shaka.addEventListener?.('loaded', retry, { once: !0 })
+                                            video?.addEventListener?.('loadedmetadata', retry, { once: !0 })
+                                            aNativeTextCleanup = () => {
+                                                presentationCleanup?.()
+                                                clearTimeout(timer)
+                                                shaka.removeEventListener?.('loaded', retry)
+                                                video?.removeEventListener?.('loadedmetadata', retry)
+                                            }
+                                            return retry()
                                         }
                                     } catch (t) {
                                         console.warn('[CrOptix][Subtitles] Failed to activate Shaka CC/VTT track.', t)
@@ -9486,28 +9488,33 @@
                                         [i, a] = (0, h.useState)(void 0),
                                         r = (0, h.useRef)(null),
                                         s = (0, h.useRef)(null),
-                                        u = (0, h.useRef)(null),
-                                        c = (0, h.useRef)(null),
                                         pToken = (0, h.useRef)(0),
                                         n = (0, h.useCallback)((t = 'cleanup') => {
                                             aNativeTextRetry++
+                                            aNativeTextCleanup?.()
+                                            aNativeTextCleanup = null
                                             pToken.current += 1
                                             let i = r.current
                                             r.current = null
                                             aDisposeOctopus(i, t)
                                             aRevokeObjectUrlSoon(s.current)
                                             s.current = null
-                                            aClearManualVttTrack(u)
-                                            aClearCueOverlay(c)
                                         }, [])
                                     return (
                                         (0, h.useEffect)(() => {
                                             let i = t.activeTextTrack$.subscribe(a)
+                                            let r = t._player?.eventSubscriptions?.()?.mediaResolving$?.subscribe(() => {
+                                                n('media resolving')
+                                                aShakaCaptionTracks.delete(q._findShakaPlayer?.())
+                                                aSetNativeTextTracks(null, q)
+                                                a(void 0)
+                                            })
                                             t._activeTextTrack && a(t._activeTextTrack)
                                             return () => {
                                                 i.unsubscribe()
+                                                r?.unsubscribe()
                                             }
-                                        }, [t]),
+                                        }, [t, q, n]),
                                         (0, h.useEffect)(() => {
                                             let t = () => {
                                                 r.current && 'function' == typeof r.current.resize && r.current.resize()
@@ -9548,21 +9555,16 @@
                                             )
                                         }, []),
                                         (0, h.useEffect)(() => {
+                                            n('track switch')
                                             if (!i || !i.externalTextUrl || i.role === l.x.CLOSED_CAPTION) {
-                                                n('track cleared')
                                                 if (i?.role === l.x.CLOSED_CAPTION) {
-                                                    aSetNativeTextTracks(i, q)
-                                                    aClearManualVttTrack(u)
-                                                    aClearCueOverlay(c)
-                                                    return () => {
-                                                        aClearManualVttTrack(u)
-                                                        aClearCueOverlay(c)
-                                                    }
+                                                    aSetNativeTextTracks(i, q, t._profileProvider)
+                                                    return
                                                 }
                                                 aSetNativeTextTracks(null, q)
                                                 return
                                             }
-                                            r.current && n('track switch')
+                                            aSetNativeTextTracks(null, q)
                                             let a = !1,
                                                 o = i.externalTextUrl.toString(),
                                                 p = ++pToken.current
