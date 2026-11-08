@@ -2,7 +2,7 @@
     "name": "croptix",
     "description": "Browser extension that enhances Crunchyroll with quality selector and playback improvements",
     "author": "stratuma",
-    "version": "2.0.8",
+    "version": "2.0.9",
     "type": "module",
     "private": true,
     "devDependencies": {
@@ -18,11 +18,11 @@
         "webextension-polyfill": "^0.12.0"
     },
     "scripts": {
-        "pretty": "bun run prettier src --write",
+        "prettier:fix": "bun run prettier src --write",
         "build-for-amo": "bun run build:amo",
-        "build:amo": "bun run clean && bun run pretty && bun build:manifestv3 && bun run build:bundle && bun run build:ext",
-        "build:v2": "bun run clean && bun run pretty && bun build:manifestv2 && bun run build:bundle && bun build src/utils/katamari_fix_loader.ts src/utils/crunchyroll_loader.ts --outdir dist --minify && bun run build:ext",
-        "build:v3": "bun run clean && bun run pretty && bun build:manifestv3 && bun run build:bundle && bun run build:crx",
+        "build:amo": "bun run clean && bun run prettier:fix && bun build:manifestv3 && bun run build:bundle && bun run build:ext",
+        "build:v2": "bun run clean && bun run prettier:fix && bun build:manifestv2 && bun run build:bundle && bun build src/utils/katamari_fix_loader.ts src/utils/crunchyroll_loader.ts --outdir dist --minify && bun run build:ext",
+        "build:v3": "bun run clean && bun run prettier:fix && bun build:manifestv3 && bun run build:bundle && bun run build:crx",
         "clean": "rm -rf dist && rm -rf build",
         "build:ext": "web-ext build --source-dir=dist --artifacts-dir=build",
         "build:crx": "bun run build_crx.ts",

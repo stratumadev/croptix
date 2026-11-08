@@ -605,6 +605,7 @@
                                     'jump.forward.ariaLabel': 'Jump forward {{seconds}} seconds',
                                     'jump.backward.ariaLabel': 'Jump backward {{seconds}} seconds',
                                     skipButtons: 'Skip Buttons',
+                                    pictureInPictureButton: 'Picture-in-Picture Button',
                                     timeDisplay: 'Time Display',
                                     totalTime: 'Total',
                                     remainingTime: 'Remaining',
@@ -5705,7 +5706,7 @@
                                         }
                                     )
                                 },
-                                iJ = () => {
+                                iJ = ({ showPictureInPictureButton, onPictureInPictureButtonChange }) => {
                                     let { isActive: t, toggle: i, close: a } = iI(),
                                         { t: r } = iy(),
                                         { isAutoplayNextEnabled: s, toggleAutoplayNext: n, selectedQualityBucket: o, resolutionQualities: q, setPlaybackQualityBucket: u } = iW(),
@@ -5947,6 +5948,13 @@
                                                             (0, d.jsx)(iq, { label: r('autoplayNext'), checked: s ?? !1, onChange: n }),
                                                             (0, d.jsx)(iq, { label: r('skipEvents'), checked: y, onChange: L }),
                                                             (0, d.jsx)(iq, { label: r('autoSkipIntroOutro'), checked: N, onChange: O }),
+                                                            (0, d.jsx)(iq, {
+                                                                label: r('pictureInPictureButton'),
+                                                                checked: showPictureInPictureButton,
+                                                                onChange: (t) => {
+                                                                    ;(localStorage.setItem('croptix.showPictureInPictureButton', String(t)), onPictureInPictureButtonChange(t))
+                                                                }
+                                                            }),
                                                             (0, d.jsx)(D, {
                                                                 label: r('skipButtons'),
                                                                 value: 0 === skipButtonSeconds ? r('disabled') : `${skipButtonSeconds} seconds`,
@@ -9114,7 +9122,7 @@
                                             : null
                                     )
                                 },
-                                aPiP = () => {
+                                aPiP = ({ isVisible }) => {
                                     let [t, i] = (0, h.useState)(!1),
                                         a = 'u' > typeof document && document.pictureInPictureEnabled
                                     ;(0, h.useEffect)(() => {
@@ -9148,7 +9156,7 @@
                                                       console.warn(t)
                                                   }))
                                     }, [])
-                                    if (!a) return null
+                                    if (!a || !isVisible) return null
                                     let s = (0, d.jsxs)('svg', {
                                         width: 20,
                                         height: 20,
@@ -9863,6 +9871,9 @@
                                         { skipButtonSeconds } = iSkipButtons(),
                                         f = (0, h.useRef)(!1),
                                         g = (0, h.useRef)(!1),
+                                        [showPictureInPictureButton, setShowPictureInPictureButton] = (0, h.useState)(
+                                            () => localStorage.getItem('croptix.showPictureInPictureButton') !== 'false'
+                                        ),
                                         [statsVisible, setStatsVisible] = (0, h.useState)(!1),
                                         [statsMenu, setStatsMenu] = (0, h.useState)(null),
                                         showStatsMenu = (0, h.useCallback)(
@@ -9949,7 +9960,14 @@
                                                                     (0, d.jsxs)('div', {
                                                                         'data-testid': 'bottom-right-controls-stack',
                                                                         className: 'kat:flex kat:items-end kat:justify-end',
-                                                                        children: [(0, d.jsx)(aPiP, {}), (0, d.jsx)(iJ, {}), (0, d.jsx)(i4, {})]
+                                                                        children: [
+                                                                            (0, d.jsx)(aPiP, { isVisible: showPictureInPictureButton }),
+                                                                            (0, d.jsx)(iJ, {
+                                                                                showPictureInPictureButton,
+                                                                                onPictureInPictureButtonChange: setShowPictureInPictureButton
+                                                                            }),
+                                                                            (0, d.jsx)(i4, {})
+                                                                        ]
                                                                     })
                                                                 ]
                                                             }),
