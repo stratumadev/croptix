@@ -4894,7 +4894,8 @@
                                 tG = C(tZ(), 1),
                                 tW = { top: 'kat:rounded-tl-none kat:rounded-tr-none', bottom: 'kat:rounded-bl-none kat:rounded-br-none' },
                                 tJ = ({ Icon: t, label: i, onClick: a, isActive: r = !1, connectedSide: s, ...n }) => {
-                                    let o = 'string' == typeof t && t.length > 4
+                                    let o = 'string' == typeof t && t.length > 4,
+                                        { compactControls } = im()
                                     return (0, d.jsx)('button', {
                                         onClick: (t) => {
                                             ;(t.preventDefault(), a())
@@ -4913,6 +4914,7 @@
                                                 ),
                                             [o, r, s]
                                         ),
+                                        style: compactControls ? { width: 44, height: 44 } : void 0,
                                         ...n,
                                         children: t
                                     })
@@ -5352,7 +5354,15 @@
                                     )
                                 },
                                 iN = 'Escape',
-                                ij = ({ children: t, isVisible: i, toggleVisibility: a, expandDirection: r = 'down', anchorAlignment: s = 'end', dismissKey: n = iN }) => {
+                                ij = ({
+                                    children: t,
+                                    isVisible: i,
+                                    toggleVisibility: a,
+                                    expandDirection: r = 'down',
+                                    anchorAlignment: s = 'end',
+                                    dismissKey: n = iN,
+                                    contentKey
+                                }) => {
                                     let o = (0, h.useRef)(null),
                                         l = (0, h.useRef)(null),
                                         u = (0, h.useRef)(!0),
@@ -5377,27 +5387,32 @@
                                             }
                                             let t = f.current
                                             if (!t) return
+                                            o.current && (o.current.scrollTop = 0)
                                             let a = () => {
                                                 if (!o.current) return
                                                 let i = o.current.parentElement
                                                 if (!i) return
                                                 let a = t.getBoundingClientRect(),
-                                                    s = i.getBoundingClientRect(),
-                                                    n = a.width - 16,
-                                                    l = 'up' === r ? s.top - a.top - 8 : a.bottom - s.bottom - 8
-                                                p({ maxHeight: `${Math.max(0, l)}px`, maxWidth: `${Math.max(0, n)}px` })
+                                                    anchor = i.getBoundingClientRect(),
+                                                    n = Math.max(0, a.width - 16),
+                                                    l = 'up' === r ? anchor.top - a.top - 8 : a.bottom - anchor.bottom - 8,
+                                                    width = Math.min(o.current.getBoundingClientRect().width, n),
+                                                    left = Math.max(a.left + 8, Math.min('start' === s ? anchor.left : anchor.right - width, a.right - 8 - width))
+                                                p({ maxHeight: `${Math.max(0, l)}px`, maxWidth: `${n}px`, left: `${left - anchor.left}px`, right: 'auto' })
                                             }
                                             a()
-                                            let s = new ResizeObserver(() => {
+                                            let observer = new ResizeObserver(() => {
                                                 a()
                                             })
                                             return (
-                                                s.observe(t),
+                                                observer.observe(t),
+                                                observer.observe(o.current),
+                                                observer.observe(o.current.parentElement),
                                                 () => {
-                                                    s.disconnect()
+                                                    observer.disconnect()
                                                 }
                                             )
-                                        }, [i, r, f]),
+                                        }, [i, r, s, f, contentKey]),
                                         (0, h.useEffect)(() => {
                                             if (!i) {
                                                 l.current = null
@@ -5426,7 +5441,7 @@
                                     return (0, d.jsx)('div', {
                                         ref: o,
                                         className: `kat:inline-flex kat:flex-col kat:absolute kat:z-[1001] kat:bg-neutral-700 kat:rounded-lg kat:shadow-lg kat:outline-none kat:w-max kat:overflow-hidden focus-visible:kat:outline-2 focus-visible:kat:outline-offset-2 focus-visible:kat:outline-white/50 ${v} ${m}`,
-                                        style: c,
+                                        style: { ...c, overflowY: 'auto', overscrollBehavior: 'contain', touchAction: 'pan-y' },
                                         role: 'menu',
                                         tabIndex: -1,
                                         dir: y,
@@ -5793,12 +5808,11 @@
                                                 case 'audio':
                                                     return (0, d.jsxs)('div', {
                                                         className: 'kat:flex kat:flex-col',
-                                                        style: { width: '320px' },
+                                                        style: { width: '320px', maxWidth: '100%', flexShrink: 0 },
                                                         children: [
                                                             M,
                                                             (0, d.jsx)('div', {
-                                                                className: 'kat:overflow-y-auto',
-                                                                style: { maxHeight: '300px' },
+                                                                className: 'kat:py-5',
                                                                 children: b.map((t) =>
                                                                     (0, d.jsx)(
                                                                         ix,
@@ -5819,12 +5833,11 @@
                                                 case 'subtitles':
                                                     return (0, d.jsxs)('div', {
                                                         className: 'kat:flex kat:flex-col',
-                                                        style: { width: '320px' },
+                                                        style: { width: '320px', maxWidth: '100%', flexShrink: 0 },
                                                         children: [
                                                             M,
                                                             (0, d.jsx)('div', {
-                                                                className: 'kat:overflow-y-auto',
-                                                                style: { maxHeight: '300px' },
+                                                                className: 'kat:py-5',
                                                                 children: x.map((t) =>
                                                                     (0, d.jsx)(
                                                                         ix,
@@ -5844,7 +5857,7 @@
                                                 case 'quality':
                                                     return (0, d.jsxs)('div', {
                                                         className: 'kat:flex kat:flex-col',
-                                                        style: { width: '320px' },
+                                                        style: { width: '320px', maxWidth: '100%', flexShrink: 0 },
                                                         children: [
                                                             M,
                                                             (0, d.jsx)('div', {
@@ -5869,12 +5882,11 @@
                                                 case 'speed':
                                                     return (0, d.jsxs)('div', {
                                                         className: 'kat:flex kat:flex-col',
-                                                        style: { width: '320px' },
+                                                        style: { width: '320px', maxWidth: '100%', flexShrink: 0 },
                                                         children: [
                                                             M,
                                                             (0, d.jsx)('div', {
-                                                                className: 'kat:overflow-y-auto',
-                                                                style: { maxHeight: '300px' },
+                                                                className: 'kat:py-5',
                                                                 children: c.map((t) =>
                                                                     (0, d.jsx)(
                                                                         ix,
@@ -5894,7 +5906,7 @@
                                                 case 'skipButtons':
                                                     return (0, d.jsxs)('div', {
                                                         className: 'kat:flex kat:flex-col',
-                                                        style: { width: '320px' },
+                                                        style: { width: '320px', maxWidth: '100%', flexShrink: 0 },
                                                         children: [
                                                             M,
                                                             (0, d.jsx)('div', {
@@ -5918,7 +5930,7 @@
                                                 case 'timeDisplay':
                                                     return (0, d.jsxs)('div', {
                                                         className: 'kat:flex kat:flex-col',
-                                                        style: { width: '320px' },
+                                                        style: { width: '320px', maxWidth: '100%', flexShrink: 0 },
                                                         children: [
                                                             M,
                                                             (0, d.jsx)('div', {
@@ -5942,7 +5954,7 @@
                                                 case 'playback':
                                                     return (0, d.jsxs)('div', {
                                                         className: 'kat:flex kat:flex-col kat:py-5',
-                                                        style: { width: '320px' },
+                                                        style: { width: '320px', maxWidth: '100%', flexShrink: 0 },
                                                         children: [
                                                             M,
                                                             (0, d.jsx)(iq, { label: r('autoplayNext'), checked: s ?? !1, onChange: n }),
@@ -5970,7 +5982,7 @@
                                                 default:
                                                     return (0, d.jsxs)('div', {
                                                         className: 'kat:flex kat:flex-col kat:py-10',
-                                                        style: { width: '320px' },
+                                                        style: { width: '320px', maxWidth: '100%', flexShrink: 0 },
                                                         children: [
                                                             (0, d.jsx)(D, { label: r('audio'), value: I(C), onClick: () => m('audio') }),
                                                             (0, d.jsx)(D, { label: r('subtitlesCc'), value: I(S), onClick: () => m('subtitles') }),
@@ -5999,12 +6011,13 @@
                                                     'data-testid': 'player-settings-menu-button'
                                                 })
                                             }),
-                                            (0, d.jsx)(ij, { isVisible: t, toggleVisibility: P, expandDirection: 'up', children: B() })
+                                            (0, d.jsx)(ij, { isVisible: t, toggleVisibility: P, expandDirection: 'up', contentKey: v, children: B() })
                                         ]
                                     })
                                 },
                                 iY = ({ Icon: t, label: i, onClick: a, ...r }) => {
-                                    let s = 'string' == typeof t && t.length > 4
+                                    let s = 'string' == typeof t && t.length > 4,
+                                        { compactControls } = im()
                                     return (0, d.jsx)('button', {
                                         onClick: (t) => {
                                             ;(t.preventDefault(), a())
@@ -6020,6 +6033,7 @@
                                                 ),
                                             [s]
                                         ),
+                                        style: compactControls ? { width: 44, height: 44 } : void 0,
                                         ...r,
                                         children: t
                                     })
@@ -6364,9 +6378,9 @@
                                                 v(),
                                                 v
                                             )
-                                        let t = ['mousemove', 'mousedown', 'keydown', 'focusin'],
+                                        let t = ['pointermove', 'pointerdown', 'keydown', 'focusin'],
                                             s = (t) => {
-                                                'focusin' === t.type || 'keydown' === t.type ? _(r) : _()
+                                                'pointermove' === t.type && 'mouse' === t.pointerType ? _() : _(r)
                                             }
                                         for (let a of (_(), t)) i.addEventListener(a, s)
                                         return () => {
@@ -6456,7 +6470,8 @@
                                         m = (0, h.useCallback)(() => {
                                             u(!0)
                                         }, []),
-                                        y = (0, h.useCallback)(() => {
+                                        y = (0, h.useCallback)((event) => {
+                                            if ('mouse' !== event.pointerType) return
                                             if ((g(!0), null !== t.current)) {
                                                 let i = getComputedStyle(t.current)
                                                 ;((o.current = 1.33 * parseFloat(i.getPropertyValue('--slider-thumb-base-size')) || 0),
@@ -6468,7 +6483,7 @@
                                         }, []),
                                         b = (0, h.useCallback)(
                                             (l) => {
-                                                if (null === r.current || null === t.current || l.currentTarget !== t.current) return
+                                                if ('mouse' !== l.pointerType || null === r.current || null === t.current || l.currentTarget !== t.current) return
                                                 let d = r.current.clientWidth / 2,
                                                     u = n.current - d,
                                                     c = Math.min(Math.max(d, l.offsetX), u) - d
@@ -6490,9 +6505,12 @@
                                         (0, h.useEffect)(() => {
                                             let i = t.current
                                             return (
-                                                i && (i.addEventListener('mousemove', b), i.addEventListener('mouseenter', y), i.addEventListener('mouseleave', _)),
+                                                i && (i.addEventListener('pointermove', b), i.addEventListener('pointerenter', y), i.addEventListener('pointerleave', _)),
                                                 () => {
-                                                    i && (i.removeEventListener('mousemove', b), i.removeEventListener('mouseenter', y), i.removeEventListener('mouseleave', _))
+                                                    i &&
+                                                        (i.removeEventListener('pointermove', b),
+                                                        i.removeEventListener('pointerenter', y),
+                                                        i.removeEventListener('pointerleave', _))
                                                 }
                                             )
                                         }, [t.current, b, y, _]),
@@ -6565,7 +6583,8 @@
                                         },
                                         o
                                     ) => {
-                                        let l = (0, h.useRef)(null),
+                                        let { compactControls } = im(),
+                                            l = (0, h.useRef)(null),
                                             u = (0, h.useRef)(!1),
                                             c = (0, h.useRef)(!1),
                                             p = (0, h.useRef)(void 0),
@@ -6666,13 +6685,16 @@
                                         )
                                         return (0, d.jsxs)('div', {
                                             className: 'timeline-container kat:flex kat:items-center kat:w-full kat:pt-20 kat:pb-20 kat:gap-10',
+                                            style: compactControls ? { minWidth: 0, gap: 8, paddingBlock: 0 } : void 0,
                                             children: [
                                                 (0, d.jsx)('span', {
                                                     className: 'kat:text-start kat:text-[rgb(249,249,250)] kat:text-[14px] kat:font-bold kat:min-w-100 kat:tabular-nums',
+                                                    style: compactControls ? { minWidth: 0, flexShrink: 0, whiteSpace: 'nowrap' } : void 0,
                                                     children: aT
                                                 }),
                                                 (0, d.jsxs)('div', {
                                                     className: 'kat:relative kat:flex-1 kat:flex kat:items-center kat:w-full',
+                                                    style: compactControls ? { minWidth: 0 } : void 0,
                                                     children: [
                                                         (0, d.jsx)('style', {
                                                             children:
@@ -6707,6 +6729,8 @@
                                                             'data-scrubber': 'true',
                                                             style: {
                                                                 '--slider-thumb-base-size': '14px',
+                                                                minWidth: compactControls ? 0 : void 0,
+                                                                touchAction: 'none',
                                                                 ...(chapterMask
                                                                     ? {
                                                                           '--chapter-mask': chapterMask,
@@ -6722,22 +6746,26 @@
                                                             'aria-valuemax': i,
                                                             step: 0.25,
                                                             onChange: g,
-                                                            onMouseEnter: () => {
-                                                                setTimelineHovered(!0)
+                                                            onPointerEnter: (t) => {
+                                                                'mouse' === t.pointerType && setTimelineHovered(!0)
                                                             },
-                                                            onMouseLeave: () => {
+                                                            onPointerLeave: () => {
                                                                 setTimelineHovered(!1)
                                                             },
-                                                            onMouseDown: () => {
-                                                                u.current = !0
+                                                            onPointerDown: (t) => {
+                                                                if (!t.isPrimary || 0 !== t.button) return
+                                                                ;((u.current = !0), t.currentTarget.setPointerCapture(t.pointerId))
                                                             },
-                                                            onMouseUp: (t) => {
-                                                                ;(!0 !== u.current ||
-                                                                    t.currentTarget !== l.current ||
+                                                            onPointerUp: (t) => {
+                                                                if (!u.current || !t.isPrimary || 0 !== t.button) return
+                                                                ;(t.currentTarget !== l.current ||
                                                                     isNaN(t.currentTarget.valueAsNumber) ||
                                                                     (f.current = t.currentTarget.valueAsNumber),
                                                                     (u.current = !1),
                                                                     s && void 0 !== f.current && (s(f.current), (f.current = void 0)))
+                                                            },
+                                                            onPointerCancel: (t) => {
+                                                                t.isPrimary && ((u.current = !1), (f.current = void 0))
                                                             },
                                                             onClick: (t) => {
                                                                 t.preventDefault()
@@ -6782,6 +6810,7 @@
                                                 (0, d.jsx)('span', {
                                                     className:
                                                         'kat:text-end kat:flex kat:justify-end kat:text-[rgb(249,249,250)] kat:text-[14px] kat:font-bold kat:min-w-100 kat:tabular-nums',
+                                                    style: compactControls ? { minWidth: 0, flexShrink: 0, whiteSpace: 'nowrap' } : void 0,
                                                     children: iT
                                                 })
                                             ]
@@ -7240,7 +7269,8 @@
                                 aj = (t, i = aN) => (void 0 === t || 0 === t ? 'off' : t <= i.low ? 'low' : t <= i.medium ? 'medium' : 'high'),
                                 aO = ['Enter', ' '],
                                 aV = (0, h.forwardRef)(({ volumePercent: t, isMuted: i, label: a, onIconClick: r, onVolumeChange: s, className: l, ...u }, c) => {
-                                    let g = Math.max(0, Math.min(100, t)),
+                                    let { compactControls } = im(),
+                                        g = Math.max(0, Math.min(100, t)),
                                         v = aj(g),
                                         y = (0, tG.default)(
                                             'volume-container',
@@ -7293,6 +7323,7 @@
                                                     'volume-icon',
                                                     'kat:h-44 kat:w-44 kat:@lg:h-64 kat:@lg:w-64 kat:flex kat:items-center kat:justify-center kat:rounded-full kat:border-transparent kat:border-4 kat:p-6 kat:hover:bg-neutral-700 kat:transition-opacity kat:duration-200 kat:ease-linear kat:hover:opacity-100 kat:focus:opacity-100 kat:active:fill-white kat:active:text-white kat:focus:border-neutral-50 kat:focus:border-solid kat:cursor-pointer kat:text-white kat:fill-white kat:opacity-100 kat:hover:text-white kat:focus-visible:text-white'
                                                 ),
+                                                style: compactControls ? { width: 44, height: 44 } : void 0,
                                                 isMuted: i,
                                                 volumeTier: v
                                             })
@@ -7337,14 +7368,24 @@
                                     let {
                                             viewModelContainer: { playPauseButtonVM: a }
                                         } = im(),
-                                        r = (0, h.useRef)(null)
+                                        { isVisible: s, bump: n } = aa(),
+                                        r = (0, h.useRef)(null),
+                                        o = (0, h.useRef)(!1)
                                     return (0, d.jsx)('div', {
                                         ref: r,
+                                        onPointerDownCapture: () => {
+                                            o.current = !s
+                                        },
+                                        onPointerCancelCapture: () => {
+                                            o.current = !1
+                                        },
                                         onClick: (0, h.useCallback)(
                                             (t) => {
-                                                null !== r.current && r.current.contains(t.target) && !1 === t.defaultPrevented && a.togglePlayPause()
+                                                let i = o.current
+                                                o.current = !1
+                                                null !== r.current && r.current.contains(t.target) && !1 === t.defaultPrevented && (i || !s ? n() : a.togglePlayPause())
                                             },
-                                            [a]
+                                            [a, s, n]
                                         ),
                                         ...i,
                                         children: (0, d.jsx)(iR.Provider, { value: r, children: t })
@@ -9862,12 +9903,12 @@
                                 },
                                 a9 = () => {
                                     aCustomShortcuts()
-                                    let { accessibilityAnnouncer: t } = im(),
+                                    let { accessibilityAnnouncer: t, compactControls } = im(),
                                         { t: i } = iy(),
                                         { isVisible: a, bump: r } = aa(),
                                         { isAnyMenuOpen: s, closeAllMenus: n } = iL(),
                                         { isActive: o } = aq(),
-                                        { topVisible: l, bottomVisible: u, rnaVisible: c, topGradientVisible: p } = a5({ isRnaActive: o }),
+                                        { bottomVisible: u, rnaVisible: c } = a5({ isRnaActive: o }),
                                         { skipButtonSeconds } = iSkipButtons(),
                                         f = (0, h.useRef)(!1),
                                         g = (0, h.useRef)(!1),
@@ -9922,17 +9963,6 @@
                                                             ;(n(), t.preventDefault())
                                                         }
                                                     }),
-                                                (0, d.jsx)(aF, {
-                                                    isVisible: l,
-                                                    children: (0, d.jsx)('div', {
-                                                        className:
-                                                            'kat:flex kat:shrink-0 kat:justify-end kat:items-start kat:gap-8 kat:@md:gap-20 kat:@lg:gap-40 kat:pl-8 kat:pr-8 kat:pt-8 kat:pb-20 kat:@md:pl-20 kat:@md:pr-20 kat:@md:pt-20 kat:@md:pb-20 kat:@lg:pl-40 kat:@lg:pr-40 kat:@lg:pt-20 kat:h-72 kat:@md:h-84 kat:@lg:h-100',
-                                                        children: (0, d.jsx)('div', {
-                                                            'data-testid': 'top-left-container',
-                                                            className: 'kat:flex kat:items-start kat:flex-1 kat:gap-12 '
-                                                        })
-                                                    })
-                                                }),
                                                 (0, d.jsx)('div', { className: 'kat:grow' }),
                                                 ' ',
                                                 (0, d.jsx)(as, {}),
@@ -9941,13 +9971,19 @@
                                                     children: (0, d.jsxs)('div', {
                                                         className:
                                                             'kat:flex kat:flex-col kat:items-start kat:self-stretch kat:pl-8 kat:pr-8 kat:pt-20 kat:pb-8 kat:@md:pl-20 kat:@md:pr-20 kat:@md:pt-20 kat:@md:pb-8 kat:@lg:pl-40 kat:@lg:pr-40 kat:@lg:pt-20 kat:@lg:pb-20 kat:bg-gradient-90001000',
+                                                        style: compactControls ? { padding: '8px 4px 4px' } : void 0,
                                                         children: [
                                                             (0, d.jsxs)('div', {
+                                                                'data-testid': 'player-controls-buttons',
                                                                 className: 'kat:flex kat:self-stretch kat:h-44 kat:@lg:h-64',
+                                                                style: compactControls
+                                                                    ? { height: 'auto', minHeight: 44, flexWrap: 'wrap', justifyContent: 'space-between' }
+                                                                    : void 0,
                                                                 children: [
                                                                     (0, d.jsxs)('div', {
                                                                         'data-testid': 'bottom-left-controls-stack',
                                                                         className: 'kat:flex kat:items-end',
+                                                                        style: compactControls ? { height: 44, flexShrink: 0 } : void 0,
                                                                         children: [
                                                                             (0, d.jsx)(aA, {}),
                                                                             (0, d.jsx)(a8, {}),
@@ -9956,10 +9992,14 @@
                                                                             skipButtonSeconds > 0 && (0, d.jsx)(aI, { seconds: skipButtonSeconds })
                                                                         ]
                                                                     }),
-                                                                    (0, d.jsx)('div', { className: 'kat:flex kat:items-center kat:self-stretch kat:grow kat:pl-20 kat:gap-4' }),
+                                                                    (0, d.jsx)('div', {
+                                                                        className: 'kat:flex kat:items-center kat:self-stretch kat:grow kat:pl-20 kat:gap-4',
+                                                                        style: compactControls ? { display: 'none' } : void 0
+                                                                    }),
                                                                     (0, d.jsxs)('div', {
                                                                         'data-testid': 'bottom-right-controls-stack',
                                                                         className: 'kat:flex kat:items-end kat:justify-end',
+                                                                        style: compactControls ? { height: 44, flexShrink: 0, marginInlineStart: 'auto' } : void 0,
                                                                         children: [
                                                                             (0, d.jsx)(aPiP, { isVisible: showPictureInPictureButton }),
                                                                             (0, d.jsx)(iJ, {
@@ -9974,6 +10014,7 @@
                                                             (0, d.jsx)('div', {
                                                                 'data-testid': 'timeline-controls-container',
                                                                 className: 'kat:flex kat:self-stretch kat:h-44 kat:@lg:h-48 kat:gap-10 kat:cursor',
+                                                                style: compactControls ? { height: 36 } : void 0,
                                                                 children: (0, d.jsx)(au, {})
                                                             })
                                                         ]
@@ -10134,6 +10175,7 @@
                                 },
                                 rs = ({ accessibilityAnnouncer: t, localizationManager: i, viewModelContainer: a, keyboardShortcutTarget: r, autohiderEventTarget: s }) => {
                                     let [n, o] = (0, h.useState)(void 0),
+                                        [compactControls, setCompactControls] = (0, h.useState)(!1),
                                         l = (0, h.useCallback)((t) => {
                                             o(t ?? void 0)
                                         }, []),
@@ -10143,10 +10185,19 @@
                                                 localizationManager: i,
                                                 viewModelContainer: a,
                                                 keyboardShortcutTarget: r,
-                                                autohiderEventTarget: s
+                                                autohiderEventTarget: s,
+                                                compactControls
                                             }),
-                                            [t, i, a, r, s]
+                                            [t, i, a, r, s, compactControls]
                                         )
+                                    ;(0, h.useLayoutEffect)(() => {
+                                        if (!n) return
+                                        let updateSize = () => setCompactControls(n.clientWidth <= 640 || n.clientHeight <= 320),
+                                            observer = new ResizeObserver(updateSize)
+                                        updateSize()
+                                        observer.observe(n)
+                                        return () => observer.disconnect()
+                                    }, [n])
                                     return (0, d.jsx)(iv.Provider, {
                                         value: u,
                                         children: (0, d.jsx)(iT, {
@@ -10156,7 +10207,8 @@
                                                     ref: l,
                                                     tabIndex: -1,
                                                     dir: 'ltr',
-                                                    className: 'katamariDesktop kat:h-full kat:w-full kat:min-h-281 kat:@container',
+                                                    className: 'katamariDesktop kat:h-full kat:w-full kat:@container',
+                                                    style: { minHeight: 0 },
                                                     children: (0, d.jsxs)(ip.Provider, {
                                                         value: n,
                                                         children: [(0, d.jsx)(rr, {}), (0, d.jsx)(ai, { eventTarget: s, children: (0, d.jsx)(a9, {}) })]
